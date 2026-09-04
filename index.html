@@ -17,13 +17,18 @@
   <script>
     const SUPABASE_URL = "https://yhbmhqqhrvdtoiucrwxh.supabase.co";
     const SUPABASE_KEY = "sb_publishable_fa30VjQuhLoSnmvrlfUiEQ_IdnQsIuZ";
+    const CARTO_KEY = "cb1_2wjd_1_49134346db0663b43ee9dad5";
 
     const map = L.map('map').setView([21.4225, 39.8262], 15); // центр — Мекка
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19
-    }).addTo(map);
+    L.tileLayer(
+      `https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
+      {
+        attribution: '&copy; OpenStreetMap contributors, &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }
+    ).addTo(map);
 
     async function loadPlaces() {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, {
