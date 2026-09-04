@@ -4,55 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Umra Guide</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body { margin: 0; font-family: sans-serif; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
     #controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1000;
+      display: flex; flex-direction: column; gap: 6px;
     }
-
-    .row {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-    }
-
+    .row { display: flex; gap: 6px; overflow-x: auto; }
     .btn {
-      background: white;
-      border: none;
-      border-radius: 20px;
-      padding: 8px 14px;
-      font-size: 14px;
-      white-space: nowrap;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      background: white; border: none; border-radius: 20px; padding: 8px 14px;
+      font-size: 14px; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
     }
-
-    .btn.active {
-      background: #1a7a4c;
-      color: white;
-    }
-
+    .btn.active { background: #1a7a4c; color: white; }
     .route-btn, .route-btn:visited, .route-btn:link {
-  display: inline-block;
-  margin-top: 6px;
-  background: #1a7a4c;
-  color: white !important;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
+      display: inline-block; margin-top: 6px; background: #1a7a4c; color: white !important;
+      text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 13px;
     }
+    .fav-btn {
+      display: inline-block; margin-top: 6px; margin-left: 6px; background: none;
+      border: 1px solid #ccc; border-radius: 6px; padding: 6px 10px; font-size: 13px;
+    }
+    .fav-btn.active { background: #ffe6ea; border-color: #ff4d6d; }
   </style>
 </head>
 <body>
@@ -72,32 +48,94 @@
       mecca: { label: "Мекка", center: [21.4225, 39.8262] },
       medina: { label: "Медина", center: [24.4672, 39.6112] }
     };
-
     const CATEGORIES = {
-      all: "Все",
-      food: "🍽 Еда",
-      health: "💊 Здоровье",
-      shopping: "🛒 Магазины",
-      connectivity: "📱 Связь",
-      money: "💰 Деньги",
-      transport: "🚕 Транспорт",
-      religion: "🕌 Религия",
-      useful: "🏨 Полезное"
+      all: "Все", food: "🍽 Еда", health: "💊 Здоровье", shopping: "🛒 Магазины",
+      connectivity: "📱 Связь", money: "💰 Деньги", transport: "🚕 Транспорт",
+      religion: "🕌 Религия", useful: "🏨 Полезное"
     };
 
     let currentCity = "mecca";
     let currentCategory = "all";
     let allPlaces = [];
     let markers = [];
+    let favoritePlaceIds = new Set();
+    let accessToken = localStorage.getItem("ug_token");
+    let userId = localStorage.getItem("ug_user_id");
 
+    // --- авторизация через Telegram ---
+    async function authenticate() {
+      if (accessToken && userId) {
+        await loadFavorites();
+        return;
+      }
+      const tg = window.Telegram?.WebApp;
+      tg?.ready();
+      tg?.expand();
+
+      const initData = tg?.initData;
+      if (!initData) {
+        console.warn("Нет initData — не в Telegram или тестовый режим");
+        return;
+      }
+
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/telegram-auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
+        body: JSON.stringify({ initData })
+      });
+      const data = await res.json();
+      if (data.access_token) {
+        accessToken = data.access_token;
+        userId = data.user_id;
+        localStorage.setItem("ug_token", accessToken);
+        localStorage.setItem("ug_user_id", userId);
+        await loadFavorites();
+      } else {
+        console.error("Auth error:", data);
+      }
+    }
+
+    async function loadFavorites() {
+      if (!accessToken) return;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/favorites?select=place_id`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
+      });
+      const data = await res.json();
+      favoritePlaceIds = new Set(data.map(f => f.place_id));
+    }
+
+    async function toggleFavorite(placeId) {
+      if (!accessToken) {
+        alert("Открой приложение через Telegram, чтобы сохранять места");
+        return;
+      }
+      if (favoritePlaceIds.has(placeId)) {
+        await fetch(`${SUPABASE_URL}/rest/v1/favorites?place_id=eq.${placeId}&user_id=eq.${userId}`, {
+          method: "DELETE",
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
+        });
+        favoritePlaceIds.delete(placeId);
+      } else {
+        await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json", Prefer: "return=minimal"
+          },
+          body: JSON.stringify({ user_id: userId, place_id: placeId })
+        });
+        favoritePlaceIds.add(placeId);
+      }
+      renderMarkers();
+    }
+
+    // --- карта ---
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
-
     L.tileLayer(
       `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
       { attribution: '&copy; OpenStreetMap contributors, &copy; CARTO', subdomains: 'abcd', maxZoom: 20 }
     ).addTo(map);
 
-    // --- город ---
     const cityRow = document.getElementById('city-row');
     Object.entries(CITIES).forEach(([key, city]) => {
       const btn = document.createElement('button');
@@ -113,7 +151,6 @@
       cityRow.appendChild(btn);
     });
 
-    // --- категории ---
     const categoryRow = document.getElementById('category-row');
     Object.entries(CATEGORIES).forEach(([key, label]) => {
       const btn = document.createElement('button');
@@ -138,13 +175,20 @@
 
       filtered.forEach(place => {
         const routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+        const isFav = favoritePlaceIds.has(place.id);
         const marker = L.marker([place.lat, place.lng]).addTo(map);
-        marker.bindPopup(`
+
+        const popupEl = document.createElement('div');
+        popupEl.innerHTML = `
           <b>${place.name}</b><br>
           ${place.description || ''}<br>
           🕐 ${place.hours_text || 'не указано'}<br>
           <a class="route-btn" href="${routeUrl}" target="_blank">🧭 Маршрут</a>
-        `);
+          <button class="fav-btn ${isFav ? 'active' : ''}">${isFav ? '❤️ Сохранено' : '🤍 Сохранить'}</button>
+        `;
+        popupEl.querySelector('.fav-btn').onclick = () => toggleFavorite(place.id);
+
+        marker.bindPopup(popupEl);
         markers.push(marker);
       });
     }
@@ -157,7 +201,10 @@
       renderMarkers();
     }
 
-    loadPlaces();
+    (async () => {
+      await authenticate();
+      await loadPlaces();
+    })();
   </script>
 </body>
 </html>
