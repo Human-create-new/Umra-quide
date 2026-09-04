@@ -2,10 +2,46 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Umra Guide</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    #map { height: 100vh; width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Umra Guide — тест</h1>
-  <p>Если вы это видите — деплой работает.</p>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const SUPABASE_URL = "https://yhbmhqqhrvdtoiucrwxh.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_fa30VjQuhLoSnmvrlfUiEQ_IdnQsIuZ";
+
+    const map = L.map('map').setView([21.4225, 39.8262], 15); // центр — Мекка
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    async function loadPlaces() {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, {
+        headers: { apikey: SUPABASE_KEY }
+      });
+      const places = await res.json();
+
+      places.forEach(place => {
+        const marker = L.marker([place.lat, place.lng]).addTo(map);
+        marker.bindPopup(`
+          <b>${place.name}</b><br>
+          ${place.description || ''}<br>
+          🕐 ${place.hours_text || 'не указано'}
+        `);
+      });
+    }
+
+    loadPlaces();
+  </script>
 </body>
 </html>
