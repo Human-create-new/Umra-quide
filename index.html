@@ -9,7 +9,6 @@
   <style>
     body { margin: 0; font-family: sans-serif; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-
     #controls {
       position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1000;
       display: flex; flex-direction: column; gap: 6px;
@@ -29,6 +28,12 @@
       border: 1px solid #ccc; border-radius: 6px; padding: 6px 10px; font-size: 13px;
     }
     .fav-btn.active { background: #ffe6ea; border-color: #ff4d6d; }
+
+    #debug {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 2000;
+      background: rgba(0,0,0,0.85); color: #0f0; font-size: 11px; font-family: monospace;
+      padding: 8px; max-height: 35vh; overflow-y: auto; white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
@@ -37,174 +42,8 @@
     <div class="row" id="category-row"></div>
   </div>
   <div id="map"></div>
+  <div id="debug">Загрузка...</div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const SUPABASE_URL = "https://yhbmhqqhrvdtoiucrwxh.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_fa30VjQuhLoSnmvrlfUiEQ_IdnQsIuZ";
-    const CARTO_KEY = "cb1_2wjd_1_49134346db0663b43ee9dad5";
+  
 
-    const CITIES = {
-      mecca: { label: "Мекка", center: [21.4225, 39.8262] },
-      medina: { label: "Медина", center: [24.4672, 39.6112] }
-    };
-    const CATEGORIES = {
-      all: "Все", food: "🍽 Еда", health: "💊 Здоровье", shopping: "🛒 Магазины",
-      connectivity: "📱 Связь", money: "💰 Деньги", transport: "🚕 Транспорт",
-      religion: "🕌 Религия", useful: "🏨 Полезное"
-    };
-
-    let currentCity = "mecca";
-    let currentCategory = "all";
-    let allPlaces = [];
-    let markers = [];
-    let favoritePlaceIds = new Set();
-    let accessToken = localStorage.getItem("ug_token");
-    let userId = localStorage.getItem("ug_user_id");
-
-    // --- авторизация через Telegram ---
-    async function authenticate() {
-      if (accessToken && userId) {
-        await loadFavorites();
-        return;
-      }
-      const tg = window.Telegram?.WebApp;
-      tg?.ready();
-      tg?.expand();
-
-      const initData = tg?.initData;
-      if (!initData) {
-        console.warn("Нет initData — не в Telegram или тестовый режим");
-        return;
-      }
-
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/telegram-auth`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
-        body: JSON.stringify({ initData })
-      });
-      const data = await res.json();
-      if (data.access_token) {
-        accessToken = data.access_token;
-        userId = data.user_id;
-        localStorage.setItem("ug_token", accessToken);
-        localStorage.setItem("ug_user_id", userId);
-        await loadFavorites();
-      } else {
-        console.error("Auth error:", data);
-      }
-    }
-
-    async function loadFavorites() {
-      if (!accessToken) return;
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/favorites?select=place_id`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
-      });
-      const data = await res.json();
-      favoritePlaceIds = new Set(data.map(f => f.place_id));
-    }
-
-    async function toggleFavorite(placeId) {
-      if (!accessToken) {
-        alert("Открой приложение через Telegram, чтобы сохранять места");
-        return;
-      }
-      if (favoritePlaceIds.has(placeId)) {
-        await fetch(`${SUPABASE_URL}/rest/v1/favorites?place_id=eq.${placeId}&user_id=eq.${userId}`, {
-          method: "DELETE",
-          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
-        });
-        favoritePlaceIds.delete(placeId);
-      } else {
-        await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
-          method: "POST",
-          headers: {
-            apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json", Prefer: "return=minimal"
-          },
-          body: JSON.stringify({ user_id: userId, place_id: placeId })
-        });
-        favoritePlaceIds.add(placeId);
-      }
-      renderMarkers();
-    }
-
-    // --- карта ---
-    const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
-    L.tileLayer(
-      `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
-      { attribution: '&copy; OpenStreetMap contributors, &copy; CARTO', subdomains: 'abcd', maxZoom: 20 }
-    ).addTo(map);
-
-    const cityRow = document.getElementById('city-row');
-    Object.entries(CITIES).forEach(([key, city]) => {
-      const btn = document.createElement('button');
-      btn.className = 'btn' + (key === currentCity ? ' active' : '');
-      btn.textContent = city.label;
-      btn.onclick = () => {
-        currentCity = key;
-        document.querySelectorAll('#city-row .btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        map.setView(CITIES[currentCity].center, 15);
-        loadPlaces();
-      };
-      cityRow.appendChild(btn);
-    });
-
-    const categoryRow = document.getElementById('category-row');
-    Object.entries(CATEGORIES).forEach(([key, label]) => {
-      const btn = document.createElement('button');
-      btn.className = 'btn' + (key === currentCategory ? ' active' : '');
-      btn.textContent = label;
-      btn.onclick = () => {
-        currentCategory = key;
-        document.querySelectorAll('#category-row .btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderMarkers();
-      };
-      categoryRow.appendChild(btn);
-    });
-
-    function renderMarkers() {
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
-
-      const filtered = allPlaces.filter(p =>
-        p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
-      );
-
-      filtered.forEach(place => {
-        const routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
-        const isFav = favoritePlaceIds.has(place.id);
-        const marker = L.marker([place.lat, place.lng]).addTo(map);
-
-        const popupEl = document.createElement('div');
-        popupEl.innerHTML = `
-          <b>${place.name}</b><br>
-          ${place.description || ''}<br>
-          🕐 ${place.hours_text || 'не указано'}<br>
-          <a class="route-btn" href="${routeUrl}" target="_blank">🧭 Маршрут</a>
-          <button class="fav-btn ${isFav ? 'active' : ''}">${isFav ? '❤️ Сохранено' : '🤍 Сохранить'}</button>
-        `;
-        popupEl.querySelector('.fav-btn').onclick = () => toggleFavorite(place.id);
-
-        marker.bindPopup(popupEl);
-        markers.push(marker);
-      });
-    }
-
-    async function loadPlaces() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, {
-        headers: { apikey: SUPABASE_KEY }
-      });
-      allPlaces = await res.json();
-      renderMarkers();
-    }
-
-    (async () => {
-      await authenticate();
-      await loadPlaces();
-    })();
-  </script>
-</body>
-</html>
