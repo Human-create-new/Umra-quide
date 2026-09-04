@@ -29,10 +29,22 @@
     }
     .fav-btn.active { background: #ffe6ea; border-color: #ff4d6d; }
 
+    .popup-box { max-width: 240px; }
+    .reviews-block { margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; }
+    .review-item { font-size: 12px; margin-bottom: 6px; }
+    .review-form { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+    .review-form select, .review-form textarea {
+      font-size: 12px; padding: 4px; border: 1px solid #ccc; border-radius: 4px;
+    }
+    .review-submit {
+      background: #1a7a4c; color: white; border: none; border-radius: 6px;
+      padding: 6px; font-size: 12px;
+    }
+
     #debug {
       position: absolute; bottom: 0; left: 0; right: 0; z-index: 2000;
       background: rgba(0,0,0,0.85); color: #0f0; font-size: 11px; font-family: monospace;
-      padding: 8px; max-height: 35vh; overflow-y: auto; white-space: pre-wrap;
+      padding: 8px; max-height: 30vh; overflow-y: auto; white-space: pre-wrap;
     }
   </style>
 </head>
@@ -51,9 +63,7 @@
     const CARTO_KEY = "cb1_2wjd_1_49134346db0663b43ee9dad5";
 
     const debugEl = document.getElementById('debug');
-    function log(msg) {
-      debugEl.textContent += "\n" + msg;
-    }
+    function log(msg) { debugEl.textContent += "\n" + msg; }
 
     const CITIES = {
       mecca: { label: "Мекка", center: [21.4225, 39.8262] },
@@ -74,40 +84,26 @@
     let userId = localStorage.getItem("ug_user_id");
 
     async function authenticate() {
-      log("accessToken из localStorage: " + (accessToken ? "есть (" + accessToken.length + " симв.)" : "нет"));
-
+      log("accessToken из localStorage: " + (accessToken ? "есть" : "нет"));
       if (accessToken && userId) {
-        log("Пробуем использовать сохранённый токен, userId=" + userId);
         await loadFavorites();
         return;
       }
-
       const tg = window.Telegram?.WebApp;
-      log("window.Telegram доступен: " + !!window.Telegram);
-      log("window.Telegram.WebApp доступен: " + !!tg);
-
       tg?.ready();
       tg?.expand();
-
       const initData = tg?.initData;
       log("initData: " + (initData ? "есть, длина " + initData.length : "ПУСТО"));
+      if (!initData) { log("Нет initData — останавливаемся"); return; }
 
-      if (!initData) {
-        log("Останавливаемся — нет initData (не в Telegram, или старая версия кэша)");
-        return;
-      }
-
-      log("Отправляем initData в telegram-auth...");
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/telegram-auth`, {
           method: "POST",
           headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
           body: JSON.stringify({ initData })
         });
-        log("HTTP статус ответа: " + res.status);
+        log("HTTP статус ответа auth: " + res.status);
         const data = await res.json();
-        log("Тело ответа: " + JSON.stringify(data));
-
         if (data.access_token) {
           accessToken = data.access_token;
           userId = data.user_id;
@@ -129,13 +125,11 @@
         headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
       });
       const data = await res.json();
-      log("Избранное загружено: " + JSON.stringify(data));
       favoritePlaceIds = new Set(data.map(f => f.place_id));
     }
 
     async function toggleFavorite(placeId) {
       if (!accessToken) {
-        log("Попытка сохранить без токена");
         alert("Открой приложение через Telegram, чтобы сохранять места");
         return;
       }
@@ -146,7 +140,7 @@
         });
         favoritePlaceIds.delete(placeId);
       } else {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
+        await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
           method: "POST",
           headers: {
             apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`,
@@ -154,12 +148,42 @@
           },
           body: JSON.stringify({ user_id: userId, place_id: placeId })
         });
-        log("Сохранение места, статус: " + res.status);
         favoritePlaceIds.add(placeId);
       }
       renderMarkers();
     }
 
+    // --- отзывы ---
+    async function loadReviews(placeId) {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/reviews?place_id=eq.${placeId}&status=eq.published&select=rating,text,created_at&order=created_at.desc`,
+        { headers: { apikey: SUPABASE_KEY } }
+      );
+      return res.json();
+    }
+
+    async function submitReview(placeId, rating, text, statusEl) {
+      if (!accessToken) {
+        alert("Открой приложение через Telegram, чтобы оставить отзыв");
+        return;
+      }
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json", Prefer: "return=minimal"
+        },
+        body: JSON.stringify({ user_id: userId, place_id: placeId, rating: Number(rating), text, status: "pending" })
+      });
+      log("Отправка отзыва, статус: " + res.status);
+      if (res.status === 201) {
+        statusEl.textContent = "Спасибо! Отзыв отправлен на модерацию.";
+      } else {
+        statusEl.textContent = "Ошибка отправки, попробуйте позже.";
+      }
+    }
+
+    // --- карта ---
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
     L.tileLayer(
       `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
@@ -201,19 +225,57 @@
       const filtered = allPlaces.filter(p =>
         p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
       );
+
       filtered.forEach(place => {
         const routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
         const isFav = favoritePlaceIds.has(place.id);
         const marker = L.marker([place.lat, place.lng]).addTo(map);
+
         const popupEl = document.createElement('div');
+        popupEl.className = 'popup-box';
         popupEl.innerHTML = `
           <b>${place.name}</b><br>
           ${place.description || ''}<br>
           🕐 ${place.hours_text || 'не указано'}<br>
           <a class="route-btn" href="${routeUrl}" target="_blank">🧭 Маршрут</a>
           <button class="fav-btn ${isFav ? 'active' : ''}">${isFav ? '❤️ Сохранено' : '🤍 Сохранить'}</button>
+          <div class="reviews-block">
+            <div class="reviews-list">Загрузка отзывов...</div>
+            <div class="review-form">
+              <select class="review-rating">
+                <option value="5">⭐⭐⭐⭐⭐</option>
+                <option value="4">⭐⭐⭐⭐</option>
+                <option value="3">⭐⭐⭐</option>
+                <option value="2">⭐⭐</option>
+                <option value="1">⭐</option>
+              </select>
+              <textarea class="review-text" placeholder="Ваш отзыв..." rows="2"></textarea>
+              <button class="review-submit">Отправить отзыв</button>
+              <div class="review-status" style="font-size:11px;color:#666;"></div>
+            </div>
+          </div>
         `;
+
         popupEl.querySelector('.fav-btn').onclick = () => toggleFavorite(place.id);
+
+        const reviewsListEl = popupEl.querySelector('.reviews-list');
+        loadReviews(place.id).then(reviews => {
+          if (!reviews.length) {
+            reviewsListEl.textContent = "Пока нет отзывов — будьте первым!";
+          } else {
+            reviewsListEl.innerHTML = reviews.map(r =>
+              `<div class="review-item">${'⭐'.repeat(r.rating)} ${r.text || ''}</div>`
+            ).join('');
+          }
+        });
+
+        popupEl.querySelector('.review-submit').onclick = () => {
+          const rating = popupEl.querySelector('.review-rating').value;
+          const text = popupEl.querySelector('.review-text').value;
+          const statusEl = popupEl.querySelector('.review-status');
+          submitReview(place.id, rating, text, statusEl);
+        };
+
         marker.bindPopup(popupEl);
         markers.push(marker);
       });
