@@ -7,10 +7,57 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body { margin: 0; font-family: sans-serif; }
-    #map { height: 100vh; width: 100%; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+    }
+
+    .btn {
+      background: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 14px;
+      white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .btn.active {
+      background: #1a7a4c;
+      color: white;
+    }
+
+    .route-btn {
+      display: inline-block;
+      margin-top: 6px;
+      background: #1a7a4c;
+      color: white;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
+  <div id="controls">
+    <div class="row" id="city-row"></div>
+    <div class="row" id="category-row"></div>
+  </div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -19,31 +66,93 @@
     const SUPABASE_KEY = "sb_publishable_fa30VjQuhLoSnmvrlfUiEQ_IdnQsIuZ";
     const CARTO_KEY = "cb1_2wjd_1_49134346db0663b43ee9dad5";
 
-    const map = L.map('map').setView([21.4225, 39.8262], 15); // центр — Мекка
+    const CITIES = {
+      mecca: { label: "Мекка", center: [21.4225, 39.8262] },
+      medina: { label: "Медина", center: [24.4672, 39.6112] }
+    };
+
+    const CATEGORIES = {
+      all: "Все",
+      food: "🍽 Еда",
+      health: "💊 Здоровье",
+      shopping: "🛒 Магазины",
+      connectivity: "📱 Связь",
+      money: "💰 Деньги",
+      transport: "🚕 Транспорт",
+      religion: "🕌 Религия",
+      useful: "🏨 Полезное"
+    };
+
+    let currentCity = "mecca";
+    let currentCategory = "all";
+    let allPlaces = [];
+    let markers = [];
+
+    const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
 
     L.tileLayer(
       `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
-      {
-        attribution: '&copy; OpenStreetMap contributors, &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 20
-      }
+      { attribution: '&copy; OpenStreetMap contributors, &copy; CARTO', subdomains: 'abcd', maxZoom: 20 }
     ).addTo(map);
+
+    // --- город ---
+    const cityRow = document.getElementById('city-row');
+    Object.entries(CITIES).forEach(([key, city]) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn' + (key === currentCity ? ' active' : '');
+      btn.textContent = city.label;
+      btn.onclick = () => {
+        currentCity = key;
+        document.querySelectorAll('#city-row .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        map.setView(CITIES[currentCity].center, 15);
+        loadPlaces();
+      };
+      cityRow.appendChild(btn);
+    });
+
+    // --- категории ---
+    const categoryRow = document.getElementById('category-row');
+    Object.entries(CATEGORIES).forEach(([key, label]) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn' + (key === currentCategory ? ' active' : '');
+      btn.textContent = label;
+      btn.onclick = () => {
+        currentCategory = key;
+        document.querySelectorAll('#category-row .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderMarkers();
+      };
+      categoryRow.appendChild(btn);
+    });
+
+    function renderMarkers() {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+
+      const filtered = allPlaces.filter(p =>
+        p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
+      );
+
+      filtered.forEach(place => {
+        const routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+        const marker = L.marker([place.lat, place.lng]).addTo(map);
+        marker.bindPopup(`
+          <b>${place.name}</b><br>
+          ${place.description || ''}<br>
+          🕐 ${place.hours_text || 'не указано'}<br>
+          <a class="route-btn" href="${routeUrl}" target="_blank">🧭 Маршрут</a>
+        `);
+        markers.push(marker);
+      });
+    }
 
     async function loadPlaces() {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, {
         headers: { apikey: SUPABASE_KEY }
       });
-      const places = await res.json();
-
-      places.forEach(place => {
-        const marker = L.marker([place.lat, place.lng]).addTo(map);
-        marker.bindPopup(`
-          <b>${place.name}</b><br>
-          ${place.description || ''}<br>
-          🕐 ${place.hours_text || 'не указано'}
-        `);
-      });
+      allPlaces = await res.json();
+      renderMarkers();
     }
 
     loadPlaces();
