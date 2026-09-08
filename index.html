@@ -20,8 +20,8 @@
     }
     .btn.active { background: #1a7a4c; color: white; }
     .route-btn, .route-btn:visited, .route-btn:link {
-      display: inline-block; margin-top: 6px; background: #1a7a4c; color: white !important;
-      text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 13px;
+      display: inline-block; margin-top: 6px; margin-right: 4px; background: #1a7a4c; color: white !important;
+      text-decoration: none; padding: 6px 8px; border-radius: 6px; font-size: 12px;
     }
     .fav-btn {
       display: inline-block; margin-top: 6px; margin-left: 6px; background: none;
@@ -153,7 +153,6 @@
       renderMarkers();
     }
 
-    // --- отзывы ---
     async function loadReviews(placeId) {
       const res = await fetch(
         `${SUPABASE_URL}/rest/v1/reviews?place_id=eq.${placeId}&status=eq.published&select=rating,text,created_at&order=created_at.desc`,
@@ -183,7 +182,6 @@
       }
     }
 
-    // --- карта ---
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
     L.tileLayer(
       `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
@@ -227,7 +225,12 @@
       );
 
       filtered.forEach(place => {
-        const routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+        const gmapsUrl = place.google_place_id
+          ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${place.google_place_id}`
+          : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+        const appleUrl = `https://maps.apple.com/?daddr=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
+        const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
+
         const isFav = favoritePlaceIds.has(place.id);
         const marker = L.marker([place.lat, place.lng]).addTo(map);
 
@@ -237,7 +240,9 @@
           <b>${place.name}</b><br>
           ${place.description || ''}<br>
           🕐 ${place.hours_text || 'не указано'}<br>
-          <a class="route-btn" href="${routeUrl}" target="_blank">🧭 Маршрут</a>
+          <a class="route-btn" href="${gmapsUrl}" target="_blank">Google</a>
+          <a class="route-btn" href="${appleUrl}" target="_blank">Apple</a>
+          <a class="route-btn" href="${yandexUrl}" target="_blank">Яндекс</a>
           <button class="fav-btn ${isFav ? 'active' : ''}">${isFav ? '❤️ Сохранено' : '🤍 Сохранить'}</button>
           <div class="reviews-block">
             <div class="reviews-list">Загрузка отзывов...</div>
