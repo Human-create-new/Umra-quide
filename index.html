@@ -16,6 +16,7 @@
       --bg: #faf9f6;
       --text: #1f2420;
       --muted: #7a8079;
+      --line: #ece7db;
     }
     * { box-sizing: border-box; }
     body {
@@ -26,26 +27,46 @@
     }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
-    #controls {
+    #panel {
       position: absolute; top: 12px; left: 12px; right: 12px; z-index: 1000;
-      display: flex; flex-direction: column; gap: 8px;
+      background: white; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      padding: 10px 14px 8px;
     }
-    .row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-    .row::-webkit-scrollbar { display: none; }
 
-    .btn {
-      background: white; border: none; border-radius: 22px; padding: 9px 16px;
-      font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 13px; color: var(--text);
-      white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: background 0.15s, color 0.15s;
+    .brand-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
     }
-    .btn.active { background: var(--green); color: white; }
+    .brand-row img {
+      width: 22px; height: 22px; border-radius: 6px; object-fit: cover;
+    }
+    .brand-row span {
+      font-weight: 700; font-size: 13px; color: var(--green-dark); letter-spacing: 0.2px;
+    }
+
+    .city-switch {
+      display: flex; background: var(--bg); border-radius: 14px; padding: 3px; margin-bottom: 10px;
+    }
+    .city-switch button {
+      flex: 1; border: none; background: none; padding: 7px 0; border-radius: 11px;
+      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; color: var(--muted);
+    }
+    .city-switch button.active { background: var(--green); color: white; }
+
+    .cat-row {
+      display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+    }
+    .cat-row::-webkit-scrollbar { display: none; }
+    .cat-item {
+      background: none; border: none; white-space: nowrap; font-family: 'Manrope', sans-serif;
+      font-weight: 600; font-size: 12.5px; color: var(--muted); padding-bottom: 4px;
+      border-bottom: 2px solid transparent;
+    }
+    .cat-item.active { color: var(--green-dark); border-bottom-color: var(--green); }
 
     .debug-toggle {
       position: absolute; bottom: 14px; right: 14px; z-index: 2001;
       width: 34px; height: 34px; border-radius: 50%; background: white;
-      border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 15px;
-      opacity: 0.55;
+      border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 15px; opacity: 0.55;
     }
     #debug {
       display: none;
@@ -55,18 +76,10 @@
     }
     #debug.visible { display: block; }
 
-    .popup-box {
-      max-width: 250px; font-family: 'Manrope', sans-serif;
-    }
-    .popup-title {
-      font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 2px;
-    }
-    .popup-desc {
-      font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-bottom: 6px;
-    }
-    .popup-hours {
-      font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 8px;
-    }
+    .popup-box { max-width: 250px; font-family: 'Manrope', sans-serif; }
+    .popup-title { font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 2px; }
+    .popup-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-bottom: 6px; }
+    .popup-hours { font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 8px; }
 
     .action-row { display: flex; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
     .route-btn, .route-btn:visited, .route-btn:link {
@@ -75,17 +88,17 @@
       font-weight: 600; font-family: 'Manrope', sans-serif;
     }
     .fav-btn {
-      background: none; border: 1.5px solid #e2ddd3; border-radius: 8px;
+      background: none; border: 1.5px solid var(--line); border-radius: 8px;
       padding: 6px 10px; font-size: 11.5px; font-weight: 600; color: var(--text);
       font-family: 'Manrope', sans-serif;
     }
     .fav-btn.active { background: #fdeef1; border-color: #e58aa0; }
 
-    .reviews-block { margin-top: 10px; border-top: 1px solid #eee2d0; padding-top: 8px; }
+    .reviews-block { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
     .review-item { font-size: 12px; margin-bottom: 6px; color: var(--text); line-height: 1.4; }
     .review-form { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
     .review-form select, .review-form textarea {
-      font-size: 12px; padding: 6px; border: 1.5px solid #e2ddd3; border-radius: 8px;
+      font-size: 12px; padding: 6px; border: 1.5px solid var(--line); border-radius: 8px;
       font-family: 'Manrope', sans-serif;
     }
     .review-submit {
@@ -95,10 +108,15 @@
   </style>
 </head>
 <body>
-  <div id="controls">
-    <div class="row" id="city-row"></div>
-    <div class="row" id="category-row"></div>
+  <div id="panel">
+    <div class="brand-row">
+      <img src="logo.png" onerror="this.style.display='none'">
+      <span>Umra Guide</span>
+    </div>
+    <div class="city-switch" id="city-switch"></div>
+    <div class="cat-row" id="category-row"></div>
   </div>
+
   <div id="map"></div>
   <div id="debug"></div>
   <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')">🐞</button>
@@ -132,17 +150,13 @@
 
     async function authenticate() {
       log("accessToken из localStorage: " + (accessToken ? "есть" : "нет"));
-      if (accessToken && userId) {
-        await loadFavorites();
-        return;
-      }
+      if (accessToken && userId) { await loadFavorites(); return; }
       const tg = window.Telegram?.WebApp;
       tg?.ready();
       tg?.expand();
       const initData = tg?.initData;
       log("initData: " + (initData ? "есть, длина " + initData.length : "ПУСТО"));
       if (!initData) { log("Нет initData — останавливаемся"); return; }
-
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/telegram-auth`, {
           method: "POST",
@@ -158,12 +172,8 @@
           localStorage.setItem("ug_user_id", userId);
           log("Авторизация успешна, userId=" + userId);
           await loadFavorites();
-        } else {
-          log("Ошибка авторизации: " + JSON.stringify(data));
-        }
-      } catch (e) {
-        log("Исключение при запросе: " + e.message);
-      }
+        } else { log("Ошибка авторизации: " + JSON.stringify(data)); }
+      } catch (e) { log("Исключение при запросе: " + e.message); }
     }
 
     async function loadFavorites() {
@@ -176,10 +186,7 @@
     }
 
     async function toggleFavorite(placeId) {
-      if (!accessToken) {
-        alert("Открой приложение через Telegram, чтобы сохранять места");
-        return;
-      }
+      if (!accessToken) { alert("Открой приложение через Telegram, чтобы сохранять места"); return; }
       if (favoritePlaceIds.has(placeId)) {
         await fetch(`${SUPABASE_URL}/rest/v1/favorites?place_id=eq.${placeId}&user_id=eq.${userId}`, {
           method: "DELETE",
@@ -209,10 +216,7 @@
     }
 
     async function submitReview(placeId, rating, text, statusEl) {
-      if (!accessToken) {
-        alert("Открой приложение через Telegram, чтобы оставить отзыв");
-        return;
-      }
+      if (!accessToken) { alert("Открой приложение через Telegram, чтобы оставить отзыв"); return; }
       const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
         method: "POST",
         headers: {
@@ -222,11 +226,7 @@
         body: JSON.stringify({ user_id: userId, place_id: placeId, rating: Number(rating), text, status: "pending" })
       });
       log("Отправка отзыва, статус: " + res.status);
-      if (res.status === 201) {
-        statusEl.textContent = "Спасибо! Отзыв отправлен на модерацию.";
-      } else {
-        statusEl.textContent = "Ошибка отправки, попробуйте позже.";
-      }
+      statusEl.textContent = res.status === 201 ? "Спасибо! Отзыв отправлен на модерацию." : "Ошибка отправки, попробуйте позже.";
     }
 
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
@@ -235,29 +235,29 @@
       { attribution: '&copy; OpenStreetMap contributors, &copy; CARTO', subdomains: 'abcd', maxZoom: 20 }
     ).addTo(map);
 
-    const cityRow = document.getElementById('city-row');
+    const citySwitchEl = document.getElementById('city-switch');
     Object.entries(CITIES).forEach(([key, city]) => {
       const btn = document.createElement('button');
-      btn.className = 'btn' + (key === currentCity ? ' active' : '');
+      btn.className = key === currentCity ? 'active' : '';
       btn.textContent = city.label;
       btn.onclick = () => {
         currentCity = key;
-        document.querySelectorAll('#city-row .btn').forEach(b => b.classList.remove('active'));
+        citySwitchEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         map.setView(CITIES[currentCity].center, 15);
         loadPlaces();
       };
-      cityRow.appendChild(btn);
+      citySwitchEl.appendChild(btn);
     });
 
     const categoryRow = document.getElementById('category-row');
     Object.entries(CATEGORIES).forEach(([key, label]) => {
       const btn = document.createElement('button');
-      btn.className = 'btn' + (key === currentCategory ? ' active' : '');
+      btn.className = 'cat-item' + (key === currentCategory ? ' active' : '');
       btn.textContent = label;
       btn.onclick = () => {
         currentCategory = key;
-        document.querySelectorAll('#category-row .btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderMarkers();
       };
@@ -277,7 +277,6 @@
           : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
         const appleUrl = `https://maps.apple.com/?daddr=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
         const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
-
         const isFav = favoritePlaceIds.has(place.id);
         const marker = L.marker([place.lat, place.lng]).addTo(map);
 
@@ -297,11 +296,8 @@
             <div class="reviews-list">Загрузка отзывов...</div>
             <div class="review-form">
               <select class="review-rating">
-                <option value="5">⭐⭐⭐⭐⭐</option>
-                <option value="4">⭐⭐⭐⭐</option>
-                <option value="3">⭐⭐⭐</option>
-                <option value="2">⭐⭐</option>
-                <option value="1">⭐</option>
+                <option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option>
+                <option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
               </select>
               <textarea class="review-text" placeholder="Ваш отзыв..." rows="2"></textarea>
               <button class="review-submit">Отправить отзыв</button>
@@ -311,23 +307,16 @@
         `;
 
         popupEl.querySelector('.fav-btn').onclick = () => toggleFavorite(place.id);
-
         const reviewsListEl = popupEl.querySelector('.reviews-list');
         loadReviews(place.id).then(reviews => {
-          if (!reviews.length) {
-            reviewsListEl.innerHTML = '<div class="review-item" style="color:#7a8079;">Пока нет отзывов — будьте первым!</div>';
-          } else {
-            reviewsListEl.innerHTML = reviews.map(r =>
-              `<div class="review-item">${'⭐'.repeat(r.rating)} ${r.text || ''}</div>`
-            ).join('');
-          }
+          reviewsListEl.innerHTML = reviews.length
+            ? reviews.map(r => `<div class="review-item">${'⭐'.repeat(r.rating)} ${r.text || ''}</div>`).join('')
+            : '<div class="review-item" style="color:#7a8079;">Пока нет отзывов — будьте первым!</div>';
         });
-
         popupEl.querySelector('.review-submit').onclick = () => {
           const rating = popupEl.querySelector('.review-rating').value;
           const text = popupEl.querySelector('.review-text').value;
-          const statusEl = popupEl.querySelector('.review-status');
-          submitReview(place.id, rating, text, statusEl);
+          submitReview(place.id, rating, text, popupEl.querySelector('.review-status'));
         };
 
         marker.bindPopup(popupEl);
@@ -336,17 +325,12 @@
     }
 
     async function loadPlaces() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, {
-        headers: { apikey: SUPABASE_KEY }
-      });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, { headers: { apikey: SUPABASE_KEY } });
       allPlaces = await res.json();
       renderMarkers();
     }
 
-    (async () => {
-      await authenticate();
-      await loadPlaces();
-    })();
+    (async () => { await authenticate(); await loadPlaces(); })();
   </script>
 </body>
 </html>
