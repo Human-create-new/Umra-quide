@@ -10,8 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --green: #1a6b4a;
-      --green-dark: #124d35;
+      --green: #3f8368;
+      --green-dark: #2b5f4a;
       --gold: #b8935a;
       --bg: #faf9f6;
       --text: #1f2420;
@@ -32,29 +32,18 @@
       background: white; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
       padding: 10px 14px 8px;
     }
+    .brand-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .brand-row img { width: 22px; height: 22px; border-radius: 6px; object-fit: cover; }
+    .brand-row span { font-weight: 700; font-size: 13px; color: var(--green-dark); letter-spacing: 0.2px; }
 
-    .brand-row {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
-    }
-    .brand-row img {
-      width: 22px; height: 22px; border-radius: 6px; object-fit: cover;
-    }
-    .brand-row span {
-      font-weight: 700; font-size: 13px; color: var(--green-dark); letter-spacing: 0.2px;
-    }
-
-    .city-switch {
-      display: flex; background: var(--bg); border-radius: 14px; padding: 3px; margin-bottom: 10px;
-    }
+    .city-switch { display: flex; background: var(--bg); border-radius: 14px; padding: 3px; margin-bottom: 10px; }
     .city-switch button {
       flex: 1; border: none; background: none; padding: 7px 0; border-radius: 11px;
       font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; color: var(--muted);
     }
     .city-switch button.active { background: var(--green); color: white; }
 
-    .cat-row {
-      display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
-    }
+    .cat-row { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
     .cat-row::-webkit-scrollbar { display: none; }
     .cat-item {
       background: none; border: none; white-space: nowrap; font-family: 'Manrope', sans-serif;
@@ -77,26 +66,32 @@
     #debug.visible { display: block; }
 
     .popup-box { max-width: 250px; font-family: 'Manrope', sans-serif; }
+    .popup-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .popup-title { font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 2px; }
-    .popup-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-bottom: 6px; }
+    .heart-btn { background: none; border: none; font-size: 18px; padding: 0; line-height: 1; }
+    .popup-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin: 4px 0 6px; }
     .popup-hours { font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 8px; }
 
-    .action-row { display: flex; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
+    .action-row { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
     .route-btn, .route-btn:visited, .route-btn:link {
       display: inline-block; background: var(--green); color: white !important;
       text-decoration: none; padding: 6px 10px; border-radius: 8px; font-size: 11.5px;
       font-weight: 600; font-family: 'Manrope', sans-serif;
     }
-    .fav-btn {
-      background: none; border: 1.5px solid var(--line); border-radius: 8px;
-      padding: 6px 10px; font-size: 11.5px; font-weight: 600; color: var(--text);
-      font-family: 'Manrope', sans-serif;
-    }
-    .fav-btn.active { background: #fdeef1; border-color: #e58aa0; }
 
-    .reviews-block { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+    .rating-line { font-size: 12.5px; color: var(--text); margin-bottom: 6px; }
+    .rating-line b { color: var(--gold); }
+
+    .reviews-block { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
     .review-item { font-size: 12px; margin-bottom: 6px; color: var(--text); line-height: 1.4; }
-    .review-form { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+    .leave-review-btn {
+      background: none; border: none; color: var(--green-dark); font-weight: 700;
+      font-size: 12px; padding: 4px 0; font-family: 'Manrope', sans-serif;
+    }
+    .review-form {
+      display: none; margin-top: 8px; flex-direction: column; gap: 5px;
+    }
+    .review-form.open { display: flex; }
     .review-form select, .review-form textarea {
       font-size: 12px; padding: 6px; border: 1.5px solid var(--line); border-radius: 8px;
       font-family: 'Manrope', sans-serif;
@@ -185,7 +180,7 @@
       favoritePlaceIds = new Set(data.map(f => f.place_id));
     }
 
-    async function toggleFavorite(placeId) {
+    async function toggleFavorite(placeId, btnEl) {
       if (!accessToken) { alert("Открой приложение через Telegram, чтобы сохранять места"); return; }
       if (favoritePlaceIds.has(placeId)) {
         await fetch(`${SUPABASE_URL}/rest/v1/favorites?place_id=eq.${placeId}&user_id=eq.${userId}`, {
@@ -193,6 +188,7 @@
           headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
         });
         favoritePlaceIds.delete(placeId);
+        btnEl.textContent = "🤍";
       } else {
         await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
           method: "POST",
@@ -203,8 +199,8 @@
           body: JSON.stringify({ user_id: userId, place_id: placeId })
         });
         favoritePlaceIds.add(placeId);
+        btnEl.textContent = "❤️";
       }
-      renderMarkers();
     }
 
     async function loadReviews(placeId) {
@@ -280,20 +276,28 @@
         const isFav = favoritePlaceIds.has(place.id);
         const marker = L.marker([place.lat, place.lng]).addTo(map);
 
+        const ratingHtml = place.google_rating
+          ? `<div class="rating-line">⭐ <b>${place.google_rating}</b> · ${place.google_rating_count ? place.google_rating_count + '+' : ''} отзывов в Google</div>`
+          : '';
+
         const popupEl = document.createElement('div');
         popupEl.className = 'popup-box';
         popupEl.innerHTML = `
-          <div class="popup-title">${place.name}</div>
+          <div class="popup-head">
+            <div class="popup-title">${place.name}</div>
+            <button class="heart-btn">${isFav ? '❤️' : '🤍'}</button>
+          </div>
           <div class="popup-desc">${place.description || ''}</div>
           <div class="popup-hours">🕐 ${place.hours_text || 'не указано'}</div>
           <div class="action-row">
             <a class="route-btn" href="${gmapsUrl}" target="_blank">Google</a>
             <a class="route-btn" href="${appleUrl}" target="_blank">Apple</a>
             <a class="route-btn" href="${yandexUrl}" target="_blank">Яндекс</a>
-            <button class="fav-btn ${isFav ? 'active' : ''}">${isFav ? '❤️ Сохранено' : '🤍 Сохранить'}</button>
           </div>
+          ${ratingHtml}
           <div class="reviews-block">
             <div class="reviews-list">Загрузка отзывов...</div>
+            <button class="leave-review-btn">✍️ Оставить отзыв</button>
             <div class="review-form">
               <select class="review-rating">
                 <option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option>
@@ -306,13 +310,17 @@
           </div>
         `;
 
-        popupEl.querySelector('.fav-btn').onclick = () => toggleFavorite(place.id);
+        popupEl.querySelector('.heart-btn').onclick = (e) => toggleFavorite(place.id, e.target);
+
         const reviewsListEl = popupEl.querySelector('.reviews-list');
         loadReviews(place.id).then(reviews => {
           reviewsListEl.innerHTML = reviews.length
             ? reviews.map(r => `<div class="review-item">${'⭐'.repeat(r.rating)} ${r.text || ''}</div>`).join('')
-            : '<div class="review-item" style="color:#7a8079;">Пока нет отзывов — будьте первым!</div>';
+            : '<div class="review-item" style="color:#7a8079;">Пока нет отзывов паломников — будьте первым!</div>';
         });
+
+        const formEl = popupEl.querySelector('.review-form');
+        popupEl.querySelector('.leave-review-btn').onclick = () => formEl.classList.toggle('open');
         popupEl.querySelector('.review-submit').onclick = () => {
           const rating = popupEl.querySelector('.review-rating').value;
           const text = popupEl.querySelector('.review-text').value;
