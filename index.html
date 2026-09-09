@@ -6,45 +6,91 @@
   <title>Umra Guide</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; font-family: sans-serif; }
+    :root {
+      --green: #1a6b4a;
+      --green-dark: #124d35;
+      --gold: #b8935a;
+      --bg: #faf9f6;
+      --text: #1f2420;
+      --muted: #7a8079;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Manrope', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
     #controls {
-      position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1000;
-      display: flex; flex-direction: column; gap: 6px;
+      position: absolute; top: 12px; left: 12px; right: 12px; z-index: 1000;
+      display: flex; flex-direction: column; gap: 8px;
     }
-    .row { display: flex; gap: 6px; overflow-x: auto; }
+    .row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+    .row::-webkit-scrollbar { display: none; }
+
     .btn {
-      background: white; border: none; border-radius: 20px; padding: 8px 14px;
-      font-size: 14px; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      background: white; border: none; border-radius: 22px; padding: 9px 16px;
+      font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 13px; color: var(--text);
+      white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: background 0.15s, color 0.15s;
     }
-    .btn.active { background: #1a7a4c; color: white; }
+    .btn.active { background: var(--green); color: white; }
+
+    .debug-toggle {
+      position: absolute; bottom: 14px; right: 14px; z-index: 2001;
+      width: 34px; height: 34px; border-radius: 50%; background: white;
+      border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 15px;
+      opacity: 0.55;
+    }
+    #debug {
+      display: none;
+      position: absolute; bottom: 56px; left: 12px; right: 12px; z-index: 2000;
+      background: rgba(20,20,20,0.92); color: #7fe0a0; font-size: 10px; font-family: monospace;
+      padding: 8px; max-height: 30vh; overflow-y: auto; white-space: pre-wrap; border-radius: 8px;
+    }
+    #debug.visible { display: block; }
+
+    .popup-box {
+      max-width: 250px; font-family: 'Manrope', sans-serif;
+    }
+    .popup-title {
+      font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 2px;
+    }
+    .popup-desc {
+      font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-bottom: 6px;
+    }
+    .popup-hours {
+      font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 8px;
+    }
+
+    .action-row { display: flex; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
     .route-btn, .route-btn:visited, .route-btn:link {
-      display: inline-block; margin-top: 6px; margin-right: 4px; background: #1a7a4c; color: white !important;
-      text-decoration: none; padding: 6px 8px; border-radius: 6px; font-size: 12px;
+      display: inline-block; background: var(--green); color: white !important;
+      text-decoration: none; padding: 6px 10px; border-radius: 8px; font-size: 11.5px;
+      font-weight: 600; font-family: 'Manrope', sans-serif;
     }
     .fav-btn {
-      display: inline-block; margin-top: 6px; margin-left: 6px; background: none;
-      border: 1px solid #ccc; border-radius: 6px; padding: 6px 10px; font-size: 13px;
+      background: none; border: 1.5px solid #e2ddd3; border-radius: 8px;
+      padding: 6px 10px; font-size: 11.5px; font-weight: 600; color: var(--text);
+      font-family: 'Manrope', sans-serif;
     }
-    .fav-btn.active { background: #ffe6ea; border-color: #ff4d6d; }
+    .fav-btn.active { background: #fdeef1; border-color: #e58aa0; }
 
-    .popup-box { max-width: 240px; }
-    .reviews-block { margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; }
-    .review-item { font-size: 12px; margin-bottom: 6px; }
-    .review-form { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+    .reviews-block { margin-top: 10px; border-top: 1px solid #eee2d0; padding-top: 8px; }
+    .review-item { font-size: 12px; margin-bottom: 6px; color: var(--text); line-height: 1.4; }
+    .review-form { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
     .review-form select, .review-form textarea {
-      font-size: 12px; padding: 4px; border: 1px solid #ccc; border-radius: 4px;
+      font-size: 12px; padding: 6px; border: 1.5px solid #e2ddd3; border-radius: 8px;
+      font-family: 'Manrope', sans-serif;
     }
     .review-submit {
-      background: #1a7a4c; color: white; border: none; border-radius: 6px;
-      padding: 6px; font-size: 12px;
-    }
-
-    #debug {
-      position: absolute; bottom: 0; left: 0; right: 0; z-index: 2000;
-      background: rgba(0,0,0,0.85); color: #0f0; font-size: 11px; font-family: monospace;
-      padding: 8px; max-height: 30vh; overflow-y: auto; white-space: pre-wrap;
+      background: var(--green-dark); color: white; border: none; border-radius: 8px;
+      padding: 7px; font-size: 12px; font-weight: 600; font-family: 'Manrope', sans-serif;
     }
   </style>
 </head>
@@ -54,7 +100,8 @@
     <div class="row" id="category-row"></div>
   </div>
   <div id="map"></div>
-  <div id="debug">Загрузка...</div>
+  <div id="debug"></div>
+  <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')">🐞</button>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
@@ -237,13 +284,15 @@
         const popupEl = document.createElement('div');
         popupEl.className = 'popup-box';
         popupEl.innerHTML = `
-          <b>${place.name}</b><br>
-          ${place.description || ''}<br>
-          🕐 ${place.hours_text || 'не указано'}<br>
-          <a class="route-btn" href="${gmapsUrl}" target="_blank">Google</a>
-          <a class="route-btn" href="${appleUrl}" target="_blank">Apple</a>
-          <a class="route-btn" href="${yandexUrl}" target="_blank">Яндекс</a>
-          <button class="fav-btn ${isFav ? 'active' : ''}">${isFav ? '❤️ Сохранено' : '🤍 Сохранить'}</button>
+          <div class="popup-title">${place.name}</div>
+          <div class="popup-desc">${place.description || ''}</div>
+          <div class="popup-hours">🕐 ${place.hours_text || 'не указано'}</div>
+          <div class="action-row">
+            <a class="route-btn" href="${gmapsUrl}" target="_blank">Google</a>
+            <a class="route-btn" href="${appleUrl}" target="_blank">Apple</a>
+            <a class="route-btn" href="${yandexUrl}" target="_blank">Яндекс</a>
+            <button class="fav-btn ${isFav ? 'active' : ''}">${isFav ? '❤️ Сохранено' : '🤍 Сохранить'}</button>
+          </div>
           <div class="reviews-block">
             <div class="reviews-list">Загрузка отзывов...</div>
             <div class="review-form">
@@ -256,7 +305,7 @@
               </select>
               <textarea class="review-text" placeholder="Ваш отзыв..." rows="2"></textarea>
               <button class="review-submit">Отправить отзыв</button>
-              <div class="review-status" style="font-size:11px;color:#666;"></div>
+              <div class="review-status" style="font-size:11px;color:#7a8079;"></div>
             </div>
           </div>
         `;
@@ -266,7 +315,7 @@
         const reviewsListEl = popupEl.querySelector('.reviews-list');
         loadReviews(place.id).then(reviews => {
           if (!reviews.length) {
-            reviewsListEl.textContent = "Пока нет отзывов — будьте первым!";
+            reviewsListEl.innerHTML = '<div class="review-item" style="color:#7a8079;">Пока нет отзывов — будьте первым!</div>';
           } else {
             reviewsListEl.innerHTML = reviews.map(r =>
               `<div class="review-item">${'⭐'.repeat(r.rating)} ${r.text || ''}</div>`
@@ -295,7 +344,6 @@
     }
 
     (async () => {
-      debugEl.textContent = "=== ЛОГ ===";
       await authenticate();
       await loadPlaces();
     })();
