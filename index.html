@@ -14,7 +14,8 @@
       --bg: #faf9f6; --text: #1f2420; --muted: #7a8079; --line: #ece7db;
     }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); }
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    body { font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
     #panel {
@@ -55,7 +56,6 @@
     }
     #debug.visible { display: block; }
 
-    /* маркеры-капли с иконкой категории */
     .marker-pin {
       width: 30px; height: 30px; border-radius: 50% 50% 50% 0;
       background: white; border: 2px solid var(--green);
@@ -71,21 +71,45 @@
     }
     .marker-pin.selected span { font-size: 18px; }
 
-    .popup-box { max-width: 250px; font-family: 'Manrope', sans-serif; }
-    .popup-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .popup-title { font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 2px; }
-    .heart-btn { background: none; border: none; font-size: 18px; padding: 0; line-height: 1; }
-    .popup-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin: 4px 0 6px; }
-    .popup-hours { font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 8px; }
+    /* ===== Bottom Sheet ===== */
+    #sheet {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 1500;
+      background: white; border-radius: 20px 20px 0 0;
+      box-shadow: 0 -6px 24px rgba(0,0,0,0.18);
+      display: flex; flex-direction: column;
+      height: 0px; overflow: hidden;
+      touch-action: none;
+    }
+    #sheet.animate { transition: height 0.25s ease; }
+    #sheet-handle { padding: 10px 0 6px; display: flex; justify-content: center; cursor: grab; touch-action: none; }
+    .handle-bar { width: 40px; height: 4px; border-radius: 3px; background: #ddd7c8; }
+    #sheet-content { flex: 1; padding: 0 18px 24px; overflow: hidden; }
+    #sheet.state-full #sheet-content { overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-    .action-row { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
-    .route-btn, .route-btn:visited, .route-btn:link {
-      display: inline-block; background: var(--green); color: white !important;
-      text-decoration: none; padding: 6px 10px; border-radius: 8px; font-size: 11.5px;
-      font-weight: 600; font-family: 'Manrope', sans-serif;
+    .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .sheet-title { font-weight: 700; font-size: 16px; color: var(--text); }
+    .sheet-cat { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+    .heart-btn { background: none; border: none; font-size: 19px; padding: 0; line-height: 1; }
+
+    .meta-row { display: flex; gap: 12px; margin: 6px 0 8px; font-size: 12px; color: var(--muted); }
+    .meta-row b { color: var(--text); }
+
+    .sheet-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-bottom: 10px; }
+    .sheet-hours { font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 10px; }
+
+    .route-main-btn {
+      background: var(--green); color: white; border: none; border-radius: 12px;
+      padding: 10px; font-size: 13px; font-weight: 700; width: 100%;
+      font-family: 'Manrope', sans-serif;
+    }
+    .route-sub-row { display: none; gap: 6px; margin-top: 8px; }
+    .route-sub-row.open { display: flex; }
+    .route-sub-row a {
+      flex: 1; text-align: center; background: var(--bg); color: var(--green-dark) !important;
+      text-decoration: none; padding: 7px 4px; border-radius: 8px; font-size: 11.5px; font-weight: 600;
     }
 
-    .rating-line { font-size: 12.5px; color: var(--text); margin-bottom: 6px; }
+    .rating-line { font-size: 12.5px; color: var(--text); margin: 12px 0 6px; }
     .rating-line b { color: var(--gold); }
 
     .reviews-block { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
@@ -117,6 +141,12 @@
   </div>
 
   <div id="map"></div>
+
+  <div id="sheet">
+    <div id="sheet-handle"><div class="handle-bar"></div></div>
+    <div id="sheet-content"></div>
+  </div>
+
   <div id="debug"></div>
   <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')">🐞</button>
 
@@ -133,7 +163,6 @@
       mecca: { label: "Мекка", center: [21.4225, 39.8262] },
       medina: { label: "Медина", center: [24.4672, 39.6112] }
     };
-    // текст без эмодзи — иконки теперь на маркерах карты
     const CATEGORIES = {
       all: "Все", food: "Еда", health: "Здоровье", shopping: "Магазины",
       connectivity: "Связь", money: "Деньги", transport: "Транспорт",
@@ -142,6 +171,10 @@
     const CATEGORY_ICONS = {
       food: "🍽", health: "💊", shopping: "🛒", connectivity: "📱",
       money: "💰", transport: "🚕", religion: "🕌", useful: "🏨"
+    };
+    const CATEGORY_LABELS_RU = {
+      food: "Еда", health: "Здоровье", shopping: "Магазин", connectivity: "Связь",
+      money: "Деньги", transport: "Транспорт", religion: "Религия", useful: "Полезное"
     };
 
     let currentCity = "mecca";
@@ -160,9 +193,155 @@
         className: '',
         html: `<div class="marker-pin ${selected ? 'selected' : ''}"><span>${emoji}</span></div>`,
         iconSize: [size, size],
-        iconAnchor: [size / 2, size],
-        popupAnchor: [0, -size]
+        iconAnchor: [size / 2, size]
       });
+    }
+
+    function haversineMeters(lat1, lng1, lat2, lng2) {
+      const R = 6371000;
+      const toRad = d => d * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    // ===== Bottom Sheet =====
+    const sheetEl = document.getElementById('sheet');
+    const sheetContentEl = document.getElementById('sheet-content');
+    const sheetHandleEl = document.getElementById('sheet-handle');
+    let sheetState = 'hidden';
+
+    function pxFor(state) {
+      if (state === 'peek') return 140;
+      if (state === 'half') return window.innerHeight * 0.5;
+      if (state === 'full') return window.innerHeight * 0.86;
+      return 0;
+    }
+
+    function setSheetState(state) {
+      sheetEl.classList.add('animate');
+      sheetEl.classList.remove('state-peek', 'state-half', 'state-full');
+      if (state === 'hidden') {
+        sheetEl.style.height = '0px';
+        if (selectedMarker) {
+          selectedMarker.setIcon(makeIcon(selectedMarker._category, false));
+          selectedMarker = null;
+        }
+      } else {
+        sheetEl.classList.add('state-' + state);
+        sheetEl.style.height = pxFor(state) + 'px';
+      }
+      sheetState = state;
+    }
+
+    let dragStartY = 0, dragStartHeight = 0, dragging = false, moved = false;
+    sheetHandleEl.addEventListener('pointerdown', (e) => {
+      dragging = true; moved = false;
+      dragStartY = e.clientY;
+      dragStartHeight = sheetEl.offsetHeight;
+      sheetEl.classList.remove('animate');
+      sheetHandleEl.setPointerCapture(e.pointerId);
+    });
+    sheetHandleEl.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const delta = dragStartY - e.clientY;
+      if (Math.abs(delta) > 5) moved = true;
+      let newHeight = dragStartHeight + delta;
+      newHeight = Math.max(60, Math.min(newHeight, window.innerHeight * 0.9));
+      sheetEl.style.height = newHeight + 'px';
+    });
+    sheetHandleEl.addEventListener('pointerup', () => {
+      if (!dragging) return;
+      dragging = false;
+      if (!moved) {
+        const order = ['peek', 'half', 'full'];
+        const next = order[(order.indexOf(sheetState) + 1) % order.length];
+        setSheetState(next);
+        return;
+      }
+      const h = sheetEl.offsetHeight;
+      if (h < pxFor('peek') * 0.55) { setSheetState('hidden'); return; }
+      const dists = { peek: Math.abs(h - pxFor('peek')), half: Math.abs(h - pxFor('half')), full: Math.abs(h - pxFor('full')) };
+      const nearest = Object.keys(dists).reduce((a, b) => dists[a] < dists[b] ? a : b);
+      setSheetState(nearest);
+    });
+
+    function openSheetForPlace(place) {
+      const gmapsUrl = place.google_place_id
+        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${place.google_place_id}`
+        : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+      const appleUrl = `https://maps.apple.com/?daddr=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
+      const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
+      const isFav = favoritePlaceIds.has(place.id);
+
+      const haramCenter = CITIES[place.city].center;
+      const distM = haversineMeters(haramCenter[0], haramCenter[1], place.lat, place.lng);
+      const distLabel = distM < 950
+        ? `~${Math.round(distM / 10) * 10} м от Харама`
+        : `~${(distM / 1000).toFixed(1)} км от Харама`;
+      const walkMin = Math.max(1, Math.round(distM / 1000 / 4.5 * 60));
+
+      const ratingHtml = place.google_rating
+        ? `<div class="rating-line">⭐ <b>${place.google_rating}</b> · ${place.google_rating_count ? place.google_rating_count + '+' : ''} отзывов в Google</div>`
+        : '';
+
+      sheetContentEl.innerHTML = `
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-title">${place.name}</div>
+            <div class="sheet-cat">${CATEGORY_LABELS_RU[place.category] || ''}</div>
+          </div>
+          <button class="heart-btn">${isFav ? '❤️' : '🤍'}</button>
+        </div>
+        <div class="meta-row">
+          <span>📍 <b>${walkMin} мин</b> · ${distLabel}</span>
+        </div>
+        <div class="sheet-hours">🕐 ${place.hours_text || 'не указано'}</div>
+        <div class="sheet-desc">${place.description || ''}</div>
+        <button class="route-main-btn">🧭 Построить маршрут</button>
+        <div class="route-sub-row">
+          <a href="${gmapsUrl}" target="_blank">Google</a>
+          <a href="${appleUrl}" target="_blank">Apple</a>
+          <a href="${yandexUrl}" target="_blank">Яндекс</a>
+        </div>
+        ${ratingHtml}
+        <div class="reviews-block">
+          <div class="reviews-list">Загрузка отзывов...</div>
+          <button class="leave-review-btn">✍️ Оставить отзыв</button>
+          <div class="review-form">
+            <select class="review-rating">
+              <option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option>
+              <option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
+            </select>
+            <textarea class="review-text" placeholder="Ваш отзыв..." rows="2"></textarea>
+            <button class="review-submit">Отправить отзыв</button>
+            <div class="review-status" style="font-size:11px;color:#7a8079;"></div>
+          </div>
+        </div>
+      `;
+
+      sheetContentEl.querySelector('.heart-btn').onclick = (e) => toggleFavorite(place.id, e.target);
+      sheetContentEl.querySelector('.route-main-btn').onclick = (e) => {
+        sheetContentEl.querySelector('.route-sub-row').classList.toggle('open');
+      };
+
+      const reviewsListEl = sheetContentEl.querySelector('.reviews-list');
+      loadReviews(place.id).then(reviews => {
+        reviewsListEl.innerHTML = reviews.length
+          ? reviews.map(r => `<div class="review-item">${'⭐'.repeat(r.rating)} ${r.text || ''}</div>`).join('')
+          : '<div class="review-item" style="color:#7a8079;">Пока нет отзывов паломников — будьте первым!</div>';
+      });
+
+      const formEl = sheetContentEl.querySelector('.review-form');
+      sheetContentEl.querySelector('.leave-review-btn').onclick = () => formEl.classList.toggle('open');
+      sheetContentEl.querySelector('.review-submit').onclick = () => {
+        const rating = sheetContentEl.querySelector('.review-rating').value;
+        const text = sheetContentEl.querySelector('.review-text').value;
+        submitReview(place.id, rating, text, sheetContentEl.querySelector('.review-status'));
+      };
+
+      setSheetState('half');
     }
 
     async function authenticate() {
@@ -252,6 +431,7 @@
       `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
       { attribution: '&copy; OpenStreetMap contributors, &copy; CARTO', subdomains: 'abcd', maxZoom: 20 }
     ).addTo(map);
+    map.on('click', () => setSheetState('hidden'));
 
     const citySwitchEl = document.getElementById('city-switch');
     Object.entries(CITIES).forEach(([key, city]) => {
@@ -263,6 +443,7 @@
         citySwitchEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         map.setView(CITIES[currentCity].center, 15);
+        setSheetState('hidden');
         loadPlaces();
       };
       citySwitchEl.appendChild(btn);
@@ -282,93 +463,26 @@
       categoryRow.appendChild(btn);
     });
 
-    function selectMarker(marker, category) {
-      if (selectedMarker && selectedMarker !== marker) {
-        selectedMarker.setIcon(makeIcon(selectedMarker._category, false));
-      }
-      marker.setIcon(makeIcon(category, true));
-      selectedMarker = marker;
-    }
-
     function renderMarkers() {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
-      selectedMarker = null;
       const filtered = allPlaces.filter(p =>
         p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
       );
 
       filtered.forEach(place => {
-        const gmapsUrl = place.google_place_id
-          ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${place.google_place_id}`
-          : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
-        const appleUrl = `https://maps.apple.com/?daddr=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
-        const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
-        const isFav = favoritePlaceIds.has(place.id);
-
         const marker = L.marker([place.lat, place.lng], { icon: makeIcon(place.category, false) }).addTo(map);
         marker._category = place.category;
 
-        marker.on('click', () => selectMarker(marker, place.category));
-        marker.on('popupclose', () => {
-          if (selectedMarker === marker) {
-            marker.setIcon(makeIcon(place.category, false));
-            selectedMarker = null;
+        marker.on('click', () => {
+          if (selectedMarker && selectedMarker !== marker) {
+            selectedMarker.setIcon(makeIcon(selectedMarker._category, false));
           }
+          marker.setIcon(makeIcon(place.category, true));
+          selectedMarker = marker;
+          openSheetForPlace(place);
         });
 
-        const ratingHtml = place.google_rating
-          ? `<div class="rating-line">⭐ <b>${place.google_rating}</b> · ${place.google_rating_count ? place.google_rating_count + '+' : ''} отзывов в Google</div>`
-          : '';
-
-        const popupEl = document.createElement('div');
-        popupEl.className = 'popup-box';
-        popupEl.innerHTML = `
-          <div class="popup-head">
-            <div class="popup-title">${place.name}</div>
-            <button class="heart-btn">${isFav ? '❤️' : '🤍'}</button>
-          </div>
-          <div class="popup-desc">${place.description || ''}</div>
-          <div class="popup-hours">🕐 ${place.hours_text || 'не указано'}</div>
-          <div class="action-row">
-            <a class="route-btn" href="${gmapsUrl}" target="_blank">Google</a>
-            <a class="route-btn" href="${appleUrl}" target="_blank">Apple</a>
-            <a class="route-btn" href="${yandexUrl}" target="_blank">Яндекс</a>
-          </div>
-          ${ratingHtml}
-          <div class="reviews-block">
-            <div class="reviews-list">Загрузка отзывов...</div>
-            <button class="leave-review-btn">✍️ Оставить отзыв</button>
-            <div class="review-form">
-              <select class="review-rating">
-                <option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option>
-                <option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
-              </select>
-              <textarea class="review-text" placeholder="Ваш отзыв..." rows="2"></textarea>
-              <button class="review-submit">Отправить отзыв</button>
-              <div class="review-status" style="font-size:11px;color:#7a8079;"></div>
-            </div>
-          </div>
-        `;
-
-        popupEl.querySelector('.heart-btn').onclick = (e) => toggleFavorite(place.id, e.target);
-
-        const reviewsListEl = popupEl.querySelector('.reviews-list');
-        loadReviews(place.id).then(reviews => {
-          reviewsListEl.innerHTML = reviews.length
-            ? reviews.map(r => `<div class="review-item">${'⭐'.repeat(r.rating)} ${r.text || ''}</div>`).join('')
-            : '<div class="review-item" style="color:#7a8079;">Пока нет отзывов паломников — будьте первым!</div>';
-        });
-
-        const formEl = popupEl.querySelector('.review-form');
-        popupEl.querySelector('.leave-review-btn').onclick = () => formEl.classList.toggle('open');
-        popupEl.querySelector('.review-submit').onclick = () => {
-          const rating = popupEl.querySelector('.review-rating').value;
-          const text = popupEl.querySelector('.review-text').value;
-          submitReview(place.id, rating, text, popupEl.querySelector('.review-status'));
-        };
-
-        marker.bindPopup(popupEl);
         markers.push(marker);
       });
     }
