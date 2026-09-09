@@ -10,21 +10,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --green: #3f8368;
-      --green-dark: #2b5f4a;
-      --gold: #b8935a;
-      --bg: #faf9f6;
-      --text: #1f2420;
-      --muted: #7a8079;
-      --line: #ece7db;
+      --green: #3f8368; --green-dark: #2b5f4a; --gold: #b8935a;
+      --bg: #faf9f6; --text: #1f2420; --muted: #7a8079; --line: #ece7db;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Manrope', -apple-system, sans-serif;
-      color: var(--text);
-      background: var(--bg);
-    }
+    body { margin: 0; font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
     #panel {
@@ -65,6 +55,22 @@
     }
     #debug.visible { display: block; }
 
+    /* маркеры-капли с иконкой категории */
+    .marker-pin {
+      width: 30px; height: 30px; border-radius: 50% 50% 50% 0;
+      background: white; border: 2px solid var(--green);
+      transform: rotate(-45deg);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      transition: all 0.15s ease;
+    }
+    .marker-pin span { transform: rotate(45deg); font-size: 14px; }
+    .marker-pin.selected {
+      width: 40px; height: 40px; background: var(--green);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.35);
+    }
+    .marker-pin.selected span { font-size: 18px; }
+
     .popup-box { max-width: 250px; font-family: 'Manrope', sans-serif; }
     .popup-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .popup-title { font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 2px; }
@@ -88,9 +94,7 @@
       background: none; border: none; color: var(--green-dark); font-weight: 700;
       font-size: 12px; padding: 4px 0; font-family: 'Manrope', sans-serif;
     }
-    .review-form {
-      display: none; margin-top: 8px; flex-direction: column; gap: 5px;
-    }
+    .review-form { display: none; margin-top: 8px; flex-direction: column; gap: 5px; }
     .review-form.open { display: flex; }
     .review-form select, .review-form textarea {
       font-size: 12px; padding: 6px; border: 1.5px solid var(--line); border-radius: 8px;
@@ -129,19 +133,37 @@
       mecca: { label: "Мекка", center: [21.4225, 39.8262] },
       medina: { label: "Медина", center: [24.4672, 39.6112] }
     };
+    // текст без эмодзи — иконки теперь на маркерах карты
     const CATEGORIES = {
-      all: "Все", food: "🍽 Еда", health: "💊 Здоровье", shopping: "🛒 Магазины",
-      connectivity: "📱 Связь", money: "💰 Деньги", transport: "🚕 Транспорт",
-      religion: "🕌 Религия", useful: "🏨 Полезное"
+      all: "Все", food: "Еда", health: "Здоровье", shopping: "Магазины",
+      connectivity: "Связь", money: "Деньги", transport: "Транспорт",
+      religion: "Религия", useful: "Полезное"
+    };
+    const CATEGORY_ICONS = {
+      food: "🍽", health: "💊", shopping: "🛒", connectivity: "📱",
+      money: "💰", transport: "🚕", religion: "🕌", useful: "🏨"
     };
 
     let currentCity = "mecca";
     let currentCategory = "all";
     let allPlaces = [];
     let markers = [];
+    let selectedMarker = null;
     let favoritePlaceIds = new Set();
     let accessToken = localStorage.getItem("ug_token");
     let userId = localStorage.getItem("ug_user_id");
+
+    function makeIcon(category, selected) {
+      const emoji = CATEGORY_ICONS[category] || "📍";
+      const size = selected ? 40 : 30;
+      return L.divIcon({
+        className: '',
+        html: `<div class="marker-pin ${selected ? 'selected' : ''}"><span>${emoji}</span></div>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size],
+        popupAnchor: [0, -size]
+      });
+    }
 
     async function authenticate() {
       log("accessToken из localStorage: " + (accessToken ? "есть" : "нет"));
@@ -260,9 +282,18 @@
       categoryRow.appendChild(btn);
     });
 
+    function selectMarker(marker, category) {
+      if (selectedMarker && selectedMarker !== marker) {
+        selectedMarker.setIcon(makeIcon(selectedMarker._category, false));
+      }
+      marker.setIcon(makeIcon(category, true));
+      selectedMarker = marker;
+    }
+
     function renderMarkers() {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
+      selectedMarker = null;
       const filtered = allPlaces.filter(p =>
         p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
       );
@@ -274,7 +305,17 @@
         const appleUrl = `https://maps.apple.com/?daddr=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
         const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
         const isFav = favoritePlaceIds.has(place.id);
-        const marker = L.marker([place.lat, place.lng]).addTo(map);
+
+        const marker = L.marker([place.lat, place.lng], { icon: makeIcon(place.category, false) }).addTo(map);
+        marker._category = place.category;
+
+        marker.on('click', () => selectMarker(marker, place.category));
+        marker.on('popupclose', () => {
+          if (selectedMarker === marker) {
+            marker.setIcon(makeIcon(place.category, false));
+            selectedMarker = null;
+          }
+        });
 
         const ratingHtml = place.google_rating
           ? `<div class="rating-line">⭐ <b>${place.google_rating}</b> · ${place.google_rating_count ? place.google_rating_count + '+' : ''} отзывов в Google</div>`
