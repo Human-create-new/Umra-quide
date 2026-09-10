@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2b5f4a">
   <title>Umra Guide</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -11,67 +12,77 @@
   <style>
     :root {
       --green: #3f8368; --green-dark: #2b5f4a; --gold: #b8935a;
-      --bg: #faf9f6; --text: #1f2420; --muted: #7a8079; --line: #ece7db;
+      --bg: #faf9f6; --text: #1f2420; --muted: #5e6459; --line: #ece7db;
+      --danger: #c0392b;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; overflow: hidden; }
     body { font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, textarea:focus-visible, select:focus-visible {
+      outline: 3px solid var(--gold); outline-offset: 2px;
+    }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
     #panel {
-      position: absolute; top: 12px; left: 12px; right: 12px; z-index: 1000;
+      position: absolute; top: calc(12px + var(--safe-top)); left: calc(12px + var(--safe-left));
+      right: calc(12px + var(--safe-right)); z-index: 1000;
       background: white; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
       padding: 10px 14px 8px;
     }
-    .brand-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .brand-row img { width: 22px; height: 22px; border-radius: 6px; object-fit: cover; }
-    .brand-row span { font-weight: 700; font-size: 13px; color: var(--green-dark); letter-spacing: 0.2px; }
+    .brand-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; min-height: 30px; }
+    .brand-row img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
+    .brand-row a { font-weight: 700; font-size: 13px; color: var(--green-dark); letter-spacing: 0.2px; text-decoration: none; }
 
     .city-switch { display: flex; background: var(--bg); border-radius: 14px; padding: 3px; margin-bottom: 10px; }
     .city-switch button {
-      flex: 1; border: none; background: none; padding: 7px 0; border-radius: 11px;
-      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; color: var(--muted);
+      flex: 1; border: none; background: none; padding: 12px 0; min-height: 44px; border-radius: 11px;
+      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 14px; color: var(--muted);
     }
-    .city-switch button.active { background: var(--green); color: white; }
+    .city-switch button[aria-pressed="true"] { background: var(--green); color: white; }
 
-    .cat-row { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+    .cat-row { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
     .cat-row::-webkit-scrollbar { display: none; }
     .cat-item {
       background: none; border: none; white-space: nowrap; font-family: 'Manrope', sans-serif;
-      font-weight: 600; font-size: 12.5px; color: var(--muted); padding-bottom: 4px;
+      font-weight: 600; font-size: 13px; color: var(--muted); padding: 8px 2px; min-height: 40px;
       border-bottom: 2px solid transparent;
     }
-    .cat-item.active { color: var(--green-dark); border-bottom-color: var(--green); }
+    .cat-item[aria-selected="true"] { color: var(--green-dark); border-bottom-color: var(--green); }
 
     .debug-toggle {
-      position: absolute; bottom: 14px; right: 14px; z-index: 2001;
-      width: 34px; height: 34px; border-radius: 50%; background: white;
-      border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 15px; opacity: 0.55;
+      position: absolute; bottom: calc(14px + var(--safe-bottom)); right: calc(14px + var(--safe-right)); z-index: 2001;
+      width: 44px; height: 44px; border-radius: 50%; background: white;
+      border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 16px; opacity: 0.6;
     }
     #debug {
       display: none;
-      position: absolute; bottom: 56px; left: 12px; right: 12px; z-index: 2000;
+      position: absolute; bottom: calc(64px + var(--safe-bottom)); left: 12px; right: 12px; z-index: 2000;
       background: rgba(20,20,20,0.92); color: #7fe0a0; font-size: 10px; font-family: monospace;
       padding: 8px; max-height: 30vh; overflow-y: auto; white-space: pre-wrap; border-radius: 8px;
     }
     #debug.visible { display: block; }
 
     .marker-pin {
-      width: 30px; height: 30px; border-radius: 50% 50% 50% 0;
+      width: 32px; height: 32px; border-radius: 50% 50% 50% 0;
       background: white; border: 2px solid var(--green);
       transform: rotate(-45deg);
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.25);
       transition: all 0.15s ease;
     }
-    .marker-pin span { transform: rotate(45deg); font-size: 14px; }
+    .marker-pin span { transform: rotate(45deg); font-size: 15px; }
     .marker-pin.selected {
-      width: 40px; height: 40px; background: var(--green);
+      width: 42px; height: 42px; background: var(--green);
       box-shadow: 0 5px 12px rgba(0,0,0,0.35);
     }
-    .marker-pin.selected span { font-size: 18px; }
+    .marker-pin.selected span { font-size: 19px; }
 
-    /* ===== Bottom Sheet ===== */
+    /* ===== Bottom Sheet — 2 состояния ===== */
     #sheet {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 1500;
       background: white; border-radius: 20px 20px 0 0;
@@ -81,74 +92,139 @@
       touch-action: none;
     }
     #sheet.animate { transition: height 0.25s ease; }
-    #sheet-handle { padding: 10px 0 6px; display: flex; justify-content: center; cursor: grab; touch-action: none; }
+    #sheet-toolbar {
+      display: flex; align-items: center; justify-content: center; position: relative;
+      padding: 10px 0 4px; touch-action: none; cursor: grab;
+    }
     .handle-bar { width: 40px; height: 4px; border-radius: 3px; background: #ddd7c8; }
-    #sheet-content { flex: 1; padding: 0 18px 24px; overflow: hidden; }
+    .sheet-close {
+      position: absolute; right: 8px; top: 4px; width: 40px; height: 40px;
+      border: none; background: var(--bg); border-radius: 12px; font-size: 20px; color: var(--green-dark);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #sheet-content { flex: 1; padding: 0 18px calc(24px + var(--safe-bottom)); overflow: hidden; }
     #sheet.state-full #sheet-content { overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
     .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .sheet-title { font-weight: 700; font-size: 16px; color: var(--text); }
-    .sheet-cat { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
-    .heart-btn { background: none; border: none; font-size: 19px; padding: 0; line-height: 1; }
+    .sheet-title { font-weight: 700; font-size: 17px; color: var(--text); line-height: 1.25; }
+    .sheet-cat { font-size: 12.5px; color: var(--gold); font-weight: 600; margin-top: 2px; }
+    .heart-btn {
+      background: none; border: none; font-size: 20px; padding: 6px;
+      min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;
+    }
 
-    .meta-row { display: flex; gap: 12px; margin: 6px 0 8px; font-size: 12px; color: var(--muted); }
+    .meta-row { display: flex; gap: 12px; margin: 6px 0 8px; font-size: 13px; color: var(--muted); }
     .meta-row b { color: var(--text); }
 
-    .sheet-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-bottom: 10px; }
-    .sheet-hours { font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 10px; }
+    .sheet-desc { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+    .sheet-hours { font-size: 13px; color: var(--gold); font-weight: 700; margin-bottom: 10px; }
 
     .route-main-btn {
       background: var(--green); color: white; border: none; border-radius: 12px;
-      padding: 10px; font-size: 13px; font-weight: 700; width: 100%;
+      padding: 13px; font-size: 14px; font-weight: 700; width: 100%; min-height: 48px;
       font-family: 'Manrope', sans-serif;
     }
     .route-sub-row { display: none; gap: 6px; margin-top: 8px; }
     .route-sub-row.open { display: flex; }
     .route-sub-row a {
       flex: 1; text-align: center; background: var(--bg); color: var(--green-dark) !important;
-      text-decoration: none; padding: 7px 4px; border-radius: 8px; font-size: 11.5px; font-weight: 600;
+      text-decoration: none; padding: 10px 4px; min-height: 40px; display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; font-size: 12.5px; font-weight: 700;
     }
 
-    .rating-line { font-size: 12.5px; color: var(--text); margin: 12px 0 6px; }
+    .rating-line { font-size: 13px; color: var(--text); margin: 12px 0 6px; }
     .rating-line b { color: var(--gold); }
 
-    .reviews-block { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
-    .review-item { font-size: 12px; margin-bottom: 6px; color: var(--text); line-height: 1.4; }
+    .reviews-block { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 10px; }
+    .review-item { font-size: 13px; margin-bottom: 8px; color: var(--text); line-height: 1.5; }
+    .review-empty { color: var(--muted); font-size: 13px; line-height: 1.5; }
     .leave-review-btn {
-      background: none; border: none; color: var(--green-dark); font-weight: 700;
-      font-size: 12px; padding: 4px 0; font-family: 'Manrope', sans-serif;
+      background: none; border: 1.5px solid var(--green); color: var(--green-dark); font-weight: 700;
+      font-size: 13px; padding: 10px; min-height: 44px; width: 100%; border-radius: 10px;
+      font-family: 'Manrope', sans-serif; margin-top: 4px;
     }
-    .review-form { display: none; margin-top: 8px; flex-direction: column; gap: 5px; }
-    .review-form.open { display: flex; }
-    .review-form select, .review-form textarea {
-      font-size: 12px; padding: 6px; border: 1.5px solid var(--line); border-radius: 8px;
-      font-family: 'Manrope', sans-serif;
+
+    /* ===== Модальное окно отзыва ===== */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 2200; display: flex; align-items: flex-end; justify-content: center;
+      background: rgba(20,30,25,0.55); padding: 12px;
+    }
+    .modal-backdrop[hidden] { display: none; }
+    .modal-card {
+      width: 100%; max-width: 480px; background: white; border-radius: 20px; padding: 18px;
+      padding-bottom: calc(18px + var(--safe-bottom));
+    }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .modal-title { font-weight: 700; font-size: 16px; margin: 0; }
+    .modal-close {
+      width: 40px; height: 40px; border: none; background: var(--bg); border-radius: 12px;
+      font-size: 18px; color: var(--green-dark);
+    }
+    .rating-picker { display: flex; gap: 6px; margin-bottom: 12px; justify-content: center; }
+    .rating-picker button {
+      width: 44px; height: 44px; border: 1.5px solid var(--line); border-radius: 10px;
+      background: white; font-size: 18px; color: var(--gold);
+    }
+    .rating-picker button[aria-pressed="true"] { background: #fff4e0; border-color: var(--gold); }
+    .review-textarea {
+      width: 100%; min-height: 90px; padding: 10px; border: 1.5px solid var(--line); border-radius: 10px;
+      font-size: 14px; font-family: 'Manrope', sans-serif; resize: vertical;
     }
     .review-submit {
-      background: var(--green-dark); color: white; border: none; border-radius: 8px;
-      padding: 7px; font-size: 12px; font-weight: 600; font-family: 'Manrope', sans-serif;
+      width: 100%; margin-top: 10px; min-height: 46px; background: var(--green-dark); color: white;
+      border: none; border-radius: 10px; font-size: 14px; font-weight: 700; font-family: 'Manrope', sans-serif;
+    }
+    .review-status { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+    @media (prefers-contrast: more) {
+      :root { --muted: #33392f; --line: #b7c2ac; }
     }
   </style>
 </head>
 <body>
   <div id="panel">
     <div class="brand-row">
-      <img src="logo.png" onerror="this.style.display='none'">
-      <span>Umra Guide</span>
+      <img src="logo.png" onerror="this.style.display='none'" alt="">
+      <a href="https://t.me/zametki_umra" target="_blank" rel="noopener noreferrer">Заметки об Умре</a>
     </div>
-    <div class="city-switch" id="city-switch"></div>
-    <div class="cat-row" id="category-row"></div>
+    <div class="city-switch" id="city-switch" role="group" aria-label="Выбор города"></div>
+    <div class="cat-row" id="category-row" role="tablist" aria-label="Категории мест"></div>
   </div>
 
   <div id="map"></div>
 
-  <div id="sheet">
-    <div id="sheet-handle"><div class="handle-bar"></div></div>
+  <div id="sheet" aria-hidden="true">
+    <div id="sheet-toolbar">
+      <div class="handle-bar"></div>
+      <button class="sheet-close" aria-label="Закрыть карточку" onclick="setSheetState('hidden')">✕</button>
+    </div>
     <div id="sheet-content"></div>
   </div>
 
+  <div id="review-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+      <div class="modal-head">
+        <h2 id="review-modal-title" class="modal-title">Оставить отзыв</h2>
+        <button class="modal-close" aria-label="Закрыть" id="review-close">✕</button>
+      </div>
+      <div class="rating-picker" id="rating-picker" role="group" aria-label="Оценка">
+        <button type="button" data-rating="1" aria-label="1 звезда">★</button>
+        <button type="button" data-rating="2" aria-label="2 звезды">★</button>
+        <button type="button" data-rating="3" aria-label="3 звезды">★</button>
+        <button type="button" data-rating="4" aria-label="4 звезды">★</button>
+        <button type="button" data-rating="5" aria-label="5 звёзд">★</button>
+      </div>
+      <textarea id="review-text" class="review-textarea" placeholder="Коротко расскажите о месте..."></textarea>
+      <button class="review-submit" id="review-submit">Отправить на модерацию</button>
+      <div class="review-status" id="review-status"></div>
+    </div>
+  </div>
+
   <div id="debug"></div>
-  <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')">🐞</button>
+  <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')" aria-label="Показать журнал отладки">🐞</button>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
@@ -158,6 +234,12 @@
 
     const debugEl = document.getElementById('debug');
     function log(msg) { debugEl.textContent += "\n" + msg; }
+
+    function escapeHtml(v) {
+      return String(v ?? "").replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[c]));
+    }
 
     const CITIES = {
       mecca: { label: "Мекка", center: [21.4225, 39.8262] },
@@ -182,13 +264,16 @@
     let allPlaces = [];
     let markers = [];
     let selectedMarker = null;
+    let selectedPlace = null;
     let favoritePlaceIds = new Set();
     let accessToken = localStorage.getItem("ug_token");
     let userId = localStorage.getItem("ug_user_id");
+    let reviewPlaceId = null;
+    let reviewRating = 5;
 
     function makeIcon(category, selected) {
       const emoji = CATEGORY_ICONS[category] || "📍";
-      const size = selected ? 40 : 30;
+      const size = selected ? 42 : 32;
       return L.divIcon({
         className: '',
         html: `<div class="marker-pin ${selected ? 'selected' : ''}"><span>${emoji}</span></div>`,
@@ -206,44 +291,46 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // ===== Bottom Sheet =====
+    // ===== Bottom Sheet: 2 состояния (peek / full) =====
     const sheetEl = document.getElementById('sheet');
     const sheetContentEl = document.getElementById('sheet-content');
-    const sheetHandleEl = document.getElementById('sheet-handle');
+    const sheetToolbarEl = document.getElementById('sheet-toolbar');
     let sheetState = 'hidden';
 
     function pxFor(state) {
-      if (state === 'peek') return 140;
-      if (state === 'half') return window.innerHeight * 0.5;
+      if (state === 'peek') return Math.min(280, window.innerHeight * 0.4);
       if (state === 'full') return window.innerHeight * 0.86;
       return 0;
     }
 
     function setSheetState(state) {
       sheetEl.classList.add('animate');
-      sheetEl.classList.remove('state-peek', 'state-half', 'state-full');
+      sheetEl.classList.remove('state-peek', 'state-full');
       if (state === 'hidden') {
         sheetEl.style.height = '0px';
+        sheetEl.setAttribute('aria-hidden', 'true');
         if (selectedMarker) {
           selectedMarker.setIcon(makeIcon(selectedMarker._category, false));
           selectedMarker = null;
         }
       } else {
+        sheetEl.setAttribute('aria-hidden', 'false');
         sheetEl.classList.add('state-' + state);
         sheetEl.style.height = pxFor(state) + 'px';
       }
       sheetState = state;
     }
+    window.setSheetState = setSheetState;
 
     let dragStartY = 0, dragStartHeight = 0, dragging = false, moved = false;
-    sheetHandleEl.addEventListener('pointerdown', (e) => {
+    sheetToolbarEl.addEventListener('pointerdown', (e) => {
       dragging = true; moved = false;
       dragStartY = e.clientY;
       dragStartHeight = sheetEl.offsetHeight;
       sheetEl.classList.remove('animate');
-      sheetHandleEl.setPointerCapture(e.pointerId);
+      sheetToolbarEl.setPointerCapture(e.pointerId);
     });
-    sheetHandleEl.addEventListener('pointermove', (e) => {
+    sheetToolbarEl.addEventListener('pointermove', (e) => {
       if (!dragging) return;
       const delta = dragStartY - e.clientY;
       if (Math.abs(delta) > 5) moved = true;
@@ -251,25 +338,23 @@
       newHeight = Math.max(60, Math.min(newHeight, window.innerHeight * 0.9));
       sheetEl.style.height = newHeight + 'px';
     });
-    sheetHandleEl.addEventListener('pointerup', () => {
+    sheetToolbarEl.addEventListener('pointerup', () => {
       if (!dragging) return;
       dragging = false;
       if (!moved) {
-        const order = ['peek', 'half', 'full'];
-        const next = order[(order.indexOf(sheetState) + 1) % order.length];
-        setSheetState(next);
+        setSheetState(sheetState === 'peek' ? 'full' : 'peek');
         return;
       }
       const h = sheetEl.offsetHeight;
       if (h < pxFor('peek') * 0.55) { setSheetState('hidden'); return; }
-      const dists = { peek: Math.abs(h - pxFor('peek')), half: Math.abs(h - pxFor('half')), full: Math.abs(h - pxFor('full')) };
-      const nearest = Object.keys(dists).reduce((a, b) => dists[a] < dists[b] ? a : b);
+      const nearest = Math.abs(h - pxFor('peek')) < Math.abs(h - pxFor('full')) ? 'peek' : 'full';
       setSheetState(nearest);
     });
 
     function openSheetForPlace(place) {
+      selectedPlace = place;
       const gmapsUrl = place.google_place_id
-        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${place.google_place_id}`
+        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${encodeURIComponent(place.google_place_id)}`
         : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
       const appleUrl = `https://maps.apple.com/?daddr=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
       const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
@@ -277,72 +362,85 @@
 
       const haramCenter = CITIES[place.city].center;
       const distM = haversineMeters(haramCenter[0], haramCenter[1], place.lat, place.lng);
-      const distLabel = distM < 950
-        ? `~${Math.round(distM / 10) * 10} м от Харама`
-        : `~${(distM / 1000).toFixed(1)} км от Харама`;
+      const distLabel = distM < 950 ? `~${Math.round(distM / 10) * 10} м` : `~${(distM / 1000).toFixed(1)} км`;
       const walkMin = Math.max(1, Math.round(distM / 1000 / 4.5 * 60));
 
       const ratingHtml = place.google_rating
-        ? `<div class="rating-line">⭐ <b>${place.google_rating}</b> · ${place.google_rating_count ? place.google_rating_count + '+' : ''} отзывов в Google</div>`
+        ? `<div class="rating-line">⭐ <b>${escapeHtml(place.google_rating)}</b> · ${place.google_rating_count ? escapeHtml(place.google_rating_count) + '+' : ''} отзывов в Google</div>`
         : '';
 
       sheetContentEl.innerHTML = `
         <div class="sheet-head">
           <div>
-            <div class="sheet-title">${place.name}</div>
-            <div class="sheet-cat">${CATEGORY_LABELS_RU[place.category] || ''}</div>
+            <div class="sheet-title">${escapeHtml(place.name)}</div>
+            <div class="sheet-cat">${escapeHtml(CATEGORY_LABELS_RU[place.category] || '')}</div>
           </div>
-          <button class="heart-btn">${isFav ? '❤️' : '🤍'}</button>
+          <button class="heart-btn" aria-label="${isFav ? 'Удалить из избранного' : 'Сохранить'}" aria-pressed="${isFav}">${isFav ? '❤️' : '🤍'}</button>
         </div>
-        <div class="meta-row">
-          <span>📍 <b>${walkMin} мин</b> · ${distLabel}</span>
-        </div>
-        <div class="sheet-hours">🕐 ${place.hours_text || 'не указано'}</div>
-        <div class="sheet-desc">${place.description || ''}</div>
+        <div class="meta-row"><span>🚶 <b>${walkMin} мин пешком</b> · ${distLabel} от Харама</span></div>
+        <div class="sheet-hours">🕐 ${escapeHtml(place.hours_text || 'не указано')}</div>
+        <div class="sheet-desc">${escapeHtml(place.description || '')}</div>
         <button class="route-main-btn">🧭 Построить маршрут</button>
         <div class="route-sub-row">
-          <a href="${gmapsUrl}" target="_blank">Google</a>
-          <a href="${appleUrl}" target="_blank">Apple</a>
-          <a href="${yandexUrl}" target="_blank">Яндекс</a>
+          <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">Google</a>
+          <a href="${appleUrl}" target="_blank" rel="noopener noreferrer">Apple</a>
+          <a href="${yandexUrl}" target="_blank" rel="noopener noreferrer">Яндекс</a>
         </div>
         ${ratingHtml}
         <div class="reviews-block">
           <div class="reviews-list">Загрузка отзывов...</div>
           <button class="leave-review-btn">✍️ Оставить отзыв</button>
-          <div class="review-form">
-            <select class="review-rating">
-              <option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option>
-              <option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
-            </select>
-            <textarea class="review-text" placeholder="Ваш отзыв..." rows="2"></textarea>
-            <button class="review-submit">Отправить отзыв</button>
-            <div class="review-status" style="font-size:11px;color:#7a8079;"></div>
-          </div>
         </div>
       `;
 
       sheetContentEl.querySelector('.heart-btn').onclick = (e) => toggleFavorite(place.id, e.target);
-      sheetContentEl.querySelector('.route-main-btn').onclick = (e) => {
+      sheetContentEl.querySelector('.route-main-btn').onclick = () => {
         sheetContentEl.querySelector('.route-sub-row').classList.toggle('open');
       };
+      sheetContentEl.querySelector('.leave-review-btn').onclick = () => openReviewModal(place.id);
 
       const reviewsListEl = sheetContentEl.querySelector('.reviews-list');
       loadReviews(place.id).then(reviews => {
         reviewsListEl.innerHTML = reviews.length
-          ? reviews.map(r => `<div class="review-item">${'⭐'.repeat(r.rating)} ${r.text || ''}</div>`).join('')
-          : '<div class="review-item" style="color:#7a8079;">Пока нет отзывов паломников — будьте первым!</div>';
+          ? reviews.map(r => `<div class="review-item">${'⭐'.repeat(r.rating)} ${escapeHtml(r.text || '')}</div>`).join('')
+          : '<div class="review-empty">Пока нет отзывов паломников. Поделитесь впечатлением — это поможет другим.</div>';
       });
 
-      const formEl = sheetContentEl.querySelector('.review-form');
-      sheetContentEl.querySelector('.leave-review-btn').onclick = () => formEl.classList.toggle('open');
-      sheetContentEl.querySelector('.review-submit').onclick = () => {
-        const rating = sheetContentEl.querySelector('.review-rating').value;
-        const text = sheetContentEl.querySelector('.review-text').value;
-        submitReview(place.id, rating, text, sheetContentEl.querySelector('.review-status'));
-      };
-
-      setSheetState('half');
+      setSheetState('peek');
     }
+
+    // ===== Модальное окно отзыва =====
+    const reviewModalEl = document.getElementById('review-modal');
+    const reviewCloseEl = document.getElementById('review-close');
+    const reviewTextEl = document.getElementById('review-text');
+    const reviewSubmitEl = document.getElementById('review-submit');
+    const reviewStatusEl = document.getElementById('review-status');
+    const ratingPickerEl = document.getElementById('rating-picker');
+
+    function openReviewModal(placeId) {
+      reviewPlaceId = placeId;
+      reviewRating = 5;
+      reviewTextEl.value = '';
+      reviewStatusEl.textContent = '';
+      updateRatingPicker();
+      reviewModalEl.hidden = false;
+    }
+    function closeReviewModal() { reviewModalEl.hidden = true; }
+    function updateRatingPicker() {
+      ratingPickerEl.querySelectorAll('button').forEach(b => {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.rating) === reviewRating));
+      });
+    }
+    ratingPickerEl.querySelectorAll('button').forEach(b => {
+      b.onclick = () => { reviewRating = Number(b.dataset.rating); updateRatingPicker(); };
+    });
+    reviewCloseEl.onclick = closeReviewModal;
+    reviewModalEl.addEventListener('click', (e) => { if (e.target === reviewModalEl) closeReviewModal(); });
+    reviewSubmitEl.onclick = async () => {
+      const text = reviewTextEl.value.trim();
+      if (text.length < 3) { reviewStatusEl.textContent = 'Напишите чуть подробнее.'; return; }
+      await submitReview(reviewPlaceId, reviewRating, text, reviewStatusEl);
+    };
 
     async function authenticate() {
       log("accessToken из localStorage: " + (accessToken ? "есть" : "нет"));
@@ -350,6 +448,7 @@
       const tg = window.Telegram?.WebApp;
       tg?.ready();
       tg?.expand();
+      tg?.disableVerticalSwipes?.();
       const initData = tg?.initData;
       log("initData: " + (initData ? "есть, длина " + initData.length : "ПУСТО"));
       if (!initData) { log("Нет initData — останавливаемся"); return; }
@@ -389,7 +488,7 @@
           headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
         });
         favoritePlaceIds.delete(placeId);
-        btnEl.textContent = "🤍";
+        btnEl.textContent = "🤍"; btnEl.setAttribute('aria-pressed', 'false');
       } else {
         await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
           method: "POST",
@@ -400,7 +499,7 @@
           body: JSON.stringify({ user_id: userId, place_id: placeId })
         });
         favoritePlaceIds.add(placeId);
-        btnEl.textContent = "❤️";
+        btnEl.textContent = "❤️"; btnEl.setAttribute('aria-pressed', 'true');
       }
     }
 
@@ -423,7 +522,12 @@
         body: JSON.stringify({ user_id: userId, place_id: placeId, rating: Number(rating), text, status: "pending" })
       });
       log("Отправка отзыва, статус: " + res.status);
-      statusEl.textContent = res.status === 201 ? "Спасибо! Отзыв отправлен на модерацию." : "Ошибка отправки, попробуйте позже.";
+      if (res.status === 201) {
+        statusEl.textContent = "Спасибо! Отзыв отправлен на модерацию.";
+        setTimeout(closeReviewModal, 1200);
+      } else {
+        statusEl.textContent = "Ошибка отправки, попробуйте позже.";
+      }
     }
 
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
@@ -436,12 +540,12 @@
     const citySwitchEl = document.getElementById('city-switch');
     Object.entries(CITIES).forEach(([key, city]) => {
       const btn = document.createElement('button');
-      btn.className = key === currentCity ? 'active' : '';
+      btn.setAttribute('aria-pressed', key === currentCity ? 'true' : 'false');
       btn.textContent = city.label;
       btn.onclick = () => {
         currentCity = key;
-        citySwitchEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
         map.setView(CITIES[currentCity].center, 15);
         setSheetState('hidden');
         loadPlaces();
@@ -452,12 +556,14 @@
     const categoryRow = document.getElementById('category-row');
     Object.entries(CATEGORIES).forEach(([key, label]) => {
       const btn = document.createElement('button');
-      btn.className = 'cat-item' + (key === currentCategory ? ' active' : '');
+      btn.className = 'cat-item';
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', key === currentCategory ? 'true' : 'false');
       btn.textContent = label;
       btn.onclick = () => {
         currentCategory = key;
-        document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', 'false'));
+        btn.setAttribute('aria-selected', 'true');
         renderMarkers();
       };
       categoryRow.appendChild(btn);
@@ -473,7 +579,6 @@
       filtered.forEach(place => {
         const marker = L.marker([place.lat, place.lng], { icon: makeIcon(place.category, false) }).addTo(map);
         marker._category = place.category;
-
         marker.on('click', () => {
           if (selectedMarker && selectedMarker !== marker) {
             selectedMarker.setIcon(makeIcon(selectedMarker._category, false));
@@ -482,7 +587,6 @@
           selectedMarker = marker;
           openSheetForPlace(place);
         });
-
         markers.push(marker);
       });
     }
