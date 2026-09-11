@@ -94,7 +94,7 @@
     #sheet.animate { transition: height 0.25s ease; }
     #sheet-toolbar {
       display: flex; align-items: center; justify-content: center; position: relative;
-      padding: 10px 0 4px; touch-action: none; cursor: grab;
+      min-height: 48px; padding: 10px 0 4px; touch-action: none; cursor: grab;
     }
     .handle-bar { width: 40px; height: 4px; border-radius: 3px; background: #ddd7c8; }
     .sheet-close {
@@ -102,8 +102,10 @@
       border: none; background: var(--bg); border-radius: 12px; font-size: 20px; color: var(--green-dark);
       display: flex; align-items: center; justify-content: center;
     }
-    #sheet-content { flex: 1; padding: 0 18px calc(24px + var(--safe-bottom)); overflow: hidden; }
-    #sheet.state-full #sheet-content { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    #sheet-content {
+      flex: 1; padding: 4px 18px calc(24px + var(--safe-bottom));
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
 
     .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .sheet-title { font-weight: 700; font-size: 17px; color: var(--text); line-height: 1.25; }
@@ -443,12 +445,14 @@
     };
 
     async function authenticate() {
-      log("accessToken из localStorage: " + (accessToken ? "есть" : "нет"));
-      if (accessToken && userId) { await loadFavorites(); return; }
       const tg = window.Telegram?.WebApp;
       tg?.ready();
       tg?.expand();
       tg?.disableVerticalSwipes?.();
+
+      log("accessToken из localStorage: " + (accessToken ? "есть" : "нет"));
+      if (accessToken && userId) { await loadFavorites(); return; }
+
       const initData = tg?.initData;
       log("initData: " + (initData ? "есть, длина " + initData.length : "ПУСТО"));
       if (!initData) { log("Нет initData — останавливаемся"); return; }
