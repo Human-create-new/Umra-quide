@@ -34,15 +34,16 @@
       background: white; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
       padding: 10px 14px 8px;
     }
-    .brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; min-height: 30px; }
+    .brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; min-height: 30px; }
     .brand-row img { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; }
 
-    .rates-box { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; font-size: 11px; color: var(--muted); line-height: 1.25; }
-    .rate-line { display: flex; align-items: center; gap: 4px; }
+    .rates-box { display: flex; flex-direction: column; align-items: flex-end; font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .rate-line { white-space: nowrap; }
     .rate-line b { color: var(--text); font-weight: 700; }
+    .rate-line.with-help { display: flex; align-items: center; gap: 4px; }
     .rate-help-btn {
-      border: none; background: var(--bg); width: 16px; height: 16px; border-radius: 50%;
-      font-size: 10px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700;
+      border: none; background: var(--bg); width: 15px; height: 15px; border-radius: 50%;
+      font-size: 9px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700; flex: none;
     }
     .rate-tooltip {
       display: none; position: absolute; z-index: 1600; right: 14px;
@@ -51,11 +52,11 @@
     }
     .rate-tooltip.open { display: block; }
 
-    .hotel-chip {
-      display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 8px 12px;
-      margin-bottom: 10px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--bg);
-      font-size: 12.5px; font-weight: 700; color: var(--green-dark); font-family: 'Manrope', sans-serif;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 38px;
+    .hotel-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    .hotel-link {
+      border: none; background: none; padding: 6px 2px; min-height: 32px;
+      font-size: 11.5px; font-weight: 700; color: var(--green-dark); font-family: 'Manrope', sans-serif;
+      max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
     .city-switch { display: flex; background: var(--bg); border-radius: 14px; padding: 3px; margin-bottom: 10px; }
@@ -230,15 +231,17 @@
     <div class="brand-row">
       <img src="logo.png" onerror="this.style.display='none'" alt="">
       <div class="rates-box">
-        <div class="rate-line"><b>3.75</b> ﷼ за $1</div>
-        <div class="rate-line">
-          <b id="rate-usd-rub">—</b> ₽ за $1
+        <div class="rate-line"><b>3.75</b> SAR за $1</div>
+        <div class="rate-line with-help">
+          <span><b id="rate-usd-rub">—</b> RUB за $1</span>
           <button class="rate-help-btn" id="rate-help-btn" aria-label="Пояснение к курсу">?</button>
         </div>
       </div>
     </div>
 
-    <button class="hotel-chip" id="hotel-chip">🏨 Выбрать отель</button>
+    <div class="hotel-row">
+      <button class="hotel-link" id="hotel-chip">🏨 Выбрать отель ›</button>
+    </div>
 
     <div class="city-switch" id="city-switch" role="group" aria-label="Выбор города"></div>
     <div class="cat-row" id="category-row" role="tablist" aria-label="Категории мест"></div>
@@ -389,6 +392,16 @@
     });
     document.addEventListener('click', () => rateTooltipEl.classList.remove('open'));
 
+    // ===== Общая функция выбора маркера (используется и тапом, и селектором отеля) =====
+    function selectMarkerAndOpenSheet(marker, place) {
+      if (selectedMarker && selectedMarker !== marker) {
+        selectedMarker.setIcon(makeIcon(selectedMarker._category, false));
+      }
+      marker.setIcon(makeIcon(place.category, true));
+      selectedMarker = marker;
+      openSheetForPlace(place);
+    }
+
     // ===== Выбор отеля =====
     const hotelChipEl = document.getElementById('hotel-chip');
     const hotelModalEl = document.getElementById('hotel-modal');
@@ -397,7 +410,7 @@
     const hotelClearBtnEl = document.getElementById('hotel-clear-btn');
 
     function updateHotelChip() {
-      hotelChipEl.textContent = selectedHotel ? `🏨 ${selectedHotel.name}` : "🏨 Выбрать отель";
+      hotelChipEl.textContent = selectedHotel ? `🏨 ${selectedHotel.name} ›` : "🏨 Выбрать отель ›";
     }
     updateHotelChip();
 
@@ -429,10 +442,17 @@
       updateHotelChip();
       closeHotelModal();
 
-      if (place.city !== currentCity) {
-        currentCity = place.city;
-        citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
-        renderMarkers();
+      // сбрасываем фильтры так, чтобы маркер отеля точно был на карте
+      currentCity = place.city;
+      currentCategory = 'all';
+      citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
+      document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
+
+      renderMarkers();
+
+      const marker = markers.find(m => m.placeId === place.id);
+      if (marker) {
+        selectMarkerAndOpenSheet(marker, place);
       }
       map.flyTo([place.lat, place.lng], 16, { duration: 0.6 });
     }
@@ -725,13 +745,13 @@
     Object.entries(CATEGORIES).forEach(([key, label]) => {
       const btn = document.createElement('button');
       btn.className = 'cat-item';
+      btn.dataset.catKey = key;
       btn.setAttribute('role', 'tab');
       btn.setAttribute('aria-selected', key === currentCategory ? 'true' : 'false');
       btn.textContent = label;
       btn.onclick = () => {
         currentCategory = key;
-        document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', 'false'));
-        btn.setAttribute('aria-selected', 'true');
+        document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === currentCategory ? 'true' : 'false'));
         renderMarkers();
       };
       categoryRow.appendChild(btn);
@@ -747,14 +767,8 @@
       filtered.forEach(place => {
         const marker = L.marker([place.lat, place.lng], { icon: makeIcon(place.category, false) }).addTo(map);
         marker._category = place.category;
-        marker.on('click', () => {
-          if (selectedMarker && selectedMarker !== marker) {
-            selectedMarker.setIcon(makeIcon(selectedMarker._category, false));
-          }
-          marker.setIcon(makeIcon(place.category, true));
-          selectedMarker = marker;
-          openSheetForPlace(place);
-        });
+        marker.placeId = place.id;
+        marker.on('click', () => selectMarkerAndOpenSheet(marker, place));
         markers.push(marker);
       });
     }
