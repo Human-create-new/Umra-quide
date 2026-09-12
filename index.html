@@ -34,9 +34,29 @@
       background: white; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
       padding: 10px 14px 8px;
     }
-    .brand-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; min-height: 30px; }
-    .brand-row img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
-    .brand-row a { font-weight: 700; font-size: 13px; color: var(--green-dark); letter-spacing: 0.2px; text-decoration: none; }
+    .brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; min-height: 30px; }
+    .brand-row img { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; }
+
+    .rates-box { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; font-size: 11px; color: var(--muted); line-height: 1.25; }
+    .rate-line { display: flex; align-items: center; gap: 4px; }
+    .rate-line b { color: var(--text); font-weight: 700; }
+    .rate-help-btn {
+      border: none; background: var(--bg); width: 16px; height: 16px; border-radius: 50%;
+      font-size: 10px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700;
+    }
+    .rate-tooltip {
+      display: none; position: absolute; z-index: 1600; right: 14px;
+      background: var(--green-dark); color: white; font-size: 11.5px; line-height: 1.45;
+      padding: 10px 12px; border-radius: 10px; max-width: 220px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+    .rate-tooltip.open { display: block; }
+
+    .hotel-chip {
+      display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 8px 12px;
+      margin-bottom: 10px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--bg);
+      font-size: 12.5px; font-weight: 700; color: var(--green-dark); font-family: 'Manrope', sans-serif;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 38px;
+    }
 
     .city-switch { display: flex; background: var(--bg); border-radius: 14px; padding: 3px; margin-bottom: 10px; }
     .city-switch button {
@@ -81,6 +101,8 @@
       box-shadow: 0 5px 12px rgba(0,0,0,0.35);
     }
     .marker-pin.selected span { font-size: 19px; }
+    .marker-pin.hotel { border-color: var(--gold); }
+    .marker-pin.hotel.selected { background: var(--gold); }
 
     /* ===== Bottom Sheet — 2 состояния ===== */
     #sheet {
@@ -146,7 +168,10 @@
       font-family: 'Manrope', sans-serif; margin-top: 4px;
     }
 
-    /* ===== Модальное окно отзыва ===== */
+    .channel-footer { margin-top: 16px; font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.5; }
+    .channel-footer a { color: var(--green-dark); font-weight: 700; text-decoration: none; }
+
+    /* ===== Модальные окна ===== */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 2200; display: flex; align-items: flex-end; justify-content: center;
       background: rgba(20,30,25,0.55); padding: 12px;
@@ -155,6 +180,7 @@
     .modal-card {
       width: 100%; max-width: 480px; background: white; border-radius: 20px; padding: 18px;
       padding-bottom: calc(18px + var(--safe-bottom));
+      max-height: 80vh; display: flex; flex-direction: column;
     }
     .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .modal-title { font-weight: 700; font-size: 16px; margin: 0; }
@@ -178,6 +204,19 @@
     }
     .review-status { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
 
+    #hotel-list { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .hotel-item {
+      width: 100%; text-align: left; padding: 12px 6px; border: none; border-bottom: 1px solid var(--line);
+      background: none; font-family: 'Manrope', sans-serif; min-height: 56px;
+    }
+    .hotel-item .hotel-name { font-weight: 700; font-size: 14px; color: var(--text); }
+    .hotel-item .hotel-city { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .hotel-clear-btn {
+      width: 100%; margin-top: 10px; padding: 12px; min-height: 46px; border: 1.5px solid var(--line);
+      background: none; border-radius: 10px; color: var(--muted); font-weight: 700; font-size: 13px;
+      font-family: 'Manrope', sans-serif;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
     }
@@ -190,10 +229,23 @@
   <div id="panel">
     <div class="brand-row">
       <img src="logo.png" onerror="this.style.display='none'" alt="">
-      <a href="https://t.me/zametki_umra" target="_blank" rel="noopener noreferrer">Заметки об Умре</a>
+      <div class="rates-box">
+        <div class="rate-line"><b>3.75</b> ﷼ за $1</div>
+        <div class="rate-line">
+          <b id="rate-usd-rub">—</b> ₽ за $1
+          <button class="rate-help-btn" id="rate-help-btn" aria-label="Пояснение к курсу">?</button>
+        </div>
+      </div>
     </div>
+
+    <button class="hotel-chip" id="hotel-chip">🏨 Выбрать отель</button>
+
     <div class="city-switch" id="city-switch" role="group" aria-label="Выбор города"></div>
     <div class="cat-row" id="category-row" role="tablist" aria-label="Категории мест"></div>
+
+    <div class="rate-tooltip" id="rate-tooltip">
+      Курс ЦБ РФ не совпадает с курсом обмена в Саудовской Аравии — там действует рыночный курс обменников, который может заметно отличаться. Ориентируйтесь по факту на месте.
+    </div>
   </div>
 
   <div id="map"></div>
@@ -222,6 +274,17 @@
       <textarea id="review-text" class="review-textarea" placeholder="Коротко расскажите о месте..."></textarea>
       <button class="review-submit" id="review-submit">Отправить на модерацию</button>
       <div class="review-status" id="review-status"></div>
+    </div>
+  </div>
+
+  <div id="hotel-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="hotel-modal-title">
+      <div class="modal-head">
+        <h2 id="hotel-modal-title" class="modal-title">Выберите свой отель</h2>
+        <button class="modal-close" aria-label="Закрыть" id="hotel-close">✕</button>
+      </div>
+      <div id="hotel-list"></div>
+      <button class="hotel-clear-btn" id="hotel-clear-btn">Не выбирать отель</button>
     </div>
   </div>
 
@@ -273,12 +336,16 @@
     let reviewPlaceId = null;
     let reviewRating = 5;
 
+    let selectedHotel = null;
+    try { selectedHotel = JSON.parse(localStorage.getItem("ug_hotel") || "null"); } catch (e) { selectedHotel = null; }
+
     function makeIcon(category, selected) {
       const emoji = CATEGORY_ICONS[category] || "📍";
       const size = selected ? 42 : 32;
+      const isHotel = category === 'useful';
       return L.divIcon({
         className: '',
-        html: `<div class="marker-pin ${selected ? 'selected' : ''}"><span>${emoji}</span></div>`,
+        html: `<div class="marker-pin ${isHotel ? 'hotel' : ''} ${selected ? 'selected' : ''}"><span>${emoji}</span></div>`,
         iconSize: [size, size],
         iconAnchor: [size / 2, size]
       });
@@ -292,6 +359,95 @@
       const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
+
+    // ===== Курсы валют =====
+    async function loadExchangeRate() {
+      try {
+        const res = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
+        const data = await res.json();
+        const usdRub = data.Valute.USD.Value;
+        document.getElementById("rate-usd-rub").textContent = usdRub.toFixed(2);
+      } catch (e) {
+        log("Не удалось получить курс ЦБ: " + e.message);
+        document.getElementById("rate-usd-rub").textContent = "—";
+      }
+    }
+
+    const panelEl = document.getElementById('panel');
+    const rateHelpBtn = document.getElementById('rate-help-btn');
+    const rateTooltipEl = document.getElementById('rate-tooltip');
+    rateHelpBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (rateTooltipEl.classList.contains('open')) {
+        rateTooltipEl.classList.remove('open');
+        return;
+      }
+      const btnRect = rateHelpBtn.getBoundingClientRect();
+      const panelRect = panelEl.getBoundingClientRect();
+      rateTooltipEl.style.top = (btnRect.bottom - panelRect.top + 6) + 'px';
+      rateTooltipEl.classList.add('open');
+    });
+    document.addEventListener('click', () => rateTooltipEl.classList.remove('open'));
+
+    // ===== Выбор отеля =====
+    const hotelChipEl = document.getElementById('hotel-chip');
+    const hotelModalEl = document.getElementById('hotel-modal');
+    const hotelListEl = document.getElementById('hotel-list');
+    const hotelCloseEl = document.getElementById('hotel-close');
+    const hotelClearBtnEl = document.getElementById('hotel-clear-btn');
+
+    function updateHotelChip() {
+      hotelChipEl.textContent = selectedHotel ? `🏨 ${selectedHotel.name}` : "🏨 Выбрать отель";
+    }
+    updateHotelChip();
+
+    function openHotelModal() {
+      const hotels = allPlaces.filter(p => p.category === 'useful');
+      hotelListEl.innerHTML = hotels.length
+        ? hotels.map(h => `
+            <button class="hotel-item" data-id="${escapeHtml(h.id)}">
+              <div class="hotel-name">${escapeHtml(h.name)}</div>
+              <div class="hotel-city">${escapeHtml(CITIES[h.city]?.label || h.city)}</div>
+            </button>
+          `).join('')
+        : '<div style="padding:14px 6px;color:var(--muted);font-size:13px;">Список отелей ещё загружается...</div>';
+
+      hotelListEl.querySelectorAll('.hotel-item').forEach(btn => {
+        btn.onclick = () => {
+          const hotel = hotels.find(h => h.id === btn.dataset.id);
+          if (hotel) selectHotel(hotel);
+        };
+      });
+
+      hotelModalEl.hidden = false;
+    }
+    function closeHotelModal() { hotelModalEl.hidden = true; }
+
+    function selectHotel(place) {
+      selectedHotel = { id: place.id, name: place.name, city: place.city, lat: place.lat, lng: place.lng };
+      localStorage.setItem("ug_hotel", JSON.stringify(selectedHotel));
+      updateHotelChip();
+      closeHotelModal();
+
+      if (place.city !== currentCity) {
+        currentCity = place.city;
+        citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
+        renderMarkers();
+      }
+      map.flyTo([place.lat, place.lng], 16, { duration: 0.6 });
+    }
+
+    function clearHotel() {
+      selectedHotel = null;
+      localStorage.removeItem("ug_hotel");
+      updateHotelChip();
+      closeHotelModal();
+    }
+
+    hotelChipEl.onclick = openHotelModal;
+    hotelCloseEl.onclick = closeHotelModal;
+    hotelClearBtnEl.onclick = clearHotel;
+    hotelModalEl.addEventListener('click', (e) => { if (e.target === hotelModalEl) closeHotelModal(); });
 
     // ===== Bottom Sheet: 2 состояния (peek / full) =====
     const sheetEl = document.getElementById('sheet');
@@ -362,8 +518,13 @@
       const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
       const isFav = favoritePlaceIds.has(place.id);
 
-      const haramCenter = CITIES[place.city].center;
-      const distM = haversineMeters(haramCenter[0], haramCenter[1], place.lat, place.lng);
+      let refPoint = CITIES[place.city].center;
+      let refLabel = "от Харама";
+      if (selectedHotel && selectedHotel.city === place.city) {
+        refPoint = [selectedHotel.lat, selectedHotel.lng];
+        refLabel = "от вашего отеля";
+      }
+      const distM = haversineMeters(refPoint[0], refPoint[1], place.lat, place.lng);
       const distLabel = distM < 950 ? `~${Math.round(distM / 10) * 10} м` : `~${(distM / 1000).toFixed(1)} км`;
       const walkMin = Math.max(1, Math.round(distM / 1000 / 4.5 * 60));
 
@@ -379,7 +540,7 @@
           </div>
           <button class="heart-btn" aria-label="${isFav ? 'Удалить из избранного' : 'Сохранить'}" aria-pressed="${isFav}">${isFav ? '❤️' : '🤍'}</button>
         </div>
-        <div class="meta-row"><span>🚶 <b>${walkMin} мин пешком</b> · ${distLabel} от Харама</span></div>
+        <div class="meta-row"><span>🚶 <b>${walkMin} мин пешком</b> · ${distLabel} ${refLabel}</span></div>
         <div class="sheet-hours">🕐 ${escapeHtml(place.hours_text || 'не указано')}</div>
         <div class="sheet-desc">${escapeHtml(place.description || '')}</div>
         <button class="route-main-btn">🧭 Построить маршрут</button>
@@ -392,6 +553,9 @@
         <div class="reviews-block">
           <div class="reviews-list">Загрузка отзывов...</div>
           <button class="leave-review-btn">✍️ Оставить отзыв</button>
+        </div>
+        <div class="channel-footer">
+          Больше советов о поездке — в <a href="https://t.me/zametki_umra" target="_blank" rel="noopener noreferrer">Заметки об Умре</a>
         </div>
       `;
 
@@ -544,15 +708,15 @@
     const citySwitchEl = document.getElementById('city-switch');
     Object.entries(CITIES).forEach(([key, city]) => {
       const btn = document.createElement('button');
+      btn.dataset.cityKey = key;
       btn.setAttribute('aria-pressed', key === currentCity ? 'true' : 'false');
       btn.textContent = city.label;
       btn.onclick = () => {
         currentCity = key;
-        citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false'));
-        btn.setAttribute('aria-pressed', 'true');
+        citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
         map.setView(CITIES[currentCity].center, 15);
         setSheetState('hidden');
-        loadPlaces();
+        renderMarkers();
       };
       citySwitchEl.appendChild(btn);
     });
@@ -601,7 +765,11 @@
       renderMarkers();
     }
 
-    (async () => { await authenticate(); await loadPlaces(); })();
+    (async () => {
+      await authenticate();
+      await loadPlaces();
+      loadExchangeRate();
+    })();
   </script>
 </body>
 </html>
