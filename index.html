@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Umra Guide">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.PNG">
   <title>Umra Guide</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -40,7 +40,7 @@
       padding: 10px 14px 8px;
     }
     .brand-row { display: flex; align-items: flex-start; margin-bottom: 6px; min-height: 30px; }
-    .brand-row img { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; flex: none; }
+    .brand-row img { width: 26px; height: 26px; border-radius: 6px; object-fit: contain; flex: none; }
 
     .rates-box {
       display: flex; flex-direction: column; align-items: flex-end;
@@ -61,7 +61,12 @@
     }
     .rate-tooltip.open { display: block; }
 
-    .hotel-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    .hotel-row { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .fav-header-btn {
+      border: none; background: none; padding: 6px; min-width: 36px; min-height: 36px;
+      font-size: 17px; display: flex; align-items: center; justify-content: center;
+      margin-right: auto;
+    }
     .hotel-link {
       border: none; background: none; padding: 6px 2px; min-height: 32px;
       font-size: 11.5px; font-weight: 700; color: var(--green-dark); font-family: 'Manrope', sans-serif;
@@ -220,19 +225,24 @@
       width: 100%; padding: 12px 14px; margin-bottom: 10px; border: 1.5px solid var(--line);
       border-radius: 12px; font-size: 14px; font-family: 'Manrope', sans-serif; min-height: 44px;
     }
-    #hotel-list { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    .hotel-item {
+    #hotel-list, #fav-list { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .hotel-item, .fav-item {
       width: 100%; text-align: left; padding: 12px 6px; border: none; border-bottom: 1px solid var(--line);
       background: none; font-family: 'Manrope', sans-serif; min-height: 56px;
+      display: flex; align-items: center; gap: 10px;
     }
-    .hotel-item .hotel-name { font-weight: 700; font-size: 14px; color: var(--text); }
-    .hotel-item .hotel-city { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .fav-item .fav-icon {
+      width: 30px; height: 30px; border-radius: 8px; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; font-size: 15px; flex: none;
+    }
+    .hotel-item .hotel-name, .fav-item .fav-name { font-weight: 700; font-size: 14px; color: var(--text); }
+    .hotel-item .hotel-city, .fav-item .fav-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .hotel-clear-btn {
       width: 100%; margin-top: 10px; padding: 12px; min-height: 46px; border: 1.5px solid var(--line);
       background: none; border-radius: 10px; color: var(--muted); font-weight: 700; font-size: 13px;
       font-family: 'Manrope', sans-serif;
     }
-    .hotel-empty { padding: 14px 6px; color: var(--muted); font-size: 13px; }
+    .hotel-empty, .fav-empty { padding: 14px 6px; color: var(--muted); font-size: 13px; }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
@@ -245,7 +255,7 @@
 <body>
   <div id="panel">
     <div class="brand-row">
-      <img src="data:image/png;base64,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" alt="">
+      <img src="logo.PNG" onerror="this.style.display='none'" alt="">
       <div class="rates-box">
         <div class="rate-line"><b>3.75</b> SAR за $1</div>
         <div class="rate-line with-help">
@@ -256,6 +266,7 @@
     </div>
 
     <div class="hotel-row">
+      <button class="fav-header-btn" id="fav-header-btn" aria-label="Избранное">🤍</button>
       <button class="hotel-link" id="hotel-chip">🏨 Выбрать отель ›</button>
     </div>
 
@@ -308,6 +319,16 @@
     </div>
   </div>
 
+  <div id="fav-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="fav-modal-title">
+      <div class="modal-head">
+        <h2 id="fav-modal-title" class="modal-title">Избранное</h2>
+        <button class="modal-close" aria-label="Закрыть" id="fav-close">✕</button>
+      </div>
+      <div id="fav-list"></div>
+    </div>
+  </div>
+
   <div id="debug"></div>
   <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')" aria-label="Показать журнал отладки">🐞</button>
 
@@ -350,7 +371,6 @@
     let allPlaces = [];
     let markers = [];
     let selectedMarker = null;
-    let selectedPlace = null;
     let favoritePlaceIds = new Set();
     let accessToken = localStorage.getItem("ug_token");
     let userId = localStorage.getItem("ug_user_id");
@@ -412,7 +432,7 @@
     });
     document.addEventListener('click', () => rateTooltipEl.classList.remove('open'));
 
-    // ===== Общая функция выбора маркера (используется и тапом, и селектором отеля) =====
+    // ===== Общая функция выбора маркера =====
     function selectMarkerAndOpenSheet(marker, place) {
       if (selectedMarker && selectedMarker !== marker) {
         selectedMarker.setIcon(makeIcon(selectedMarker._category, false, selectedMarker._name));
@@ -421,6 +441,50 @@
       selectedMarker = marker;
       openSheetForPlace(place);
     }
+
+    function goToPlace(place) {
+      currentCity = place.city;
+      currentCategory = 'all';
+      citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
+      document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
+      renderMarkers();
+      const marker = markers.find(m => m.placeId === place.id);
+      if (marker) selectMarkerAndOpenSheet(marker, place);
+      map.flyTo([place.lat, place.lng], 16, { duration: 0.6 });
+    }
+
+    // ===== Избранное (кнопка в шапке) =====
+    const favHeaderBtn = document.getElementById('fav-header-btn');
+    const favModalEl = document.getElementById('fav-modal');
+    const favListEl = document.getElementById('fav-list');
+    const favCloseEl = document.getElementById('fav-close');
+
+    function openFavModal() {
+      const favs = allPlaces.filter(p => favoritePlaceIds.has(p.id));
+      favListEl.innerHTML = favs.length
+        ? favs.map(p => `
+            <button class="fav-item" data-id="${escapeHtml(p.id)}">
+              <div class="fav-icon">${p.name === KAABA_NAME ? '🕋' : (CATEGORY_ICONS[p.category] || '📍')}</div>
+              <div>
+                <div class="fav-name">${escapeHtml(p.name)}</div>
+                <div class="fav-meta">${escapeHtml(CATEGORY_LABELS_RU[p.category] || '')} · ${escapeHtml(CITIES[p.city]?.label || p.city)}</div>
+              </div>
+            </button>
+          `).join('')
+        : '<div class="fav-empty">Пока нет сохранённых мест. Нажмите ❤️ на карточке места, чтобы добавить.</div>';
+
+      favListEl.querySelectorAll('.fav-item').forEach(btn => {
+        btn.onclick = () => {
+          const place = favs.find(p => p.id === btn.dataset.id);
+          if (place) { favModalEl.hidden = true; goToPlace(place); }
+        };
+      });
+
+      favModalEl.hidden = false;
+    }
+    favHeaderBtn.onclick = openFavModal;
+    favCloseEl.onclick = () => { favModalEl.hidden = true; };
+    favModalEl.addEventListener('click', (e) => { if (e.target === favModalEl) favModalEl.hidden = true; });
 
     // ===== Выбор отеля =====
     const hotelChipEl = document.getElementById('hotel-chip');
@@ -443,8 +507,10 @@
       hotelListEl.innerHTML = filtered.length
         ? filtered.map(h => `
             <button class="hotel-item" data-id="${escapeHtml(h.id)}">
-              <div class="hotel-name">${escapeHtml(h.name)}</div>
-              <div class="hotel-city">${escapeHtml(CITIES[h.city]?.label || h.city)}</div>
+              <div>
+                <div class="hotel-name">${escapeHtml(h.name)}</div>
+                <div class="hotel-city">${escapeHtml(CITIES[h.city]?.label || h.city)}</div>
+              </div>
             </button>
           `).join('')
         : (hotels.length ? '<div class="hotel-empty">Ничего не найдено</div>' : '<div class="hotel-empty">Список отелей ещё загружается...</div>');
@@ -463,7 +529,6 @@
       hotelModalEl.hidden = false;
     }
     function closeHotelModal() { hotelModalEl.hidden = true; }
-
     hotelSearchEl.addEventListener('input', () => renderHotelList(hotelSearchEl.value));
 
     function selectHotel(place) {
@@ -471,19 +536,7 @@
       localStorage.setItem("ug_hotel", JSON.stringify(selectedHotel));
       updateHotelChip();
       closeHotelModal();
-
-      currentCity = place.city;
-      currentCategory = 'all';
-      citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
-      document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
-
-      renderMarkers();
-
-      const marker = markers.find(m => m.placeId === place.id);
-      if (marker) {
-        selectMarkerAndOpenSheet(marker, place);
-      }
-      map.flyTo([place.lat, place.lng], 16, { duration: 0.6 });
+      goToPlace(place);
     }
 
     function clearHotel() {
@@ -498,7 +551,7 @@
     hotelClearBtnEl.onclick = clearHotel;
     hotelModalEl.addEventListener('click', (e) => { if (e.target === hotelModalEl) closeHotelModal(); });
 
-    // ===== Bottom Sheet: 2 состояния (peek / full) =====
+    // ===== Bottom Sheet =====
     const sheetEl = document.getElementById('sheet');
     const sheetContentEl = document.getElementById('sheet-content');
     const sheetToolbarEl = document.getElementById('sheet-toolbar');
@@ -559,7 +612,6 @@
     });
 
     function openSheetForPlace(place) {
-      selectedPlace = place;
       const gmapsUrl = place.google_place_id
         ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${encodeURIComponent(place.google_place_id)}`
         : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
@@ -695,6 +747,7 @@
       });
       const data = await res.json();
       favoritePlaceIds = new Set(data.map(f => f.place_id));
+      favHeaderBtn.textContent = favoritePlaceIds.size ? "❤️" : "🤍";
     }
 
     async function toggleFavorite(placeId, btnEl) {
@@ -718,6 +771,7 @@
         favoritePlaceIds.add(placeId);
         btnEl.textContent = "❤️"; btnEl.setAttribute('aria-pressed', 'true');
       }
+      favHeaderBtn.textContent = favoritePlaceIds.size ? "❤️" : "🤍";
     }
 
     async function loadReviews(placeId) {
@@ -809,11 +863,7 @@
       renderMarkers();
     }
 
-    (async () => {
-      await authenticate();
-      await loadPlaces();
-      loadExchangeRate();
-    })();
+    (async () => { await authenticate(); await loadPlaces(); loadExchangeRate(); })();
   </script>
 </body>
 </html>
