@@ -37,43 +37,54 @@
       position: absolute; top: calc(12px + var(--safe-top)); left: calc(12px + var(--safe-left));
       right: calc(12px + var(--safe-right)); z-index: 1000;
       background: white; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-      padding: 10px 14px 8px;
+      padding: 12px 14px 8px;
     }
 
-    .top-row {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    /* ===== Строка 1: логотип + курс ===== */
+    .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .logo-img { height: 60px; width: auto; max-width: 110px; object-fit: contain; flex: none; }
+    .rate-pill {
+      display: flex; align-items: center; gap: 6px; background: var(--bg); border-radius: 999px;
+      padding: 8px 12px; font-size: 12.5px; color: var(--text); white-space: nowrap; flex: none;
     }
-    .logo-img {
-      width: 52px; height: 52px; border-radius: 10px; object-fit: contain; flex: none;
+    .rate-pill .dollar-circle {
+      width: 20px; height: 20px; border-radius: 50%; background: var(--green-dark); color: white;
+      display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex: none;
     }
-    .hotel-link {
-      border: none; background: var(--bg); padding: 8px 10px; min-height: 36px; border-radius: 12px;
-      font-size: 12px; font-weight: 700; color: var(--green-dark); font-family: 'Manrope', sans-serif;
-      max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: none;
-    }
-    .fav-header-btn {
-      border: none; background: none; padding: 6px; min-width: 36px; min-height: 36px;
-      font-size: 18px; display: flex; align-items: center; justify-content: center; flex: none;
-    }
-
-    .rates-box {
-      display: flex; flex-direction: column; align-items: flex-end;
-      font-size: 11px; color: var(--muted); line-height: 1.5;
-      margin-left: auto; flex: none;
-    }
-    .rate-line { white-space: nowrap; }
-    .rate-line b { color: var(--text); font-weight: 700; }
-    .rate-line.with-help { display: flex; align-items: center; gap: 4px; }
+    .rate-pill b { font-weight: 700; }
     .rate-help-btn {
-      border: none; background: var(--bg); width: 15px; height: 15px; border-radius: 50%;
+      border: none; background: var(--line); width: 16px; height: 16px; border-radius: 50%;
       font-size: 9px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700; flex: none;
     }
     .rate-tooltip {
-      display: none; position: absolute; z-index: 1600; right: 14px;
+      display: none; position: absolute; z-index: 1600; right: 14px; top: 70px;
       background: var(--green-dark); color: white; font-size: 11.5px; line-height: 1.45;
       padding: 10px 12px; border-radius: 10px; max-width: 220px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
     }
     .rate-tooltip.open { display: block; }
+
+    /* ===== Строка 2: две пилюли-инструмента ===== */
+    .tools-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .tool-pill {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: var(--bg); border: none; border-radius: 14px; padding: 11px 8px; min-height: 44px;
+      font-weight: 700; font-size: 12.5px; color: var(--green-dark); font-family: 'Manrope', sans-serif;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tool-pill.fav-active { color: var(--danger); }
+
+    /* ===== Строка 3: намазы ===== */
+    .prayer-card {
+      background: var(--bg); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .prayer-label { flex: none; display: flex; flex-direction: column; gap: 1px; }
+    .prayer-label .pl-title { font-size: 11.5px; font-weight: 700; color: var(--text); }
+    .prayer-label .pl-city { font-size: 10.5px; color: var(--muted); }
+    .prayer-times { display: flex; justify-content: space-between; flex: 1; gap: 2px; }
+    .prayer-item { text-align: center; font-size: 10px; color: var(--muted); min-width: 0; }
+    .prayer-item .time { display: block; font-weight: 700; color: var(--text); font-size: 12.5px; margin-top: 2px; }
+    .prayer-item.current .time { color: var(--green-dark); text-decoration: underline; }
 
     .city-switch { display: flex; background: var(--bg); border-radius: 14px; padding: 3px; margin-bottom: 10px; }
     .city-switch button {
@@ -258,14 +269,25 @@
   <div id="panel">
     <div class="top-row">
       <img class="logo-img" src="logo.PNG" onerror="this.style.display='none'" alt="">
-      <button class="hotel-link" id="hotel-chip">🏨 Выбрать отель ›</button>
-      <button class="fav-header-btn" id="fav-header-btn" aria-label="Избранное">🤍</button>
-      <div class="rates-box">
-        <div class="rate-line"><b>3.75</b> SAR за $1</div>
-        <div class="rate-line with-help">
-          <span><b id="rate-usd-rub">—</b> RUB за $1</span>
-          <button class="rate-help-btn" id="rate-help-btn" aria-label="Пояснение к курсу">?</button>
-        </div>
+      <div class="rate-pill">
+        <span class="dollar-circle">$</span>
+        <span>$1 = <b>3.75</b> SAR · <b id="rate-usd-rub">—</b> RUB</span>
+        <button class="rate-help-btn" id="rate-help-btn" aria-label="Пояснение к курсу">?</button>
+      </div>
+    </div>
+
+    <div class="tools-row">
+      <button class="tool-pill" id="hotel-chip">🏨 Выбрать отель ›</button>
+      <button class="tool-pill" id="fav-header-btn">🤍 Избранное (0) ›</button>
+    </div>
+
+    <div class="prayer-card">
+      <div class="prayer-label">
+        <span class="pl-title">🕌 Намазы сегодня</span>
+        <span class="pl-city" id="prayer-city-label">Мекка</span>
+      </div>
+      <div class="prayer-times" id="prayer-times">
+        <div class="prayer-item"><span>—</span><span class="time">--:--</span></div>
       </div>
     </div>
 
@@ -420,16 +442,53 @@
     const rateTooltipEl = document.getElementById('rate-tooltip');
     rateHelpBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (rateTooltipEl.classList.contains('open')) {
-        rateTooltipEl.classList.remove('open');
-        return;
-      }
-      const btnRect = rateHelpBtn.getBoundingClientRect();
-      const panelRect = panelEl.getBoundingClientRect();
-      rateTooltipEl.style.top = (btnRect.bottom - panelRect.top + 6) + 'px';
-      rateTooltipEl.classList.add('open');
+      rateTooltipEl.classList.toggle('open');
     });
     document.addEventListener('click', () => rateTooltipEl.classList.remove('open'));
+
+    // ===== Намазы (Aladhan API, метод Umm al-Qura) =====
+    const prayerTimesEl = document.getElementById('prayer-times');
+    const prayerCityLabelEl = document.getElementById('prayer-city-label');
+
+    async function loadPrayerTimes(cityKey) {
+      const center = CITIES[cityKey].center;
+      prayerCityLabelEl.textContent = CITIES[cityKey].label;
+      const today = new Date();
+      const dateStr = String(today.getDate()).padStart(2, '0') + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + today.getFullYear();
+      try {
+        const res = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${center[0]}&longitude=${center[1]}&method=4`);
+        const data = await res.json();
+        const t = data.data.timings;
+        const clean = s => s.split(' ')[0];
+        const times = [
+          ['Фаджр', clean(t.Fajr)],
+          ['Зухр', clean(t.Dhuhr)],
+          ['Аср', clean(t.Asr)],
+          ['Магриб', clean(t.Maghrib)],
+          ['Иша', clean(t.Isha)]
+        ];
+        renderPrayerTimes(times);
+      } catch (e) {
+        log("Ошибка загрузки намазов: " + e.message);
+        prayerTimesEl.innerHTML = '<div class="prayer-item"><span>Ошибка</span><span class="time">--:--</span></div>';
+      }
+    }
+
+    function renderPrayerTimes(times) {
+      const now = new Date();
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      let currentIdx = -1;
+      times.forEach(([name, time], i) => {
+        const [h, m] = time.split(':').map(Number);
+        if (h * 60 + m <= nowMinutes) currentIdx = i;
+      });
+      prayerTimesEl.innerHTML = times.map(([name, time], i) => `
+        <div class="prayer-item ${i === currentIdx ? 'current' : ''}">
+          <span>${name}</span>
+          <span class="time">${time}</span>
+        </div>
+      `).join('');
+    }
 
     // ===== Общая функция выбора маркера =====
     function selectMarkerAndOpenSheet(marker, place) {
@@ -447,16 +506,23 @@
       citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
       document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
       renderMarkers();
+      loadPrayerTimes(currentCity);
       const marker = markers.find(m => m.placeId === place.id);
       if (marker) selectMarkerAndOpenSheet(marker, place);
       map.flyTo([place.lat, place.lng], 16, { duration: 0.6 });
     }
 
-    // ===== Избранное (кнопка в шапке) =====
+    // ===== Избранное =====
     const favHeaderBtn = document.getElementById('fav-header-btn');
     const favModalEl = document.getElementById('fav-modal');
     const favListEl = document.getElementById('fav-list');
     const favCloseEl = document.getElementById('fav-close');
+
+    function updateFavHeaderBtn() {
+      const n = favoritePlaceIds.size;
+      favHeaderBtn.textContent = `${n ? '❤️' : '🤍'} Избранное (${n}) ›`;
+      favHeaderBtn.classList.toggle('fav-active', n > 0);
+    }
 
     function openFavModal() {
       const favs = allPlaces.filter(p => favoritePlaceIds.has(p.id));
@@ -619,7 +685,7 @@
       const isFav = favoritePlaceIds.has(place.id);
 
       let refPoint = CITIES[place.city].center;
-      let refLabel = "от Харама";
+      let refLabel = place.city === 'medina' ? "от мечети Пророка" : "от Харама";
       if (selectedHotel && selectedHotel.city === place.city) {
         refPoint = [selectedHotel.lat, selectedHotel.lng];
         refLabel = "от вашего отеля";
@@ -740,13 +806,13 @@
     }
 
     async function loadFavorites() {
-      if (!accessToken) return;
+      if (!accessToken) { updateFavHeaderBtn(); return; }
       const res = await fetch(`${SUPABASE_URL}/rest/v1/favorites?select=place_id`, {
         headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
       });
       const data = await res.json();
       favoritePlaceIds = new Set(data.map(f => f.place_id));
-      favHeaderBtn.textContent = favoritePlaceIds.size ? "❤️" : "🤍";
+      updateFavHeaderBtn();
     }
 
     async function toggleFavorite(placeId, btnEl) {
@@ -770,7 +836,7 @@
         favoritePlaceIds.add(placeId);
         btnEl.textContent = "❤️"; btnEl.setAttribute('aria-pressed', 'true');
       }
-      favHeaderBtn.textContent = favoritePlaceIds.size ? "❤️" : "🤍";
+      updateFavHeaderBtn();
     }
 
     async function loadReviews(placeId) {
@@ -819,6 +885,7 @@
         map.setView(CITIES[currentCity].center, 15);
         setSheetState('hidden');
         renderMarkers();
+        loadPrayerTimes(currentCity);
       };
       citySwitchEl.appendChild(btn);
     });
@@ -863,7 +930,12 @@
       renderMarkers();
     }
 
-    (async () => { await authenticate(); await loadPlaces(); loadExchangeRate(); })();
+    (async () => {
+      await authenticate();
+      await loadPlaces();
+      loadExchangeRate();
+      loadPrayerTimes(currentCity);
+    })();
   </script>
 </body>
 </html>
