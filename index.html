@@ -31,6 +31,7 @@
     button:focus-visible, a:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-visible {
       outline: 3px solid var(--gold); outline-offset: 2px;
     }
+    svg { display: block; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
     #panel {
@@ -40,12 +41,13 @@
       padding: 12px 14px 8px;
     }
 
-    /* ===== Строка 1: логотип + курс ===== */
-    .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-    .logo-img { height: 60px; width: auto; max-width: 110px; object-fit: contain; flex: none; }
+    /* ===== Строка 1: логотип + курс + меню ===== */
+    .top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; position: relative; }
+    .logo-img { height: 56px; width: auto; max-width: 100px; object-fit: contain; flex: none; }
+    .top-row-right { display: flex; align-items: center; gap: 8px; }
     .rate-pill {
       display: flex; align-items: center; gap: 6px; background: var(--bg); border-radius: 999px;
-      padding: 8px 12px; font-size: 12.5px; color: var(--text); white-space: nowrap; flex: none;
+      padding: 8px 12px; font-size: 12px; color: var(--text); white-space: nowrap; flex: none;
     }
     .rate-pill .dollar-circle {
       width: 20px; height: 20px; border-radius: 50%; background: var(--green-dark); color: white;
@@ -57,30 +59,41 @@
       font-size: 9px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700; flex: none;
     }
     .rate-tooltip {
-      display: none; position: absolute; z-index: 1600; right: 14px; top: 70px;
+      display: none; position: absolute; z-index: 1600; right: 14px; top: 66px;
       background: var(--green-dark); color: white; font-size: 11.5px; line-height: 1.45;
       padding: 10px 12px; border-radius: 10px; max-width: 220px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
     }
     .rate-tooltip.open { display: block; }
 
-    /* ===== Строка 2: две пилюли-инструмента ===== */
-    .tools-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .menu-toggle-btn {
+      border: none; background: var(--bg); width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; flex: none; color: var(--green-dark);
+    }
+    .menu-drawer {
+      display: none; position: absolute; top: 66px; right: 0; z-index: 1600;
+      background: white; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      padding: 10px; gap: 8px;
+    }
+    .menu-drawer.open { display: flex; }
+
+    /* ===== Пилюли инструментов (внутри шторки) ===== */
     .tool-pill {
-      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-      background: var(--bg); border: none; border-radius: 14px; padding: 11px 8px; min-height: 44px;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      background: var(--bg); border: none; border-radius: 14px; padding: 11px 12px; min-height: 44px;
       font-weight: 700; font-size: 12.5px; color: var(--green-dark); font-family: 'Manrope', sans-serif;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .tool-pill.fav-active { color: var(--danger); }
+    .tool-pill svg { width: 17px; height: 17px; flex: none; }
 
-    /* ===== Строка 3: намазы ===== */
+    /* ===== Строка намазов ===== */
     .prayer-card {
       background: var(--bg); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px;
       display: flex; align-items: center; gap: 10px;
     }
-    .prayer-label { flex: none; display: flex; flex-direction: column; gap: 1px; }
-    .prayer-label .pl-title { font-size: 11.5px; font-weight: 700; color: var(--text); }
-    .prayer-label .pl-city { font-size: 10.5px; color: var(--muted); }
+    .prayer-label-icon { flex: none; width: 20px; height: 20px; color: var(--green-dark); display: flex; align-items: center; justify-content: center; }
+    .prayer-label-text { display: flex; flex-direction: column; gap: 1px; flex: none; }
+    .prayer-label-text .pl-title { font-size: 11.5px; font-weight: 700; color: var(--text); white-space: nowrap; }
+    .prayer-label-text .pl-city { font-size: 10.5px; color: var(--muted); }
     .prayer-times { display: flex; justify-content: space-between; flex: 1; gap: 2px; }
     .prayer-item { text-align: center; font-size: 10px; color: var(--muted); min-width: 0; }
     .prayer-item .time { display: block; font-weight: 700; color: var(--text); font-size: 12.5px; margin-top: 2px; }
@@ -98,8 +111,9 @@
     .cat-item {
       background: none; border: none; white-space: nowrap; font-family: 'Manrope', sans-serif;
       font-weight: 600; font-size: 13px; color: var(--muted); padding: 8px 2px; min-height: 40px;
-      border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 5px;
+      border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 6px;
     }
+    .cat-item svg { width: 18px; height: 18px; flex: none; }
     .cat-item[aria-selected="true"] { color: var(--green-dark); border-bottom-color: var(--green); }
 
     .debug-toggle {
@@ -134,7 +148,7 @@
     .marker-pin.kaaba { border-color: #1a1a1a; }
     .marker-pin.kaaba.selected { background: #1a1a1a; }
 
-    /* ===== Bottom Sheet — 2 состояния ===== */
+    /* ===== Bottom Sheet ===== */
     #sheet {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 1500;
       background: white; border-radius: 20px 20px 0 0;
@@ -165,6 +179,10 @@
     .heart-btn {
       background: none; border: none; font-size: 20px; padding: 6px;
       min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;
+    }
+
+    .sheet-photo {
+      width: 100%; height: 160px; object-fit: cover; border-radius: 14px; margin-bottom: 10px; background: var(--bg);
     }
 
     .meta-row { display: flex; gap: 12px; margin: 6px 0 8px; font-size: 13px; color: var(--muted); }
@@ -235,9 +253,10 @@
     .review-status { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
 
     .hotel-search {
-      width: 100%; padding: 12px 14px; margin-bottom: 10px; border: 1.5px solid var(--line);
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--line);
       border-radius: 12px; font-size: 14px; font-family: 'Manrope', sans-serif; min-height: 44px;
     }
+    .hotel-search-hint { font-size: 11.5px; color: var(--muted); margin: 6px 0 10px; line-height: 1.4; }
     #hotel-list, #fav-list { overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .hotel-item, .fav-item {
       width: 100%; text-align: left; padding: 12px 6px; border: none; border-bottom: 1px solid var(--line);
@@ -269,21 +288,24 @@
   <div id="panel">
     <div class="top-row">
       <img class="logo-img" src="logo.PNG" onerror="this.style.display='none'" alt="">
-      <div class="rate-pill">
-        <span class="dollar-circle">$</span>
-        <span>$1 = <b>3.75</b> SAR · <b id="rate-usd-rub">—</b> RUB</span>
-        <button class="rate-help-btn" id="rate-help-btn" aria-label="Пояснение к курсу">?</button>
+      <div class="top-row-right">
+        <div class="rate-pill">
+          <span class="dollar-circle">$</span>
+          <span>$1 = <b>3.75</b> SAR · <b id="rate-usd-rub">—</b> RUB</span>
+          <button class="rate-help-btn" id="rate-help-btn" aria-label="Пояснение к курсу">?</button>
+        </div>
+        <button class="menu-toggle-btn" id="menu-toggle-btn" aria-label="Меню"></button>
+        <div class="menu-drawer" id="menu-drawer">
+          <button class="tool-pill" id="hotel-chip"></button>
+          <button class="tool-pill" id="fav-header-btn"></button>
+        </div>
       </div>
     </div>
 
-    <div class="tools-row">
-      <button class="tool-pill" id="hotel-chip">🏨 Выбрать отель ›</button>
-      <button class="tool-pill" id="fav-header-btn">🤍 Избранное (0) ›</button>
-    </div>
-
     <div class="prayer-card">
-      <div class="prayer-label">
-        <span class="pl-title">🕌 Намазы сегодня</span>
+      <div class="prayer-label-icon" id="prayer-icon"></div>
+      <div class="prayer-label-text">
+        <span class="pl-title">Намазы сегодня</span>
         <span class="pl-city" id="prayer-city-label">Мекка</span>
       </div>
       <div class="prayer-times" id="prayer-times">
@@ -335,6 +357,7 @@
         <button class="modal-close" aria-label="Закрыть" id="hotel-close">✕</button>
       </div>
       <input type="text" class="hotel-search" id="hotel-search" placeholder="Поиск отеля...">
+      <div class="hotel-search-hint">Зачем это нужно: так мы посчитаем расстояние и время в пути до каждого места именно от вашего отеля, а не от условного центра города.</div>
       <div id="hotel-list"></div>
       <button class="hotel-clear-btn" id="hotel-clear-btn">Не выбирать отель</button>
     </div>
@@ -369,6 +392,25 @@
       }[c]));
     }
 
+    // ===== Line-иконки (без эмодзи) =====
+    const ICON_PATHS = {
+      building: '<rect x="6" y="3" width="12" height="18" rx="1"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/>',
+      heart: '<path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4.5 7 4.5c2 0 3.5 1.2 5 3 1.5-1.8 3-3 5-3 4 0 6.5 4 4.5 8-2.5 4.15-9.5 8.5-9.5 8.5Z"/>',
+      mosque: '<path d="M12 3l2 3H10l2-3Z"/><path d="M12 6v3"/><path d="M4 21V13a8 8 0 0 1 16 0v8"/><path d="M4 21h16"/>',
+      menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+      food: '<path d="M6 3v7a2 2 0 0 0 4 0V3M8 10v11"/><path d="M17.5 3c-1.4 0-2.5 1.6-2.5 4v3c0 1 .6 2 1.7 2h.8v9"/>',
+      health: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/>',
+      shopping: '<path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+      connectivity: '<path d="M6 20v-4M12 20v-8M18 20V6"/>',
+      money: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 6V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v1"/><circle cx="17" cy="13" r="1.5"/>',
+      transport: '<path d="M3 17V11l2-5h14l2 5v6"/><path d="M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm14 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>',
+      grid: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>'
+    };
+    function iconSvg(name, size) {
+      const s = size || 18;
+      return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[name] || ''}</svg>`;
+    }
+
     const CITIES = {
       mecca: { label: "Мекка", center: [21.4225, 39.8262] },
       medina: { label: "Медина", center: [24.4672, 39.6112] }
@@ -378,7 +420,12 @@
       connectivity: "Связь", money: "Деньги", transport: "Транспорт",
       religion: "Мечети", useful: "Отели"
     };
-    const CATEGORY_ICONS = {
+    const CATEGORY_ICON_KEYS = {
+      all: "grid", food: "food", health: "health", shopping: "shopping",
+      connectivity: "connectivity", money: "money", transport: "transport",
+      religion: "mosque", useful: "building"
+    };
+    const CATEGORY_EMOJI = {
       food: "🍽", health: "💊", shopping: "🛒", connectivity: "📱",
       money: "💰", transport: "🚕", religion: "🕌", useful: "🏨"
     };
@@ -386,6 +433,9 @@
       food: "Еда", health: "Здоровье", shopping: "Магазин", connectivity: "Связь",
       money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель"
     };
+
+    document.getElementById('menu-toggle-btn').innerHTML = iconSvg('menu', 19);
+    document.getElementById('prayer-icon').innerHTML = iconSvg('mosque', 20);
 
     let currentCity = "mecca";
     let currentCategory = "all";
@@ -403,7 +453,7 @@
 
     function makeIcon(category, selected, name) {
       const isKaaba = name === KAABA_NAME;
-      const emoji = isKaaba ? "🕋" : (CATEGORY_ICONS[category] || "📍");
+      const emoji = isKaaba ? "🕋" : (CATEGORY_EMOJI[category] || "📍");
       const size = selected ? 42 : 32;
       const isHotel = category === 'useful';
       let cls = isKaaba ? 'kaaba' : (isHotel ? 'hotel' : '');
@@ -444,7 +494,18 @@
       e.stopPropagation();
       rateTooltipEl.classList.toggle('open');
     });
-    document.addEventListener('click', () => rateTooltipEl.classList.remove('open'));
+
+    // ===== Меню-шторка =====
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
+    const menuDrawerEl = document.getElementById('menu-drawer');
+    menuToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuDrawerEl.classList.toggle('open');
+    });
+    document.addEventListener('click', () => {
+      rateTooltipEl.classList.remove('open');
+      menuDrawerEl.classList.remove('open');
+    });
 
     // ===== Намазы (Aladhan API, метод Umm al-Qura) =====
     const prayerTimesEl = document.getElementById('prayer-times');
@@ -477,13 +538,15 @@
     function renderPrayerTimes(times) {
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
-      let currentIdx = -1;
-      times.forEach(([name, time], i) => {
+      // подсвечиваем ближайший ПРЕДСТОЯЩИЙ намаз, а не последний прошедший
+      let upcomingIdx = times.findIndex(([, time]) => {
         const [h, m] = time.split(':').map(Number);
-        if (h * 60 + m <= nowMinutes) currentIdx = i;
+        return h * 60 + m > nowMinutes;
       });
+      if (upcomingIdx === -1) upcomingIdx = 0; // после Иша — следующий Фаджр
+
       prayerTimesEl.innerHTML = times.map(([name, time], i) => `
-        <div class="prayer-item ${i === currentIdx ? 'current' : ''}">
+        <div class="prayer-item ${i === upcomingIdx ? 'current' : ''}">
           <span>${name}</span>
           <span class="time">${time}</span>
         </div>
@@ -520,16 +583,18 @@
 
     function updateFavHeaderBtn() {
       const n = favoritePlaceIds.size;
-      favHeaderBtn.textContent = `${n ? '❤️' : '🤍'} Избранное (${n}) ›`;
+      favHeaderBtn.innerHTML = `${iconSvg('heart')}<span>Избранное (${n}) ›</span>`;
       favHeaderBtn.classList.toggle('fav-active', n > 0);
     }
+    updateFavHeaderBtn();
 
     function openFavModal() {
+      menuDrawerEl.classList.remove('open');
       const favs = allPlaces.filter(p => favoritePlaceIds.has(p.id));
       favListEl.innerHTML = favs.length
         ? favs.map(p => `
             <button class="fav-item" data-id="${escapeHtml(p.id)}">
-              <div class="fav-icon">${p.name === KAABA_NAME ? '🕋' : (CATEGORY_ICONS[p.category] || '📍')}</div>
+              <div class="fav-icon">${p.name === KAABA_NAME ? '🕋' : (CATEGORY_EMOJI[p.category] || '📍')}</div>
               <div>
                 <div class="fav-name">${escapeHtml(p.name)}</div>
                 <div class="fav-meta">${escapeHtml(CATEGORY_LABELS_RU[p.category] || '')} · ${escapeHtml(CITIES[p.city]?.label || p.city)}</div>
@@ -560,7 +625,8 @@
     const hotelSearchEl = document.getElementById('hotel-search');
 
     function updateHotelChip() {
-      hotelChipEl.textContent = selectedHotel ? `🏨 ${selectedHotel.name} ›` : "🏨 Выбрать отель ›";
+      const label = selectedHotel ? selectedHotel.name : "Выбрать отель";
+      hotelChipEl.innerHTML = `${iconSvg('building')}<span>${escapeHtml(label)} ›</span>`;
     }
     updateHotelChip();
 
@@ -589,6 +655,7 @@
     }
 
     function openHotelModal() {
+      menuDrawerEl.classList.remove('open');
       hotelSearchEl.value = '';
       renderHotelList('');
       hotelModalEl.hidden = false;
@@ -698,7 +765,12 @@
         ? `<div class="rating-line">⭐ <b>${escapeHtml(place.google_rating)}</b> · ${place.google_rating_count ? escapeHtml(place.google_rating_count) + '+' : ''} отзывов в Google</div>`
         : '';
 
+      const photoHtml = place.photo_url
+        ? `<img class="sheet-photo" src="${escapeHtml(place.photo_url)}" alt="" loading="lazy">`
+        : '';
+
       sheetContentEl.innerHTML = `
+        ${photoHtml}
         <div class="sheet-head">
           <div>
             <div class="sheet-title">${escapeHtml(place.name)}</div>
@@ -897,8 +969,7 @@
       btn.dataset.catKey = key;
       btn.setAttribute('role', 'tab');
       btn.setAttribute('aria-selected', key === currentCategory ? 'true' : 'false');
-      const icon = CATEGORY_ICONS[key] || '';
-      btn.innerHTML = icon ? `<span>${icon}</span><span>${label}</span>` : `<span>${label}</span>`;
+      btn.innerHTML = `${iconSvg(CATEGORY_ICON_KEYS[key])}<span>${label}</span>`;
       btn.onclick = () => {
         currentCategory = key;
         document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === currentCategory ? 'true' : 'false'));
