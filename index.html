@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#2b5f4a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -10,10 +10,19 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.PNG">
   <title>Umra Guide</title>
+
+  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Leaflet & MarkerCluster CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --green: #3f8368; --green-dark: #2b5f4a; --gold: #b8935a;
@@ -32,7 +41,7 @@
       outline: 3px solid var(--gold); outline-offset: 2px;
     }
     svg { display: block; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
 
     #panel {
       position: absolute; top: calc(12px + var(--safe-top)); left: calc(12px + var(--safe-left));
@@ -41,9 +50,9 @@
       padding: 12px 14px 8px;
     }
 
-    /* ===== Строка 1: логотип + курс + меню ===== */
+    /* Строка 1: логотип + курс + меню */
     .top-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; position: relative; }
-    .logo-img { height: 56px; width: auto; max-width: 100px; object-fit: contain; flex: none; }
+    .logo-img { height: 52px; width: auto; max-width: 100px; object-fit: contain; flex: none; }
     .top-row-right { display: flex; align-items: center; gap: 8px; }
     .rate-pill {
       display: flex; align-items: center; gap: 6px; background: var(--bg); border-radius: 999px;
@@ -56,7 +65,7 @@
     .rate-pill b { font-weight: 700; }
     .rate-help-btn {
       border: none; background: var(--line); width: 16px; height: 16px; border-radius: 50%;
-      font-size: 9px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700; flex: none;
+      font-size: 9px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700; flex: none; cursor: pointer;
     }
     .rate-tooltip {
       display: none; position: absolute; z-index: 1600; right: 14px; top: 66px;
@@ -67,27 +76,28 @@
 
     .menu-toggle-btn {
       border: none; background: var(--bg); width: 40px; height: 40px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center; flex: none; color: var(--green-dark);
+      display: flex; align-items: center; justify-content: center; flex: none; color: var(--green-dark); cursor: pointer;
     }
     .menu-drawer {
       display: none; position: absolute; top: 66px; right: 0; z-index: 1600;
       background: white; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-      padding: 10px; gap: 8px;
+      padding: 10px; gap: 8px; flex-direction: column; min-width: 190px;
     }
     .menu-drawer.open { display: flex; }
 
-    /* ===== Пилюли инструментов (внутри шторки) ===== */
+    /* Пилюли инструментов */
     .tool-pill {
-      display: flex; align-items: center; gap: 6px; white-space: nowrap;
-      background: var(--bg); border: none; border-radius: 14px; padding: 11px 12px; min-height: 44px;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap;
+      background: var(--bg); border: none; border-radius: 12px; padding: 10px 12px; min-height: 42px;
       font-weight: 700; font-size: 12.5px; color: var(--green-dark); font-family: 'Manrope', sans-serif;
+      cursor: pointer; text-align: left; width: 100%;
     }
     .tool-pill.fav-active { color: var(--danger); }
     .tool-pill svg { width: 17px; height: 17px; flex: none; }
 
-    /* ===== Строка намазов ===== */
+    /* Строка намазов */
     .prayer-card {
-      background: var(--bg); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px;
+      background: var(--bg); border-radius: 16px; padding: 9px 12px; margin-bottom: 10px;
       display: flex; align-items: center; gap: 10px;
     }
     .prayer-label-icon { flex: none; width: 20px; height: 20px; color: var(--green-dark); display: flex; align-items: center; justify-content: center; }
@@ -96,30 +106,38 @@
     .prayer-label-text .pl-city { font-size: 10.5px; color: var(--muted); }
     .prayer-times { display: flex; justify-content: space-between; flex: 1; gap: 2px; }
     .prayer-item { text-align: center; font-size: 10px; color: var(--muted); min-width: 0; }
-    .prayer-item .time { display: block; font-weight: 700; color: var(--text); font-size: 12.5px; margin-top: 2px; }
-    .prayer-item.current .time { color: var(--green-dark); text-decoration: underline; }
+    .prayer-item .time { display: block; font-weight: 700; color: var(--text); font-size: 12px; margin-top: 2px; }
+    .prayer-item.current .time { color: var(--green-dark); text-decoration: underline; font-weight: 800; }
 
     .city-switch { display: flex; background: var(--bg); border-radius: 14px; padding: 3px; margin-bottom: 10px; }
     .city-switch button {
-      flex: 1; border: none; background: none; padding: 12px 0; min-height: 44px; border-radius: 11px;
-      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 14px; color: var(--muted);
+      flex: 1; border: none; background: none; padding: 10px 0; min-height: 40px; border-radius: 11px;
+      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--muted); cursor: pointer;
     }
     .city-switch button[aria-pressed="true"] { background: var(--green); color: white; }
 
-    .cat-row { display: flex; gap: 18px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+    .cat-row { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
     .cat-row::-webkit-scrollbar { display: none; }
     .cat-item {
       background: none; border: none; white-space: nowrap; font-family: 'Manrope', sans-serif;
-      font-weight: 600; font-size: 13px; color: var(--muted); padding: 8px 2px; min-height: 40px;
-      border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 6px;
+      font-weight: 600; font-size: 13px; color: var(--muted); padding: 6px 2px; min-height: 38px;
+      border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 6px; cursor: pointer;
     }
-    .cat-item svg { width: 18px; height: 18px; flex: none; }
+    .cat-item svg { width: 17px; height: 17px; flex: none; }
     .cat-item[aria-selected="true"] { color: var(--green-dark); border-bottom-color: var(--green); }
+
+    /* Оффлайн-индикатор */
+    #offline-pill {
+      display: none; position: absolute; top: calc(185px + var(--safe-top)); left: 50%;
+      transform: translateX(-50%); z-index: 1001; background: rgba(30, 35, 30, 0.88);
+      color: #90e0b0; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
+      backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
 
     .debug-toggle {
       position: absolute; bottom: calc(14px + var(--safe-bottom)); right: calc(14px + var(--safe-right)); z-index: 2001;
       width: 44px; height: 44px; border-radius: 50%; background: white;
-      border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 16px; opacity: 0.6;
+      border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 16px; opacity: 0.6; cursor: pointer;
     }
     #debug {
       display: none;
@@ -129,6 +147,7 @@
     }
     #debug.visible { display: block; }
 
+    /* Стили маркеров */
     .marker-pin {
       width: 32px; height: 32px; border-radius: 50% 50% 50% 0;
       background: white; border: 2px solid var(--green);
@@ -145,28 +164,37 @@
     .marker-pin.selected span { font-size: 19px; }
     .marker-pin.hotel { border-color: var(--gold); }
     .marker-pin.hotel.selected { background: var(--gold); }
-    .marker-pin.kaaba { border-color: #1a1a1a; }
-    .marker-pin.kaaba.selected { background: #1a1a1a; }
+    .marker-pin.kaaba { border-color: #1a1a1a; background: #222; }
+    .marker-pin.kaaba span { font-size: 16px; }
 
-    /* ===== Bottom Sheet ===== */
+    /* Кластеры Leaflet */
+    .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+      background-color: rgba(63, 131, 104, 0.25) !important;
+    }
+    .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+      background-color: var(--green-dark) !important; color: white !important;
+      font-family: 'Manrope', sans-serif !important; font-weight: 700 !important; font-size: 12px !important;
+    }
+
+    /* Bottom Sheet */
     #sheet {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 1500;
-      background: white; border-radius: 20px 20px 0 0;
+      background: white; border-radius: 22px 22px 0 0;
       box-shadow: 0 -6px 24px rgba(0,0,0,0.18);
       display: flex; flex-direction: column;
       height: 0px; overflow: hidden;
       touch-action: none;
     }
-    #sheet.animate { transition: height 0.25s ease; }
+    #sheet.animate { transition: height 0.25s cubic-bezier(0.1, 0.9, 0.2, 1); }
     #sheet-toolbar {
       display: flex; align-items: center; justify-content: center; position: relative;
-      min-height: 48px; padding: 10px 0 4px; touch-action: none; cursor: grab;
+      min-height: 44px; padding: 8px 0 2px; touch-action: none; cursor: grab;
     }
     .handle-bar { width: 40px; height: 4px; border-radius: 3px; background: #ddd7c8; }
     .sheet-close {
-      position: absolute; right: 8px; top: 4px; width: 40px; height: 40px;
-      border: none; background: var(--bg); border-radius: 12px; font-size: 20px; color: var(--green-dark);
-      display: flex; align-items: center; justify-content: center;
+      position: absolute; right: 12px; top: 6px; width: 34px; height: 34px;
+      border: none; background: var(--bg); border-radius: 50%; font-size: 16px; color: var(--green-dark);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
     #sheet-content {
       flex: 1; padding: 4px 18px calc(24px + var(--safe-bottom));
@@ -174,11 +202,11 @@
     }
 
     .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .sheet-title { font-weight: 700; font-size: 17px; color: var(--text); line-height: 1.25; }
-    .sheet-cat { font-size: 12.5px; color: var(--gold); font-weight: 600; margin-top: 2px; }
+    .sheet-title { font-weight: 800; font-size: 18px; color: var(--text); line-height: 1.25; }
+    .sheet-cat { font-size: 12.5px; color: var(--gold); font-weight: 700; margin-top: 2px; }
     .heart-btn {
-      background: none; border: none; font-size: 20px; padding: 6px;
-      min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;
+      background: none; border: none; font-size: 22px; padding: 4px;
+      min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
 
     .sheet-photo {
@@ -188,13 +216,13 @@
     .meta-row { display: flex; gap: 12px; margin: 6px 0 8px; font-size: 13px; color: var(--muted); }
     .meta-row b { color: var(--text); }
 
-    .sheet-desc { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+    .sheet-desc { font-size: 13.5px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
     .sheet-hours { font-size: 13px; color: var(--gold); font-weight: 700; margin-bottom: 10px; }
 
     .route-main-btn {
       background: var(--green); color: white; border: none; border-radius: 12px;
-      padding: 13px; font-size: 14px; font-weight: 700; width: 100%; min-height: 48px;
-      font-family: 'Manrope', sans-serif;
+      padding: 13px; font-size: 14px; font-weight: 700; width: 100%; min-height: 46px;
+      font-family: 'Manrope', sans-serif; cursor: pointer;
     }
     .route-sub-row { display: none; gap: 6px; margin-top: 8px; }
     .route-sub-row.open { display: flex; }
@@ -213,33 +241,33 @@
     .leave-review-btn {
       background: none; border: 1.5px solid var(--green); color: var(--green-dark); font-weight: 700;
       font-size: 13px; padding: 10px; min-height: 44px; width: 100%; border-radius: 10px;
-      font-family: 'Manrope', sans-serif; margin-top: 4px;
+      font-family: 'Manrope', sans-serif; margin-top: 6px; cursor: pointer;
     }
 
     .channel-footer { margin-top: 16px; font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.5; }
     .channel-footer a { color: var(--green-dark); font-weight: 700; text-decoration: none; }
 
-    /* ===== Модальные окна ===== */
+    /* Модальные окна */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 2200; display: flex; align-items: flex-end; justify-content: center;
       background: rgba(20,30,25,0.55); padding: 12px;
     }
     .modal-backdrop[hidden] { display: none; }
     .modal-card {
-      width: 100%; max-width: 480px; background: white; border-radius: 20px; padding: 18px;
+      width: 100%; max-width: 480px; background: white; border-radius: 22px; padding: 18px;
       padding-bottom: calc(18px + var(--safe-bottom));
-      max-height: 80vh; display: flex; flex-direction: column;
+      max-height: 82vh; display: flex; flex-direction: column;
     }
     .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .modal-title { font-weight: 700; font-size: 16px; margin: 0; }
+    .modal-title { font-weight: 800; font-size: 17px; margin: 0; color: var(--green-dark); }
     .modal-close {
-      width: 40px; height: 40px; border: none; background: var(--bg); border-radius: 12px;
-      font-size: 18px; color: var(--green-dark);
+      width: 36px; height: 36px; border: none; background: var(--bg); border-radius: 50%;
+      font-size: 16px; color: var(--green-dark); cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
     .rating-picker { display: flex; gap: 6px; margin-bottom: 12px; justify-content: center; }
     .rating-picker button {
       width: 44px; height: 44px; border: 1.5px solid var(--line); border-radius: 10px;
-      background: white; font-size: 18px; color: var(--gold);
+      background: white; font-size: 20px; color: var(--gold); cursor: pointer;
     }
     .rating-picker button[aria-pressed="true"] { background: #fff4e0; border-color: var(--gold); }
     .review-textarea {
@@ -248,7 +276,7 @@
     }
     .review-submit {
       width: 100%; margin-top: 10px; min-height: 46px; background: var(--green-dark); color: white;
-      border: none; border-radius: 10px; font-size: 14px; font-weight: 700; font-family: 'Manrope', sans-serif;
+      border: none; border-radius: 10px; font-size: 14px; font-weight: 700; font-family: 'Manrope', sans-serif; cursor: pointer;
     }
     .review-status { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
 
@@ -256,38 +284,58 @@
       width: 100%; padding: 12px 14px; border: 1.5px solid var(--line);
       border-radius: 12px; font-size: 14px; font-family: 'Manrope', sans-serif; min-height: 44px;
     }
-    .hotel-search-hint { font-size: 11.5px; color: var(--muted); margin: 6px 0 10px; line-height: 1.4; }
-    #hotel-list, #fav-list { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .hotel-search-hint { font-size: 12px; color: var(--muted); margin: 6px 0 10px; line-height: 1.4; }
+    #hotel-list, #fav-list, #guide-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .hotel-item, .fav-item {
       width: 100%; text-align: left; padding: 12px 6px; border: none; border-bottom: 1px solid var(--line);
-      background: none; font-family: 'Manrope', sans-serif; min-height: 56px;
-      display: flex; align-items: center; gap: 10px;
+      background: none; font-family: 'Manrope', sans-serif; min-height: 52px;
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
     }
     .fav-item .fav-icon {
-      width: 30px; height: 30px; border-radius: 8px; background: var(--bg);
+      width: 32px; height: 32px; border-radius: 8px; background: var(--bg);
       display: flex; align-items: center; justify-content: center; font-size: 15px; flex: none;
     }
     .hotel-item .hotel-name, .fav-item .fav-name { font-weight: 700; font-size: 14px; color: var(--text); }
     .hotel-item .hotel-city, .fav-item .fav-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .hotel-clear-btn {
-      width: 100%; margin-top: 10px; padding: 12px; min-height: 46px; border: 1.5px solid var(--line);
+      width: 100%; margin-top: 10px; padding: 12px; min-height: 44px; border: 1.5px solid var(--line);
       background: none; border-radius: 10px; color: var(--muted); font-weight: 700; font-size: 13px;
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Manrope', sans-serif; cursor: pointer;
     }
     .hotel-empty, .fav-empty { padding: 14px 6px; color: var(--muted); font-size: 13px; }
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    /* Справочник паломника и счетчик кругов (Тасбих) */
+    .tasbeeh-card {
+      background: #eaf4ef; border: 1.5px solid #c0dfd0; border-radius: 16px;
+      padding: 14px; text-align: center; margin-bottom: 14px;
     }
-    @media (prefers-contrast: more) {
-      :root { --muted: #33392f; --line: #b7c2ac; }
+    .tasbeeh-num { font-size: 40px; font-weight: 800; color: var(--green-dark); margin: 4px 0; }
+    .tasbeeh-actions { display: flex; gap: 8px; justify-content: center; }
+    .tasbeeh-btn-add {
+      background: var(--green); color: white; border: none; border-radius: 10px;
+      padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Manrope', sans-serif;
+    }
+    .tasbeeh-btn-rst {
+      background: none; border: none; color: var(--muted); font-size: 12px; font-weight: 600;
+      padding: 10px 8px; cursor: pointer; font-family: 'Manrope', sans-serif;
+    }
+    .guide-step {
+      background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+      padding: 12px; margin-bottom: 10px;
+    }
+    .guide-step h4 { margin: 0 0 4px; font-size: 13.5px; color: var(--green-dark); }
+    .guide-step p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+    .arabic-dua {
+      font-size: 17px; text-align: right; font-weight: 700; color: #1a1a1a;
+      background: #fff8e8; padding: 8px 10px; border-radius: 8px; margin: 6px 0;
+      line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     }
   </style>
 </head>
 <body>
   <div id="panel">
     <div class="top-row">
-      <img class="logo-img" src="logo.PNG" onerror="this.style.display='none'" alt="">
+      <img class="logo-img" src="logo.PNG" onerror="this.style.display='none'" alt="Logo">
       <div class="top-row-right">
         <div class="rate-pill">
           <span class="dollar-circle">$</span>
@@ -296,6 +344,10 @@
         </div>
         <button class="menu-toggle-btn" id="menu-toggle-btn" aria-label="Меню"></button>
         <div class="menu-drawer" id="menu-drawer">
+          <button class="tool-pill" id="guide-open-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Умра & Тасбих ›</span>
+          </button>
           <button class="tool-pill" id="hotel-chip"></button>
           <button class="tool-pill" id="fav-header-btn"></button>
         </div>
@@ -317,9 +369,11 @@
     <div class="cat-row" id="category-row" role="tablist" aria-label="Категории мест"></div>
 
     <div class="rate-tooltip" id="rate-tooltip">
-      Курс ЦБ РФ не совпадает с курсом обмена в Саудовской Аравии — там действует рыночный курс обменников, который может заметно отличаться. Ориентируйтесь по факту на месте.
+      Курс ЦБ РФ не совпадает с курсом обмена в Саудовской Аравии — там действует рыночный курс обменников. Ориентируйтесь по факту на месте.
     </div>
   </div>
+
+  <div id="offline-pill">⚡ Офлайн режим: данные из кэша</div>
 
   <div id="map"></div>
 
@@ -331,6 +385,7 @@
     <div id="sheet-content"></div>
   </div>
 
+  <!-- Модальное окно: Отзыв -->
   <div id="review-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
       <div class="modal-head">
@@ -350,6 +405,7 @@
     </div>
   </div>
 
+  <!-- Модальное окно: Отели -->
   <div id="hotel-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="hotel-modal-title">
       <div class="modal-head">
@@ -357,12 +413,13 @@
         <button class="modal-close" aria-label="Закрыть" id="hotel-close">✕</button>
       </div>
       <input type="text" class="hotel-search" id="hotel-search" placeholder="Поиск отеля...">
-      <div class="hotel-search-hint">Зачем это нужно: так мы посчитаем расстояние и время в пути до каждого места именно от вашего отеля, а не от условного центра города.</div>
+      <div class="hotel-search-hint">Мы посчитаем точное расстояние и время пешком от вашего отеля, а не от условного центра города.</div>
       <div id="hotel-list"></div>
       <button class="hotel-clear-btn" id="hotel-clear-btn">Не выбирать отель</button>
     </div>
   </div>
 
+  <!-- Модальное окно: Избранное -->
   <div id="fav-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="fav-modal-title">
       <div class="modal-head">
@@ -373,14 +430,74 @@
     </div>
   </div>
 
+  <!-- Модальное окно: Умра & Счетчик кругов (Тасбих) -->
+  <div id="guide-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
+      <div class="modal-head">
+        <h2 id="guide-modal-title" class="modal-title">Порядок Умры и Тасбих</h2>
+        <button class="modal-close" aria-label="Закрыть" id="guide-close">✕</button>
+      </div>
+      <div id="guide-scroll">
+        <!-- Счетчик кругов -->
+        <div class="tasbeeh-card">
+          <div style="font-size:12px; font-weight:700; color:var(--green-dark);">СЧЕТЧИК КРУГОВ (ТАВАФ / СА'Й)</div>
+          <div class="tasbeeh-num" id="tasbeeh-count">0 / 7</div>
+          <div class="tasbeeh-actions">
+            <button class="tasbeeh-btn-add" id="tasbeeh-add">+1 Круг</button>
+            <button class="tasbeeh-btn-rst" id="tasbeeh-rst">Сброс</button>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <h4>1. Ихрам и Намерение (в Микате)</h4>
+          <p>Гусль, облачение в ихрам и произнесение намерения:</p>
+          <div class="arabic-dua">لَبَّيْكَ اللَّهُمَّ عُمْرَةً</div>
+          <p style="font-size:11.5px;">«Ляббейкя Аллахумма ‘умратан»</p>
+        </div>
+
+        <div class="guide-step">
+          <h4>2. Тальбия (произносится до начала Тавафа)</h4>
+          <div class="arabic-dua">لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لاَ شَرِيكَ لَكَ لَبَّيْكَ</div>
+          <p style="font-size:11.5px;">«Ляббейкя Аллахумма ляббейк, ляббейкя ля шарика лякя ляббейк...»</p>
+        </div>
+
+        <div class="guide-step">
+          <h4>3. Таваф (7 кругов вокруг Каабы)</h4>
+          <p>Начало от линии Черного камня. Между Йеменским углом и Черным камнем читается:</p>
+          <div class="arabic-dua">رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ</div>
+          <p style="font-size:11.5px;">«Раббана атина фи-д-дунья хасанатан ва филь-ахирати хасанатан ва кына ‘азабан-нар».</p>
+        </div>
+
+        <div class="guide-step">
+          <h4>4. Са'й (7 переходов между Сафа и Марва)</h4>
+          <p>Начинается на холме Сафа, завершается на Марва (1 переход = 1 круг).</p>
+        </div>
+
+        <div class="guide-step">
+          <h4>5. Стрижка волос (Тахсир / Хальк)</h4>
+          <p>Мужчины сбривают или укорачивают волосы, женщины отрезают кончик пряди (1–2 см). Умра завершена!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="debug"></div>
   <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')" aria-label="Показать журнал отладки">🐞</button>
 
+  <!-- Скрипты Leaflet и MarkerCluster -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
   <script>
+    // Регистрация Service Worker (Offline Cache)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
     const SUPABASE_URL = "https://yhbmhqqhrvdtoiucrwxh.supabase.co";
     const SUPABASE_KEY = "sb_publishable_fa30VjQuhLoSnmvrlfUiEQ_IdnQsIuZ";
-    const CARTO_KEY = "cb1_2wjd_1_49134346db0663b43ee9dad5";
     const KAABA_NAME = "Masjid al-Haram (Кааба)";
 
     const debugEl = document.getElementById('debug');
@@ -392,7 +509,14 @@
       }[c]));
     }
 
-    // ===== Line-иконки (без эмодзи) =====
+    // Тактильная виброотдача Telegram
+    const haptic = {
+      light: () => window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'),
+      medium: () => window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium'),
+      success: () => window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success')
+    };
+
+    // Линейные иконки SVG
     const ICON_PATHS = {
       building: '<rect x="6" y="3" width="12" height="18" rx="1"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/>',
       heart: '<path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4.5 7 4.5c2 0 3.5 1.2 5 3 1.5-1.8 3-3 5-3 4 0 6.5 4 4.5 8-2.5 4.15-9.5 8.5-9.5 8.5Z"/>',
@@ -434,15 +558,29 @@
       money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель"
     };
 
+    // Seed Data на случай отсутствия интернета при первой загрузке
+    const SEED_PLACES = [
+      { id: "k-1", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", description: "Главная святыня ислама, Кибла паломников.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
+      { id: "k-2", city: "medina", category: "religion", name: "Мечеть Пророка (Аль-Масджид ан-Набави)", description: "Вторая святыня ислама. Здесь находится благословенная Рауда.", lat: 24.467210, lng: 39.610800, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 120000 },
+      { id: "1", city: "mecca", category: "health", name: "Nahdi Pharmacy — Ajyad", description: "Крупная сеть, круглосуточно, медикаменты.", lat: 21.4195004, lng: 39.8272316, hours_text: "Круглосуточно", google_rating: 4.6, google_rating_count: 41, google_place_id: "ChIJ4TuXyTsFwhURQSI2UsENF5g" },
+      { id: "2", city: "mecca", category: "shopping", name: "Bindawood — Clock Tower", description: "Супермаркет у Харама в Часовой башне.", lat: 21.4195503, lng: 39.8249496, hours_text: "05:00–02:00", google_rating: 4.3, google_rating_count: 4611, google_place_id: "ChIJ_0DN8eEFwhURK7WV4AH6vAg" },
+      { id: "3", city: "mecca", category: "food", name: "NUR Restaurant", description: "Казахская кухня, сытные блюда, гриль.", lat: 21.4067987, lng: 39.8299392, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 22, google_place_id: "ChIJG9q8CwAFwhURW7kN2Yuw8Qk" },
+      { id: "4", city: "mecca", category: "money", name: "Hamza Mohammed Saleh Seirafi — Exchange", description: "Надежный пункт обмена валют в Аджьяд.", lat: 21.4209129, lng: 39.8323689, hours_text: "08:00–00:00", google_rating: 4.5, google_rating_count: 13, google_place_id: "ChIJV_ybsKUFwhURxYEv9t1d6uM" },
+      { id: "5", city: "mecca", category: "useful", name: "Al Ghufran Safwah Hotel", description: "Отель в Safwa Towers, 5 мин до Харама.", lat: 21.4192450, lng: 39.8267641, hours_text: "Круглосуточно", google_place_id: "ChIJqWGgiLcEwhURrsRR1zW_bbk" },
+      { id: "6", city: "mecca", category: "useful", name: "Novotel Thakher Makkah Hotel", description: "Район Аль-Андалус, шаттл до Харама.", lat: 21.4451432, lng: 39.8346235, hours_text: "Круглосуточно", google_place_id: "ChIJdZOWJ90DwhUR0ptTckEU40A" },
+      { id: "7", city: "medina", category: "useful", name: "Maien Taiba Hotel", description: "Отель рядом с мечетью Пророка и воротами Рауда.", lat: 24.4641768, lng: 39.6131972, hours_text: "Круглосуточно", google_place_id: "ChIJR5RRSDu_vRURHnTru0dMoDs" },
+      { id: "8", city: "medina", category: "food", name: "Zaitoon Restaurant", description: "Популярный ресторан пакистанской и арабской кухни.", lat: 24.4714678, lng: 39.6100381, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609, google_place_id: "ChIJ94a-adC_vRURYd7NZAkQ9zE" }
+    ];
+
     document.getElementById('menu-toggle-btn').innerHTML = iconSvg('menu', 19);
     document.getElementById('prayer-icon').innerHTML = iconSvg('mosque', 20);
 
     let currentCity = "mecca";
     let currentCategory = "all";
-    let allPlaces = [];
-    let markers = [];
+    let allPlaces = JSON.parse(localStorage.getItem("ug_places_cache")) || SEED_PLACES;
     let selectedMarker = null;
-    let favoritePlaceIds = new Set();
+    let activeViewingPlaceId = null;
+    let favoritePlaceIds = new Set(JSON.parse(localStorage.getItem("ug_favs_cache") || "[]"));
     let accessToken = localStorage.getItem("ug_token");
     let userId = localStorage.getItem("ug_user_id");
     let reviewPlaceId = null;
@@ -474,20 +612,22 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // ===== Курсы валют =====
+    // Курсы валют (с сохранением в LocalStorage)
     async function loadExchangeRate() {
+      const cachedRub = localStorage.getItem("ug_rate_rub");
+      if (cachedRub) document.getElementById("rate-usd-rub").textContent = cachedRub;
+
       try {
         const res = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
         const data = await res.json();
-        const usdRub = data.Valute.USD.Value;
-        document.getElementById("rate-usd-rub").textContent = usdRub.toFixed(2);
+        const usdRub = data.Valute.USD.Value.toFixed(2);
+        document.getElementById("rate-usd-rub").textContent = usdRub;
+        localStorage.setItem("ug_rate_rub", usdRub);
       } catch (e) {
-        log("Не удалось получить курс ЦБ: " + e.message);
-        document.getElementById("rate-usd-rub").textContent = "—";
+        log("Курс ЦБ из кэша");
       }
     }
 
-    const panelEl = document.getElementById('panel');
     const rateHelpBtn = document.getElementById('rate-help-btn');
     const rateTooltipEl = document.getElementById('rate-tooltip');
     rateHelpBtn.addEventListener('click', (e) => {
@@ -495,11 +635,12 @@
       rateTooltipEl.classList.toggle('open');
     });
 
-    // ===== Меню-шторка =====
+    // Меню-шторка
     const menuToggleBtn = document.getElementById('menu-toggle-btn');
     const menuDrawerEl = document.getElementById('menu-drawer');
     menuToggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
+      haptic.light();
       menuDrawerEl.classList.toggle('open');
     });
     document.addEventListener('click', () => {
@@ -507,7 +648,7 @@
       menuDrawerEl.classList.remove('open');
     });
 
-    // ===== Намазы (Aladhan API, метод Umm al-Qura) =====
+    // Намазы (с кэшированием)
     const prayerTimesEl = document.getElementById('prayer-times');
     const prayerCityLabelEl = document.getElementById('prayer-city-label');
 
@@ -515,9 +656,16 @@
       const center = CITIES[cityKey].center;
       prayerCityLabelEl.textContent = CITIES[cityKey].label;
       const today = new Date();
-      const dateStr = String(today.getDate()).padStart(2, '0') + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + today.getFullYear();
+      const dateKey = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
+      const cacheKey = `ug_prayers_${cityKey}_${dateKey}`;
+
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try { renderPrayerTimes(JSON.parse(cached)); } catch(e) {}
+      }
+
       try {
-        const res = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${center[0]}&longitude=${center[1]}&method=4`);
+        const res = await fetch(`https://api.aladhan.com/v1/timings/${dateKey}?latitude=${center[0]}&longitude=${center[1]}&method=4`);
         const data = await res.json();
         const t = data.data.timings;
         const clean = s => s.split(' ')[0];
@@ -528,22 +676,23 @@
           ['Магриб', clean(t.Maghrib)],
           ['Иша', clean(t.Isha)]
         ];
+        localStorage.setItem(cacheKey, JSON.stringify(times));
         renderPrayerTimes(times);
       } catch (e) {
-        log("Ошибка загрузки намазов: " + e.message);
-        prayerTimesEl.innerHTML = '<div class="prayer-item"><span>Ошибка</span><span class="time">--:--</span></div>';
+        if (!cached) {
+          prayerTimesEl.innerHTML = '<div class="prayer-item"><span>Офлайн</span><span class="time">--:--</span></div>';
+        }
       }
     }
 
     function renderPrayerTimes(times) {
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
-      // подсвечиваем ближайший ПРЕДСТОЯЩИЙ намаз, а не последний прошедший
       let upcomingIdx = times.findIndex(([, time]) => {
         const [h, m] = time.split(':').map(Number);
         return h * 60 + m > nowMinutes;
       });
-      if (upcomingIdx === -1) upcomingIdx = 0; // после Иша — следующий Фаджр
+      if (upcomingIdx === -1) upcomingIdx = 0;
 
       prayerTimesEl.innerHTML = times.map(([name, time], i) => `
         <div class="prayer-item ${i === upcomingIdx ? 'current' : ''}">
@@ -553,8 +702,28 @@
       `).join('');
     }
 
-    // ===== Общая функция выбора маркера =====
+    // Инициализация карты Leaflet с поддержкой кластеров и резервных тайлов
+    const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
+    
+    // Основной и резервный слой тайлов
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20
+    }).addTo(map);
+
+    const clusterGroup = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      maxClusterRadius: 35,
+      spiderfyOnMaxZoom: true,
+      zoomToBoundsOnClick: true
+    });
+    map.addLayer(clusterGroup);
+
+    map.on('click', () => setSheetState('hidden'));
+
     function selectMarkerAndOpenSheet(marker, place) {
+      haptic.light();
       if (selectedMarker && selectedMarker !== marker) {
         selectedMarker.setIcon(makeIcon(selectedMarker._category, false, selectedMarker._name));
       }
@@ -570,12 +739,17 @@
       document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
       renderMarkers();
       loadPrayerTimes(currentCity);
-      const marker = markers.find(m => m.placeId === place.id);
-      if (marker) selectMarkerAndOpenSheet(marker, place);
       map.flyTo([place.lat, place.lng], 16, { duration: 0.6 });
+      setTimeout(() => {
+        clusterGroup.eachLayer(layer => {
+          if (layer.placeId === place.id) {
+            selectMarkerAndOpenSheet(layer, place);
+          }
+        });
+      }, 700);
     }
 
-    // ===== Избранное =====
+    // Избранное
     const favHeaderBtn = document.getElementById('fav-header-btn');
     const favModalEl = document.getElementById('fav-modal');
     const favListEl = document.getElementById('fav-list');
@@ -589,6 +763,7 @@
     updateFavHeaderBtn();
 
     function openFavModal() {
+      haptic.light();
       menuDrawerEl.classList.remove('open');
       const favs = allPlaces.filter(p => favoritePlaceIds.has(p.id));
       favListEl.innerHTML = favs.length
@@ -601,7 +776,7 @@
               </div>
             </button>
           `).join('')
-        : '<div class="fav-empty">Пока нет сохранённых мест. Нажмите ❤️ на карточке места, чтобы добавить.</div>';
+        : '<div class="fav-empty">Пока нет сохранённых мест. Нажмите ❤️ на карточке места, чтобы добавить его.</div>';
 
       favListEl.querySelectorAll('.fav-item').forEach(btn => {
         btn.onclick = () => {
@@ -616,7 +791,7 @@
     favCloseEl.onclick = () => { favModalEl.hidden = true; };
     favModalEl.addEventListener('click', (e) => { if (e.target === favModalEl) favModalEl.hidden = true; });
 
-    // ===== Выбор отеля =====
+    // Выбор отеля
     const hotelChipEl = document.getElementById('hotel-chip');
     const hotelModalEl = document.getElementById('hotel-modal');
     const hotelListEl = document.getElementById('hotel-list');
@@ -644,7 +819,7 @@
               </div>
             </button>
           `).join('')
-        : (hotels.length ? '<div class="hotel-empty">Ничего не найдено</div>' : '<div class="hotel-empty">Список отелей ещё загружается...</div>');
+        : '<div class="hotel-empty">Ничего не найдено</div>';
 
       hotelListEl.querySelectorAll('.hotel-item').forEach(btn => {
         btn.onclick = () => {
@@ -655,6 +830,7 @@
     }
 
     function openHotelModal() {
+      haptic.light();
       menuDrawerEl.classList.remove('open');
       hotelSearchEl.value = '';
       renderHotelList('');
@@ -664,6 +840,7 @@
     hotelSearchEl.addEventListener('input', () => renderHotelList(hotelSearchEl.value));
 
     function selectHotel(place) {
+      haptic.success();
       selectedHotel = { id: place.id, name: place.name, city: place.city, lat: place.lat, lng: place.lng };
       localStorage.setItem("ug_hotel", JSON.stringify(selectedHotel));
       updateHotelChip();
@@ -672,10 +849,12 @@
     }
 
     function clearHotel() {
+      haptic.light();
       selectedHotel = null;
       localStorage.removeItem("ug_hotel");
       updateHotelChip();
       closeHotelModal();
+      if (selectedMarker) renderMarkers();
     }
 
     hotelChipEl.onclick = openHotelModal;
@@ -683,7 +862,36 @@
     hotelClearBtnEl.onclick = clearHotel;
     hotelModalEl.addEventListener('click', (e) => { if (e.target === hotelModalEl) closeHotelModal(); });
 
-    // ===== Bottom Sheet =====
+    // Справочник Умры и Счетчик кругов (Тасбих)
+    const guideModalEl = document.getElementById('guide-modal');
+    const guideOpenBtn = document.getElementById('guide-open-btn');
+    const guideCloseEl = document.getElementById('guide-close');
+    const tasbeehCountEl = document.getElementById('tasbeeh-count');
+    const tasbeehAddBtn = document.getElementById('tasbeeh-add');
+    const tasbeehRstBtn = document.getElementById('tasbeeh-rst');
+    let tasbeehRound = 0;
+
+    guideOpenBtn.onclick = () => {
+      haptic.light();
+      menuDrawerEl.classList.remove('open');
+      guideModalEl.hidden = false;
+    };
+    guideCloseEl.onclick = () => { guideModalEl.hidden = true; };
+    guideModalEl.addEventListener('click', (e) => { if (e.target === guideModalEl) guideModalEl.hidden = true; });
+
+    tasbeehAddBtn.onclick = () => {
+      haptic.medium();
+      tasbeehRound = (tasbeehRound + 1) % 8;
+      tasbeehCountEl.textContent = `${tasbeehRound} / 7`;
+      if (tasbeehRound === 7) haptic.success();
+    };
+    tasbeehRstBtn.onclick = () => {
+      haptic.light();
+      tasbeehRound = 0;
+      tasbeehCountEl.textContent = `0 / 7`;
+    };
+
+    // Bottom Sheet
     const sheetEl = document.getElementById('sheet');
     const sheetContentEl = document.getElementById('sheet-content');
     const sheetToolbarEl = document.getElementById('sheet-toolbar');
@@ -701,6 +909,7 @@
       if (state === 'hidden') {
         sheetEl.style.height = '0px';
         sheetEl.setAttribute('aria-hidden', 'true');
+        activeViewingPlaceId = null;
         if (selectedMarker) {
           selectedMarker.setIcon(makeIcon(selectedMarker._category, false, selectedMarker._name));
           selectedMarker = null;
@@ -744,8 +953,10 @@
     });
 
     function openSheetForPlace(place) {
+      activeViewingPlaceId = place.id;
+
       const gmapsUrl = place.google_place_id
-        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.name)}&destination_place_id=${encodeURIComponent(place.google_place_id)}`
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${encodeURIComponent(place.google_place_id)}`
         : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
       const appleUrl = `https://maps.apple.com/?daddr=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
       const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
@@ -799,13 +1010,16 @@
 
       sheetContentEl.querySelector('.heart-btn').onclick = (e) => toggleFavorite(place.id, e.target);
       sheetContentEl.querySelector('.route-main-btn').onclick = () => {
+        haptic.light();
         sheetContentEl.querySelector('.route-sub-row').classList.toggle('open');
       };
       sheetContentEl.querySelector('.leave-review-btn').onclick = () => openReviewModal(place.id);
 
       const reviewsListEl = sheetContentEl.querySelector('.reviews-list');
       loadReviews(place.id).then(reviews => {
-        reviewsListEl.innerHTML = reviews.length
+        // Защита от состояния гонки: обновляем только если открыта та же карточка
+        if (activeViewingPlaceId !== place.id) return;
+        reviewsListEl.innerHTML = reviews && reviews.length
           ? reviews.map(r => `<div class="review-item">${'⭐'.repeat(r.rating)} ${escapeHtml(r.text || '')}</div>`).join('')
           : '<div class="review-empty">Пока нет отзывов паломников. Поделитесь впечатлением — это поможет другим.</div>';
       });
@@ -813,7 +1027,7 @@
       setSheetState('peek');
     }
 
-    // ===== Модальное окно отзыва =====
+    // Модальное окно отзыва
     const reviewModalEl = document.getElementById('review-modal');
     const reviewCloseEl = document.getElementById('review-close');
     const reviewTextEl = document.getElementById('review-text');
@@ -822,6 +1036,7 @@
     const ratingPickerEl = document.getElementById('rating-picker');
 
     function openReviewModal(placeId) {
+      haptic.light();
       reviewPlaceId = placeId;
       reviewRating = 5;
       reviewTextEl.value = '';
@@ -836,7 +1051,11 @@
       });
     }
     ratingPickerEl.querySelectorAll('button').forEach(b => {
-      b.onclick = () => { reviewRating = Number(b.dataset.rating); updateRatingPicker(); };
+      b.onclick = () => {
+        haptic.light();
+        reviewRating = Number(b.dataset.rating);
+        updateRatingPicker();
+      };
     });
     reviewCloseEl.onclick = closeReviewModal;
     reviewModalEl.addEventListener('click', (e) => { if (e.target === reviewModalEl) closeReviewModal(); });
@@ -846,105 +1065,120 @@
       await submitReview(reviewPlaceId, reviewRating, text, reviewStatusEl);
     };
 
+    // Авторизация без сбоев
     async function authenticate() {
       const tg = window.Telegram?.WebApp;
-      tg?.ready();
-      tg?.expand();
-      tg?.disableVerticalSwipes?.();
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        tg.disableVerticalSwipes?.();
+      }
 
-      log("accessToken из localStorage: " + (accessToken ? "есть" : "нет"));
       if (accessToken && userId) { await loadFavorites(); return; }
 
       const initData = tg?.initData;
-      log("initData: " + (initData ? "есть, длина " + initData.length : "ПУСТО"));
-      if (!initData) { log("Нет initData — останавливаемся"); return; }
+      if (!initData) return;
+
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/telegram-auth`, {
           method: "POST",
           headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
           body: JSON.stringify({ initData })
         });
-        log("HTTP статус ответа auth: " + res.status);
         const data = await res.json();
         if (data.access_token) {
           accessToken = data.access_token;
           userId = data.user_id;
           localStorage.setItem("ug_token", accessToken);
           localStorage.setItem("ug_user_id", userId);
-          log("Авторизация успешна, userId=" + userId);
           await loadFavorites();
-        } else { log("Ошибка авторизации: " + JSON.stringify(data)); }
-      } catch (e) { log("Исключение при запросе: " + e.message); }
+        }
+      } catch (e) { log("Ошибка входа: " + e.message); }
     }
 
     async function loadFavorites() {
       if (!accessToken) { updateFavHeaderBtn(); return; }
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/favorites?select=place_id`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
-      });
-      const data = await res.json();
-      favoritePlaceIds = new Set(data.map(f => f.place_id));
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/favorites?select=place_id`, {
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          favoritePlaceIds = new Set(data.map(f => f.place_id));
+          localStorage.setItem("ug_favs_cache", JSON.stringify([...favoritePlaceIds]));
+        }
+      } catch (e) {}
       updateFavHeaderBtn();
     }
 
     async function toggleFavorite(placeId, btnEl) {
-      if (!accessToken) { alert("Открой приложение через Telegram, чтобы сохранять места"); return; }
+      haptic.medium();
       if (favoritePlaceIds.has(placeId)) {
-        await fetch(`${SUPABASE_URL}/rest/v1/favorites?place_id=eq.${placeId}&user_id=eq.${userId}`, {
-          method: "DELETE",
-          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
-        });
         favoritePlaceIds.delete(placeId);
         btnEl.textContent = "🤍"; btnEl.setAttribute('aria-pressed', 'false');
       } else {
-        await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
+        favoritePlaceIds.add(placeId);
+        btnEl.textContent = "❤️"; btnEl.setAttribute('aria-pressed', 'true');
+      }
+      localStorage.setItem("ug_favs_cache", JSON.stringify([...favoritePlaceIds]));
+      updateFavHeaderBtn();
+
+      if (accessToken && userId) {
+        try {
+          if (favoritePlaceIds.has(placeId)) {
+            await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
+              method: "POST",
+              headers: {
+                apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json", Prefer: "return=minimal"
+              },
+              body: JSON.stringify({ user_id: userId, place_id: placeId })
+            });
+          } else {
+            await fetch(`${SUPABASE_URL}/rest/v1/favorites?place_id=eq.${placeId}&user_id=eq.${userId}`, {
+              method: "DELETE",
+              headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` }
+            });
+          }
+        } catch (e) {}
+      }
+    }
+
+    async function loadReviews(placeId) {
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/reviews?place_id=eq.${placeId}&status=eq.published&select=rating,text,created_at&order=created_at.desc`,
+          { headers: { apikey: SUPABASE_KEY } }
+        );
+        if (res.ok) return await res.json();
+      } catch (e) {}
+      return [];
+    }
+
+    async function submitReview(placeId, rating, text, statusEl) {
+      if (!accessToken) { alert("Откройте приложение внутри Telegram, чтобы отправить отзыв"); return; }
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
           method: "POST",
           headers: {
             apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json", Prefer: "return=minimal"
           },
-          body: JSON.stringify({ user_id: userId, place_id: placeId })
+          body: JSON.stringify({ user_id: userId, place_id: placeId, rating: Number(rating), text, status: "pending" })
         });
-        favoritePlaceIds.add(placeId);
-        btnEl.textContent = "❤️"; btnEl.setAttribute('aria-pressed', 'true');
-      }
-      updateFavHeaderBtn();
-    }
-
-    async function loadReviews(placeId) {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/reviews?place_id=eq.${placeId}&status=eq.published&select=rating,text,created_at&order=created_at.desc`,
-        { headers: { apikey: SUPABASE_KEY } }
-      );
-      return res.json();
-    }
-
-    async function submitReview(placeId, rating, text, statusEl) {
-      if (!accessToken) { alert("Открой приложение через Telegram, чтобы оставить отзыв"); return; }
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
-        method: "POST",
-        headers: {
-          apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json", Prefer: "return=minimal"
-        },
-        body: JSON.stringify({ user_id: userId, place_id: placeId, rating: Number(rating), text, status: "pending" })
-      });
-      log("Отправка отзыва, статус: " + res.status);
-      if (res.status === 201) {
-        statusEl.textContent = "Спасибо! Отзыв отправлен на модерацию.";
-        setTimeout(closeReviewModal, 1200);
-      } else {
-        statusEl.textContent = "Ошибка отправки, попробуйте позже.";
+        if (res.status === 201) {
+          haptic.success();
+          statusEl.textContent = "Спасибо! Отзыв отправлен на модерацию.";
+          setTimeout(closeReviewModal, 1200);
+        } else {
+          statusEl.textContent = "Ошибка отправки, попробуйте позже.";
+        }
+      } catch (e) {
+        statusEl.textContent = "Нет соединения с сервером.";
       }
     }
 
-    const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
-    L.tileLayer(
-      `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
-      { attribution: '&copy; OpenStreetMap contributors, &copy; CARTO', subdomains: 'abcd', maxZoom: 20 }
-    ).addTo(map);
-    map.on('click', () => setSheetState('hidden'));
-
+    // Города
     const citySwitchEl = document.getElementById('city-switch');
     Object.entries(CITIES).forEach(([key, city]) => {
       const btn = document.createElement('button');
@@ -952,6 +1186,7 @@
       btn.setAttribute('aria-pressed', key === currentCity ? 'true' : 'false');
       btn.textContent = city.label;
       btn.onclick = () => {
+        haptic.light();
         currentCity = key;
         citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
         map.setView(CITIES[currentCity].center, 15);
@@ -962,6 +1197,7 @@
       citySwitchEl.appendChild(btn);
     });
 
+    // Категории
     const categoryRow = document.getElementById('category-row');
     Object.entries(CATEGORIES).forEach(([key, label]) => {
       const btn = document.createElement('button');
@@ -971,6 +1207,7 @@
       btn.setAttribute('aria-selected', key === currentCategory ? 'true' : 'false');
       btn.innerHTML = `${iconSvg(CATEGORY_ICON_KEYS[key])}<span>${label}</span>`;
       btn.onclick = () => {
+        haptic.light();
         currentCategory = key;
         document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === currentCategory ? 'true' : 'false'));
         renderMarkers();
@@ -978,30 +1215,48 @@
       categoryRow.appendChild(btn);
     });
 
+    // Отрисовка маркеров через Cluster Group (быстро и плавно)
     function renderMarkers() {
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
+      clusterGroup.clearLayers();
       const filtered = allPlaces.filter(p =>
         p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
       );
 
-      filtered.forEach(place => {
-        const marker = L.marker([place.lat, place.lng], { icon: makeIcon(place.category, false, place.name) }).addTo(map);
+      const markersToAdd = filtered.map(place => {
+        const marker = L.marker([place.lat, place.lng], { icon: makeIcon(place.category, false, place.name) });
         marker._category = place.category;
         marker._name = place.name;
         marker.placeId = place.id;
         marker.on('click', () => selectMarkerAndOpenSheet(marker, place));
-        markers.push(marker);
+        return marker;
       });
+
+      clusterGroup.addLayers(markersToAdd);
     }
 
+    // Загрузка мест с фоновым обновлением кэша
     async function loadPlaces() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, { headers: { apikey: SUPABASE_KEY } });
-      allPlaces = await res.json();
-      renderMarkers();
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, { headers: { apikey: SUPABASE_KEY } });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            allPlaces = data;
+            localStorage.setItem("ug_places_cache", JSON.stringify(data));
+            renderMarkers();
+            document.getElementById('offline-pill').style.display = 'none';
+          }
+        }
+      } catch (e) {
+        log("Офлайн режим: места взяты из кэша");
+        document.getElementById('offline-pill').style.display = 'block';
+        renderMarkers();
+      }
     }
 
+    // Старт приложения
     (async () => {
+      renderMarkers();
       await authenticate();
       await loadPlaces();
       loadExchangeRate();
