@@ -1,4 +1,4 @@
-const CACHE_NAME = 'umra-guide-cache-v3';
+const CACHE_NAME = 'umra-guide-cache-v4';
 const PRECACHE = [
   './',
   './index.html',
@@ -7,10 +7,13 @@ const PRECACHE = [
   'https://telegram.org/js/telegram-web-app.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css',
+  'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js',
+  'https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js',
   'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
   'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
   'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
-  'https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap'
+  'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
 ];
 
 self.addEventListener('install', (e) => {
@@ -29,7 +32,6 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // Запросы к базе данных Supabase не кэшируем через SW — у них свой кэш в localStorage
   if (url.origin.includes('supabase.co')) return;
 
   e.respondWith(
@@ -38,7 +40,7 @@ self.addEventListener('fetch', (e) => {
         if (res && res.status === 200) {
           const clone = res.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            if (url.hostname.includes('cartocdn.com') || url.hostname.includes('openstreetmap.org') || PRECACHE.includes(e.request.url)) {
+            if (url.hostname.includes('openfreemap.org') || url.hostname.includes('cartocdn.com') || PRECACHE.includes(e.request.url)) {
               cache.put(e.request, clone);
             }
           });
