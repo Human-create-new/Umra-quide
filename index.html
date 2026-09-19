@@ -14,13 +14,23 @@
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Leaflet & MarkerCluster CSS -->
+  <!-- Leaflet Core -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- MapLibre GL & Leaflet binding (для векторных тайлов OpenFreeMap) -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js"></script>
+
+  <!-- MarkerCluster -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
-  <!-- Fonts -->
+  <!-- Fonts: Manrope -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
@@ -60,7 +70,7 @@
       padding: 10px 14px 8px; border: 1px solid rgba(255, 255, 255, 0.7);
     }
 
-    /* ===== Верхняя строка: Логотип (слева), Курс (по центру), Меню (справа) ===== */
+    /* Верхняя строка: Логотип (слева), Курс (по центру), Меню (справа) */
     .top-row {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -115,7 +125,7 @@
     }
     .menu-drawer.open { display: flex; }
 
-    /* Инструменты шторки */
+    /* Инструменты меню */
     .tool-pill {
       display: flex; align-items: center; gap: 8px; white-space: nowrap;
       background: var(--bg); border: none; border-radius: 11px; padding: 9px 12px; min-height: 40px;
@@ -125,7 +135,7 @@
     .tool-pill.fav-active { color: var(--danger); }
     .tool-pill svg { width: 17px; height: 17px; flex: none; }
 
-    /* ===== Карточка намазов в стилистике Sajda ===== */
+    /* Карточка намазов (Sajda Style) */
     .prayer-card {
       background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
       padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px;
@@ -242,38 +252,58 @@
     .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .sheet-title { font-weight: 800; font-size: 18px; color: var(--text); line-height: 1.25; }
     .sheet-cat { font-size: 12.5px; color: var(--gold); font-weight: 700; margin-top: 2px; }
-    .heart-btn {
-      background: none; border: none; font-size: 22px; padding: 4px;
-      min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+
+    /* Quick Actions панель */
+    .quick-actions-bar {
+      display: flex; gap: 8px; margin: 10px 0 12px;
     }
+    .action-chip {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: var(--bg); border: 1px solid var(--line); border-radius: 11px;
+      padding: 9px 8px; font-size: 12px; font-weight: 700; color: var(--green-dark);
+      cursor: pointer; font-family: 'Manrope', sans-serif;
+    }
+    .action-chip svg { width: 16px; height: 16px; flex: none; }
+    .action-chip.taxi-chip { background: #fffbe6; border-color: #fae084; color: #855b00; }
+
+    /* Статусы заведения (Prayer aware) */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px;
+      font-size: 12px; font-weight: 700; margin-bottom: 8px;
+    }
+    .status-badge.open { background: var(--green-light); color: var(--green-dark); }
+    .status-badge.prayer-warning { background: #fff3cd; color: #856404; }
 
     .sheet-photo {
       width: 100%; height: 160px; object-fit: cover; border-radius: 14px; margin-bottom: 10px; background: var(--bg);
     }
 
-    .meta-row { display: flex; gap: 12px; margin: 6px 0 8px; font-size: 13px; color: var(--muted); }
+    .meta-row { display: flex; gap: 12px; margin: 6px 0 10px; font-size: 13px; color: var(--muted); }
     .meta-row b { color: var(--text); }
 
-    .sheet-desc { font-size: 13.5px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
-    .sheet-hours { font-size: 13px; color: var(--gold); font-weight: 700; margin-bottom: 10px; }
+    .sheet-desc { font-size: 13.5px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
 
     .route-main-btn {
       background: var(--green); color: white; border: none; border-radius: 12px;
       padding: 13px; font-size: 14px; font-weight: 700; width: 100%; min-height: 46px;
-      font-family: 'Manrope', sans-serif; cursor: pointer;
+      font-family: 'Manrope', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
     }
     .route-sub-row { display: none; gap: 6px; margin-top: 8px; }
     .route-sub-row.open { display: flex; }
     .route-sub-row a {
       flex: 1; text-align: center; background: var(--bg); color: var(--green-dark) !important;
       text-decoration: none; padding: 10px 4px; min-height: 40px; display: flex; align-items: center; justify-content: center;
-      border-radius: 8px; font-size: 12.5px; font-weight: 700;
+      border-radius: 8px; font-size: 12.5px; font-weight: 700; border: 1px solid var(--line);
     }
 
-    .rating-line { font-size: 13px; color: var(--text); margin: 12px 0 6px; }
-    .rating-line b { color: var(--gold); }
+    .rating-card {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg); border-radius: 12px; padding: 8px 12px; margin: 12px 0 8px;
+      border: 1px solid var(--line); font-size: 13px; font-weight: 700; color: var(--text);
+    }
+    .rating-card b { color: var(--gold); }
 
-    .reviews-block { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 10px; }
+    .reviews-block { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
     .review-item { font-size: 13px; margin-bottom: 8px; color: var(--text); line-height: 1.5; }
     .review-empty { color: var(--muted); font-size: 13px; line-height: 1.5; }
     .leave-review-btn {
@@ -293,7 +323,7 @@
     .modal-backdrop[hidden] { display: none; }
     .modal-card {
       width: 100%; max-width: 480px; background: white; border-radius: 22px; padding: 18px;
-      padding-bottom: calc(18px + var(--safe-bottom)); max-height: 82vh; display: flex; flex-direction: column;
+      padding-bottom: calc(18px + var(--safe-bottom)); max-height: 84vh; display: flex; flex-direction: column;
     }
     .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .modal-title { font-weight: 800; font-size: 17px; margin: 0; color: var(--green-dark); }
@@ -301,6 +331,28 @@
       width: 34px; height: 34px; border: none; background: var(--bg); border-radius: 50%;
       font-size: 15px; color: var(--green-dark); cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
+
+    /* Модальное окно Режима Такси */
+    .taxi-screen {
+      background: #14281f; color: white; border-radius: 16px; padding: 20px 16px; text-align: center;
+      margin: 8px 0 14px;
+    }
+    .taxi-badge {
+      display: inline-block; background: var(--gold); color: #14281f; font-weight: 800;
+      font-size: 11px; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; margin-bottom: 12px;
+    }
+    .taxi-arabic-name {
+      font-size: 26px; font-weight: 800; line-height: 1.35; margin-bottom: 8px;
+      direction: rtl; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", serif;
+    }
+    .taxi-arabic-landmark {
+      font-size: 17px; color: #a3d9be; font-weight: 600; line-height: 1.4;
+      direction: rtl; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", serif;
+    }
+    .taxi-tip {
+      font-size: 12px; color: var(--muted); line-height: 1.45; text-align: center; margin-bottom: 12px;
+    }
+
     .rating-picker { display: flex; gap: 6px; margin-bottom: 12px; justify-content: center; }
     .rating-picker button {
       width: 44px; height: 44px; border: 1.5px solid var(--line); border-radius: 10px;
@@ -397,7 +449,7 @@
       </div>
     </div>
 
-    <!-- Строка намазов в стилистике Sajda -->
+    <!-- Строка намазов (Sajda Style с обратным отсчетом) -->
     <div class="prayer-card">
       <div class="prayer-top-status">
         <span class="prayer-city-badge">
@@ -431,7 +483,26 @@
     <div id="sheet-content"></div>
   </div>
 
-  <!-- Модальное окно отзыва -->
+  <!-- Модальное окно: Режим Такси (для водителя на арабском) -->
+  <div id="taxi-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="taxi-modal-title">
+      <div class="modal-head">
+        <h2 id="taxi-modal-title" class="modal-title">Показать водителю такси</h2>
+        <button class="modal-close" aria-label="Закрыть" id="taxi-close">✕</button>
+      </div>
+      <div class="taxi-screen">
+        <div class="taxi-badge">وجهة الراكب / ПУНКТ НАЗНАЧЕНИЯ</div>
+        <div class="taxi-arabic-name" id="taxi-arabic-name">—</div>
+        <div class="taxi-arabic-landmark" id="taxi-arabic-landmark">—</div>
+      </div>
+      <div class="taxi-tip">
+        В Саудовской Аравии водители такси лучше всего ориентируются по арабским названиям и крупным ориентирам. Просто протяните водителю этот экран.
+      </div>
+      <button class="review-submit" id="taxi-copy-btn">Скопировать название</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно: Отзыв -->
   <div id="review-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
       <div class="modal-head">
@@ -451,7 +522,7 @@
     </div>
   </div>
 
-  <!-- Модальное окно отелей -->
+  <!-- Модальное окно: Отели -->
   <div id="hotel-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="hotel-modal-title">
       <div class="modal-head">
@@ -465,7 +536,7 @@
     </div>
   </div>
 
-  <!-- Модальное окно избранного -->
+  <!-- Модальное окно: Избранное -->
   <div id="fav-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="fav-modal-title">
       <div class="modal-head">
@@ -476,7 +547,7 @@
     </div>
   </div>
 
-  <!-- Модальное окно Умра & Тасбих -->
+  <!-- Модальное окно: Умра & Тасбих -->
   <div id="guide-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
       <div class="modal-head">
@@ -529,10 +600,6 @@
   <div id="debug"></div>
   <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')" aria-label="Показать журнал отладки">🐞</button>
 
-  <!-- Скрипты Leaflet и MarkerCluster -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -553,7 +620,7 @@
       }[c]));
     }
 
-    // Тактильная виброотдача
+    // Тактильный отклик Telegram
     const haptic = {
       light: () => window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'),
       medium: () => window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium'),
@@ -564,7 +631,6 @@
     const ICON_PATHS = {
       building: '<rect x="6" y="3" width="12" height="18" rx="1"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/>',
       heart: '<path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4.5 7 4.5c2 0 3.5 1.2 5 3 1.5-1.8 3-3 5-3 4 0 6.5 4 4.5 8-2.5 4.15-9.5 8.5-9.5 8.5Z"/>',
-      // Мечеть: минарет со шпилем слева, купол с полумесяцем и портал
       mosque: '<path d="M3 21h18"/><path d="M4 21V9l1.5-3L7 9v12"/><path d="M3 12h5"/><path d="M7 21v-8h13v8"/><path d="M9 13c0-3.2 2.2-6 4.5-7 2.3 1 4.5 3.8 4.5 7"/><path d="M13.5 3.5v2.5"/><path d="M11.5 21v-3.5a2 2 0 0 1 4 0V21"/>',
       menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
       food: '<path d="M6 3v7a2 2 0 0 0 4 0V3M8 10v11"/><path d="M17.5 3c-1.4 0-2.5 1.6-2.5 4v3c0 1 .6 2 1.7 2h.8v9"/>',
@@ -572,9 +638,10 @@
       shopping: '<path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
       connectivity: '<path d="M6 20v-4M12 20v-8M18 20V6"/>',
       money: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 6V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v1"/><circle cx="17" cy="13" r="1.5"/>',
-      // Транспорт: выверенный автомобиль
       transport: '<path d="M5.5 11l1.8-5.2A1.5 1.5 0 0 1 8.7 4.8h6.6c.6 0 1.2.4 1.4 1l1.8 5.2"/><rect x="3" y="11" width="18" height="6.5" rx="2"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/><path d="M5 14h2M17 14h2"/>',
-      grid: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>'
+      grid: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
+      copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+      taxi: '<path d="M5 11l2-5h10l2 5"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7" cy="18" r="1.5"/><circle cx="17" cy="18" r="1.5"/><path d="M10 3h4v3h-4z"/>'
     };
     function iconSvg(name, size) {
       const s = size || 18;
@@ -604,18 +671,18 @@
       money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель"
     };
 
-    // Seed Data на случай отсутствия связи
+    // Верифицированные места с поддержкой арабских названий для Режима Такси
     const SEED_PLACES = [
-      { id: "k-1", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", description: "Главная святыня ислама, Кибла паломников.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
-      { id: "k-2", city: "medina", category: "religion", name: "Мечеть Пророка (Аль-Масджид ан-Набави)", description: "Вторая святыня ислама. Здесь находится благословенная Рауда.", lat: 24.467210, lng: 39.610800, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 120000 },
-      { id: "1", city: "mecca", category: "health", name: "Nahdi Pharmacy — Ajyad", description: "Крупная сеть, круглосуточно, медикаменты.", lat: 21.4195004, lng: 39.8272316, hours_text: "Круглосуточно", google_rating: 4.6, google_rating_count: 41, google_place_id: "ChIJ4TuXyTsFwhURQSI2UsENF5g" },
-      { id: "2", city: "mecca", category: "shopping", name: "Bindawood — Clock Tower", description: "Супермаркет у Харама в Часовой башне.", lat: 21.4195503, lng: 39.8249496, hours_text: "05:00–02:00", google_rating: 4.3, google_rating_count: 4611, google_place_id: "ChIJ_0DN8eEFwhURK7WV4AH6vAg" },
-      { id: "3", city: "mecca", category: "food", name: "NUR Restaurant", description: "Казахская кухня, сытные блюда, гриль.", lat: 21.4067987, lng: 39.8299392, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 22, google_place_id: "ChIJG9q8CwAFwhURW7kN2Yuw8Qk" },
-      { id: "4", city: "mecca", category: "money", name: "Hamza Mohammed Saleh Seirafi — Exchange", description: "Надежный пункт обмена валют в Аджьяд.", lat: 21.4209129, lng: 39.8323689, hours_text: "08:00–00:00", google_rating: 4.5, google_rating_count: 13, google_place_id: "ChIJV_ybsKUFwhURxYEv9t1d6uM" },
-      { id: "5", city: "mecca", category: "useful", name: "Al Ghufran Safwah Hotel", description: "Отель в Safwa Towers, 5 мин до Харама.", lat: 21.4192450, lng: 39.8267641, hours_text: "Круглосуточно", google_place_id: "ChIJqWGgiLcEwhURrsRR1zW_bbk" },
-      { id: "6", city: "mecca", category: "useful", name: "Novotel Thakher Makkah Hotel", description: "Район Аль-Андалус, шаттл до Харама.", lat: 21.4451432, lng: 39.8346235, hours_text: "Круглосуточно", google_place_id: "ChIJdZOWJ90DwhUR0ptTckEU40A" },
-      { id: "7", city: "medina", category: "useful", name: "Maien Taiba Hotel", description: "Отель рядом с мечетью Пророка и воротами Рауда.", lat: 24.4641768, lng: 39.6131972, hours_text: "Круглосуточно", google_place_id: "ChIJR5RRSDu_vRURHnTru0dMoDs" },
-      { id: "8", city: "medina", category: "food", name: "Zaitoon Restaurant", description: "Популярный ресторан пакистанской и арабской кухни.", lat: 24.4714678, lng: 39.6100381, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609, google_place_id: "ChIJ94a-adC_vRURYd7NZAkQ9zE" }
+      { id: "k-1", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", name_ar: "المسجد الحرام - الكعبة المشرفة", landmark_ar: "بوابة الملك عبد العزيز", description: "Главная святыня ислама, Кибла паломников.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
+      { id: "k-2", city: "medina", category: "religion", name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "المنطقة المركزية - باب السلام", description: "Вторая святыня ислама. Здесь находится благословенная Рауда.", lat: 24.467210, lng: 39.610800, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 120000 },
+      { id: "1", city: "mecca", category: "health", name: "Nahdi Pharmacy — Ajyad", name_ar: "صيدلية النهدي - أجياد", landmark_ar: "شارع أجياد العام", description: "Крупная сеть, круглосуточно, медикаменты.", lat: 21.4195004, lng: 39.8272316, hours_text: "Круглосуточно", google_rating: 4.6, google_rating_count: 41, google_place_id: "ChIJ4TuXyTsFwhURQSI2UsENF5g" },
+      { id: "2", city: "mecca", category: "shopping", name: "Bindawood — Clock Tower", name_ar: "سوبرماركت بن داود - أبراج البيت", landmark_ar: "برج الساعة - وقف الملك عبد العزيز", description: "Супермаркет у Харама в Часовой башне.", lat: 21.4195503, lng: 39.8249496, hours_text: "05:00–02:00", google_rating: 4.3, google_rating_count: 4611, google_place_id: "ChIJ_0DN8eEFwhURK7WV4AH6vAg" },
+      { id: "3", city: "mecca", category: "food", name: "NUR Restaurant", name_ar: "مطعم نور - مأكولات شرقية", landmark_ar: "شارع أجياد", description: "Казахская кухня, сытные блюда, гриль.", lat: 21.4067987, lng: 39.8299392, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 22, google_place_id: "ChIJG9q8CwAFwhURW7kN2Yuw8Qk" },
+      { id: "4", city: "mecca", category: "money", name: "Hamza Mohammed Saleh Seirafi — Exchange", name_ar: "شركة حمزة صيرفي للصرافة", landmark_ar: "منطقة أجياد المصافي", description: "Надежный пункт обмена валют в Аджьяд.", lat: 21.4209129, lng: 39.8323689, hours_text: "08:00–00:00", google_rating: 4.5, google_rating_count: 13, google_place_id: "ChIJV_ybsKUFwhURxYEv9t1d6uM" },
+      { id: "5", city: "mecca", category: "useful", name: "Al Ghufran Safwah Hotel", name_ar: "فندق الغفران الصفوة", landmark_ar: "أبراج الصفوة - أمام باب الملك عبد العزيز", description: "Отель в Safwa Towers, 5 мин до Харама.", lat: 21.4192450, lng: 39.8267641, hours_text: "Круглосуточно", google_place_id: "ChIJqWGgiLcEwhURrsRR1zW_bbk" },
+      { id: "6", city: "mecca", category: "useful", name: "Novotel Thakher Makkah Hotel", name_ar: "فندق نوفوتيل ذاخر مكة", landmark_ar: "مشروع ذاخر مكة - ريع ذاخر", description: "Район Аль-Андалус, шаттл до Харама.", lat: 21.4451432, lng: 39.8346235, hours_text: "Круглосуточно", google_place_id: "ChIJdZOWJ90DwhUR0ptTckEU40A" },
+      { id: "7", city: "medina", category: "useful", name: "Maien Taiba Hotel", name_ar: "فندق معين طيبة", landmark_ar: "المنطقة المركزية الشمالية - قرب الحرم", description: "Отель рядом с мечетью Пророка и воротами Рауда.", lat: 24.4641768, lng: 39.6131972, hours_text: "Круглосуточно", google_place_id: "ChIJR5RRSDu_vRURHnTru0dMoDs" },
+      { id: "8", city: "medina", category: "food", name: "Zaitoon Restaurant", name_ar: "مطعم زيتون", landmark_ar: "المنطقة المركزية - بجوار المسجد النبوي", description: "Популярный ресторан пакистанской и арабской кухни.", lat: 24.4714678, lng: 39.6100381, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609, google_place_id: "ChIJ94a-adC_vRURYd7NZAkQ9zE" }
     ];
 
     document.getElementById('menu-toggle-btn').innerHTML = iconSvg('menu', 18);
@@ -625,12 +692,13 @@
     let currentCategory = "all";
     let allPlaces = JSON.parse(localStorage.getItem("ug_places_cache")) || SEED_PLACES;
     let selectedMarker = null;
-    let activeViewingPlaceId = null;
+    let activeViewingPlace = null;
     let favoritePlaceIds = new Set(JSON.parse(localStorage.getItem("ug_favs_cache") || "[]"));
     let accessToken = localStorage.getItem("ug_token");
     let userId = localStorage.getItem("ug_user_id");
     let reviewPlaceId = null;
     let reviewRating = 5;
+    let cachedPrayerTimesList = [];
 
     let selectedHotel = null;
     try { selectedHotel = JSON.parse(localStorage.getItem("ug_hotel") || "null"); } catch (e) { selectedHotel = null; }
@@ -694,7 +762,7 @@
       menuDrawerEl.classList.remove('open');
     });
 
-    // Намазы с таймером в стиле Sajda
+    // Намазы в стиле Sajda
     const prayerTimesEl = document.getElementById('prayer-times');
     const prayerCityLabelEl = document.getElementById('prayer-city-label');
     const prayerCountdownEl = document.getElementById('prayer-countdown');
@@ -708,7 +776,10 @@
 
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
-        try { renderPrayerTimes(JSON.parse(cached)); } catch(e) {}
+        try {
+          cachedPrayerTimesList = JSON.parse(cached);
+          renderPrayerTimes(cachedPrayerTimesList);
+        } catch(e) {}
       }
 
       try {
@@ -723,6 +794,7 @@
           ['Магриб', clean(t.Maghrib)],
           ['Иша', clean(t.Isha)]
         ];
+        cachedPrayerTimesList = times;
         localStorage.setItem(cacheKey, JSON.stringify(times));
         renderPrayerTimes(times);
       } catch (e) {
@@ -750,7 +822,6 @@
         }
       }
 
-      // Если все намазы сегодня прошли — следующий Фаджр завтра
       if (nextPrayerIdx === -1) {
         nextPrayerIdx = 0;
         const [h, m] = times[0][1].split(':').map(Number);
@@ -771,14 +842,27 @@
       `).join('');
     }
 
-    // ===== КАРТА: Google Maps Tiles (Билингвальные, без "api key required") =====
-    const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
-    
-    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&hl=ru', {
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      maxZoom: 20,
-      attribution: '&copy; Google Maps'
-    }).addTo(map);
+    // ===== КАРТА: OpenFreeMap (стиль Positron — векторная, чистая, без чужих меток) =====
+    const map = L.map('map', { 
+      zoomControl: false,
+      maxBounds: [[180, -Infinity], [-180, Infinity]],
+      maxBoundsViscosity: 1,
+      minZoom: 2
+    }).setView(CITIES[currentCity].center, 15);
+
+    try {
+      L.maplibreGL({
+        style: 'https://tiles.openfreemap.org/styles/positron',
+        attribution: '&copy; <a href="https://openfreemap.org">OpenFreeMap</a>'
+      }).addTo(map);
+    } catch (e) {
+      // Резервный растровый слой при отсутствии WebGL
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }).addTo(map);
+    }
 
     const clusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
@@ -966,7 +1050,7 @@
     let sheetState = 'hidden';
 
     function pxFor(state) {
-      if (state === 'peek') return Math.min(280, window.innerHeight * 0.4);
+      if (state === 'peek') return Math.min(290, window.innerHeight * 0.42);
       if (state === 'full') return window.innerHeight * 0.86;
       return 0;
     }
@@ -977,7 +1061,7 @@
       if (state === 'hidden') {
         sheetEl.style.height = '0px';
         sheetEl.setAttribute('aria-hidden', 'true');
-        activeViewingPlaceId = null;
+        activeViewingPlace = null;
         if (selectedMarker) {
           selectedMarker.setIcon(makeIcon(selectedMarker._category, false, selectedMarker._name));
           selectedMarker = null;
@@ -1020,8 +1104,33 @@
       setSheetState(nearest);
     });
 
+    // Функция проверки статуса (учет намаза)
+    function getPlaceStatus(place) {
+      const now = new Date();
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      let prayerWarning = null;
+
+      if (cachedPrayerTimesList && cachedPrayerTimesList.length > 0) {
+        for (const [pName, pTime] of cachedPrayerTimesList) {
+          const [h, m] = pTime.split(':').map(Number);
+          const pMin = h * 60 + m;
+          const diff = pMin - nowMinutes;
+          if (diff > 0 && diff <= 20) {
+            prayerWarning = `⚠️ Скоро ${pName} (${diff} мин) · Заведение может закрыться`;
+            break;
+          }
+        }
+      }
+
+      if (prayerWarning) {
+        return `<div class="status-badge prayer-warning">${prayerWarning}</div>`;
+      }
+
+      return `<div class="status-badge open">🟢 Открыто · ${escapeHtml(place.hours_text || 'Круглосуточно')}</div>`;
+    }
+
     function openSheetForPlace(place) {
-      activeViewingPlaceId = place.id;
+      activeViewingPlace = place;
 
       const gmapsUrl = place.google_place_id
         ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${encodeURIComponent(place.google_place_id)}`
@@ -1034,14 +1143,14 @@
       let refLabel = place.city === 'medina' ? "от мечети Пророка" : "от Харама";
       if (selectedHotel && selectedHotel.city === place.city) {
         refPoint = [selectedHotel.lat, selectedHotel.lng];
-        refLabel = "от вашего отеля";
+        refLabel = `от вашего отеля «${selectedHotel.name}»`;
       }
       const distM = haversineMeters(refPoint[0], refPoint[1], place.lat, place.lng);
       const distLabel = distM < 950 ? `~${Math.round(distM / 10) * 10} м` : `~${(distM / 1000).toFixed(1)} км`;
       const walkMin = Math.max(1, Math.round(distM / 1000 / 4.5 * 60));
 
       const ratingHtml = place.google_rating
-        ? `<div class="rating-line">⭐ <b>${escapeHtml(place.google_rating)}</b> · ${place.google_rating_count ? escapeHtml(place.google_rating_count) + '+' : ''} отзывов в Google</div>`
+        ? `<div class="rating-card"><span>Рейтинг Google</span><span>⭐ <b>${escapeHtml(place.google_rating)}</b> (${place.google_rating_count ? escapeHtml(place.google_rating_count) + '+' : ''})</span></div>`
         : '';
 
       const photoHtml = place.photo_url
@@ -1055,18 +1164,38 @@
             <div class="sheet-title">${escapeHtml(place.name)}</div>
             <div class="sheet-cat">${escapeHtml(CATEGORY_LABELS_RU[place.category] || '')}</div>
           </div>
-          <button class="heart-btn" aria-label="${isFav ? 'Удалить из избранного' : 'Сохранить'}" aria-pressed="${isFav}">${isFav ? '❤️' : '🤍'}</button>
         </div>
-        <div class="meta-row"><span>🚶 <b>${walkMin} мин пешком</b> · ${distLabel} ${refLabel}</span></div>
-        <div class="sheet-hours">🕐 ${escapeHtml(place.hours_text || 'не указано')}</div>
+
+        <div class="meta-row"><span>🚶 <b>${walkMin} мин пешком</b> (${distLabel}) ${refLabel}</span></div>
+
+        ${getPlaceStatus(place)}
+
+        <!-- Панель быстрых действий: В закладки, Режим такси, Скопировать -->
+        <div class="quick-actions-bar">
+          <button class="action-chip" id="quick-fav-btn">
+            ${iconSvg('heart', 16)} <span>${isFav ? 'Сохранено' : 'В закладки'}</span>
+          </button>
+          <button class="action-chip taxi-chip" id="quick-taxi-btn">
+            ${iconSvg('taxi', 16)} <span>Таксисту</span>
+          </button>
+          <button class="action-chip" id="quick-copy-btn">
+            ${iconSvg('copy', 16)} <span>Копия</span>
+          </button>
+        </div>
+
         <div class="sheet-desc">${escapeHtml(place.description || '')}</div>
-        <button class="route-main-btn">🧭 Построить маршрут</button>
-        <div class="route-sub-row">
-          <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">Google</a>
-          <a href="${appleUrl}" target="_blank" rel="noopener noreferrer">Apple</a>
+
+        <button class="route-main-btn" id="route-toggle-btn">
+          🧭 <span>Построить маршрут</span>
+        </button>
+        <div class="route-sub-row" id="route-sub-row">
+          <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
+          <a href="${appleUrl}" target="_blank" rel="noopener noreferrer">Apple Maps</a>
           <a href="${yandexUrl}" target="_blank" rel="noopener noreferrer">Яндекс</a>
         </div>
+
         ${ratingHtml}
+
         <div class="reviews-block">
           <div class="reviews-list">Загрузка отзывов...</div>
           <button class="leave-review-btn">✍️ Оставить отзыв</button>
@@ -1076,22 +1205,59 @@
         </div>
       `;
 
-      sheetContentEl.querySelector('.heart-btn').onclick = (e) => toggleFavorite(place.id, e.target);
-      sheetContentEl.querySelector('.route-main-btn').onclick = () => {
+      // Обработчики кнопок карточки
+      sheetContentEl.querySelector('#quick-fav-btn').onclick = (e) => toggleFavorite(place.id, e.currentTarget);
+      sheetContentEl.querySelector('#quick-taxi-btn').onclick = () => openTaxiModal(place);
+      sheetContentEl.querySelector('#quick-copy-btn').onclick = () => copyPlaceLocation(place);
+      sheetContentEl.querySelector('#route-toggle-btn').onclick = () => {
         haptic.light();
-        sheetContentEl.querySelector('.route-sub-row').classList.toggle('open');
+        sheetContentEl.querySelector('#route-sub-row').classList.toggle('open');
       };
       sheetContentEl.querySelector('.leave-review-btn').onclick = () => openReviewModal(place.id);
 
       const reviewsListEl = sheetContentEl.querySelector('.reviews-list');
       loadReviews(place.id).then(reviews => {
-        if (activeViewingPlaceId !== place.id) return;
+        if (!activeViewingPlace || activeViewingPlace.id !== place.id) return;
         reviewsListEl.innerHTML = reviews && reviews.length
           ? reviews.map(r => `<div class="review-item">${'⭐'.repeat(r.rating)} ${escapeHtml(r.text || '')}</div>`).join('')
           : '<div class="review-empty">Пока нет отзывов паломников. Поделитесь впечатлением — это поможет другим.</div>';
       });
 
       setSheetState('peek');
+    }
+
+    // Режим Такси
+    const taxiModalEl = document.getElementById('taxi-modal');
+    const taxiCloseEl = document.getElementById('taxi-close');
+    const taxiArabicNameEl = document.getElementById('taxi-arabic-name');
+    const taxiArabicLandmarkEl = document.getElementById('taxi-arabic-landmark');
+    const taxiCopyBtn = document.getElementById('taxi-copy-btn');
+
+    function openTaxiModal(place) {
+      haptic.medium();
+      taxiArabicNameEl.textContent = place.name_ar || place.name;
+      taxiArabicLandmarkEl.textContent = place.landmark_ar || (place.city === 'medina' ? "المدينة المنورة - قرب المسجد النبوي" : "مكة المكرمة - قرب الحرم المكي");
+      taxiModalEl.hidden = false;
+    }
+    taxiCloseEl.onclick = () => { taxiModalEl.hidden = true; };
+    taxiModalEl.addEventListener('click', (e) => { if (e.target === taxiModalEl) taxiModalEl.hidden = true; });
+    taxiCopyBtn.onclick = () => {
+      haptic.success();
+      const txt = `${taxiArabicNameEl.textContent}\n${taxiArabicLandmarkEl.textContent}`;
+      navigator.clipboard?.writeText(txt);
+      taxiCopyBtn.textContent = 'Скопировано в буфер!';
+      setTimeout(() => { taxiCopyBtn.textContent = 'Скопировать название'; }, 1500);
+    };
+
+    function copyPlaceLocation(place) {
+      haptic.light();
+      const txt = `${place.name}\nКоординаты: ${place.lat}, ${place.lng}`;
+      navigator.clipboard?.writeText(txt);
+      const btn = sheetContentEl.querySelector('#quick-copy-btn span');
+      if (btn) {
+        btn.textContent = 'Скопировано!';
+        setTimeout(() => { btn.textContent = 'Копия'; }, 1500);
+      }
     }
 
     // Модальное окно отзыва
@@ -1178,21 +1344,24 @@
       updateFavHeaderBtn();
     }
 
-    async function toggleFavorite(placeId, btnEl) {
+    async function toggleFavorite(placeId, chipEl) {
       haptic.medium();
-      if (favoritePlaceIds.has(placeId)) {
-        favoritePlaceIds.delete(placeId);
-        btnEl.textContent = "🤍"; btnEl.setAttribute('aria-pressed', 'false');
-      } else {
+      const isNowFav = !favoritePlaceIds.has(placeId);
+      if (isNowFav) {
         favoritePlaceIds.add(placeId);
-        btnEl.textContent = "❤️"; btnEl.setAttribute('aria-pressed', 'true');
+      } else {
+        favoritePlaceIds.delete(placeId);
       }
       localStorage.setItem("ug_favs_cache", JSON.stringify([...favoritePlaceIds]));
       updateFavHeaderBtn();
 
+      if (chipEl) {
+        chipEl.querySelector('span').textContent = isNowFav ? 'Сохранено' : 'В закладки';
+      }
+
       if (accessToken && userId) {
         try {
-          if (favoritePlaceIds.has(placeId)) {
+          if (isNowFav) {
             await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
               method: "POST",
               headers: {
