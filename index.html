@@ -53,30 +53,31 @@
     svg { display: block; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
 
+    /* ===== ПАНЕЛЬ УПРАВЛЕНИЯ (ШАПКА) ===== */
     #panel {
       position: absolute; top: calc(10px + var(--safe-top)); left: calc(12px + var(--safe-left));
       right: calc(12px + var(--safe-right)); z-index: 1000;
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      padding: 10px 14px 8px; border: 1px solid rgba(255, 255, 255, 0.7);
+      padding: 10px 12px 8px; border: 1px solid rgba(255, 255, 255, 0.7);
     }
 
-    /* Верхняя строка */
+    /* Строка 1: Логотип, Курс, Меню */
     .top-row {
       display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
-      margin-bottom: 8px; position: relative; width: 100%;
+      margin-bottom: 7px; position: relative; width: 100%;
     }
     .top-row-left { display: flex; align-items: center; justify-content: flex-start; min-width: 0; }
-    .logo-img { height: 36px; width: auto; max-width: 85px; object-fit: contain; flex: none; }
+    .logo-img { height: 34px; width: auto; max-width: 80px; object-fit: contain; flex: none; }
     .top-row-center { display: flex; align-items: center; justify-content: center; }
     .rate-pill {
       display: inline-flex; align-items: center; gap: 5px; background: var(--bg);
-      border-radius: 999px; padding: 5px 10px; font-size: 11.5px; color: var(--text);
+      border-radius: 999px; padding: 4px 10px; font-size: 11.5px; color: var(--text);
       white-space: nowrap; flex: none; border: 1px solid var(--line);
     }
     .rate-pill .dollar-circle {
-      width: 17px; height: 17px; border-radius: 50%; background: var(--green-dark); color: white;
+      width: 16px; height: 16px; border-radius: 50%; background: var(--green-dark); color: white;
       display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex: none;
     }
     .rate-pill b { font-weight: 700; }
@@ -87,19 +88,19 @@
     }
     .rate-tooltip {
       display: none; position: absolute; z-index: 1600; left: 50%; transform: translateX(-50%);
-      top: 48px; background: var(--green-dark); color: white; font-size: 11.5px; line-height: 1.45;
+      top: 44px; background: var(--green-dark); color: white; font-size: 11.5px; line-height: 1.45;
       padding: 10px 12px; border-radius: 10px; width: 250px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); text-align: center;
     }
     .rate-tooltip.open { display: block; }
 
     .top-row-right { display: flex; align-items: center; justify-content: flex-end; position: relative; }
     .menu-toggle-btn {
-      border: none; background: var(--bg); width: 36px; height: 36px; border-radius: 11px;
+      border: none; background: var(--bg); width: 34px; height: 34px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center; flex: none; color: var(--green-dark);
       cursor: pointer; border: 1px solid var(--line);
     }
     .menu-drawer {
-      display: none; position: absolute; top: 44px; right: 0; z-index: 1600;
+      display: none; position: absolute; top: 42px; right: 0; z-index: 1600;
       background: white; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
       padding: 8px; gap: 6px; flex-direction: column; min-width: 205px; border: 1px solid var(--line);
     }
@@ -115,40 +116,44 @@
     .tool-pill.sos-pill { color: var(--danger); background: #fdf2f2; }
     .tool-pill svg { width: 17px; height: 17px; flex: none; }
 
-    /* Намазы */
-    .prayer-card {
-      background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
-      padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px;
+    /* Строка 2: Однострочный раскрываемый блок намаза */
+    .prayer-bar-wrap { position: relative; margin-bottom: 7px; }
+    .prayer-bar-btn {
+      width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 11px;
+      padding: 6px 10px; display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: 'Manrope', sans-serif; font-size: 11.5px; color: var(--text);
     }
-    .prayer-top-status { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
-    .prayer-city-badge { font-weight: 700; color: var(--muted); display: flex; align-items: center; gap: 4px; }
-    .prayer-countdown-badge {
-      background: var(--green-light); color: var(--green-dark); font-weight: 700;
-      padding: 2px 8px; border-radius: 8px; font-size: 10.5px;
+    .prayer-bar-left { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .prayer-bar-left b { color: var(--green-dark); }
+    .prayer-chevron { font-size: 11px; color: var(--muted); transition: transform 0.2s ease; }
+    .prayer-bar-btn.open .prayer-chevron { transform: rotate(180deg); }
+
+    .prayer-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #ffffff;
+      border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.14); border: 1px solid var(--line);
+      padding: 10px 8px; z-index: 1500;
     }
-    .prayer-times { display: flex; justify-content: space-between; gap: 2px; }
+    .prayer-times-grid { display: flex; justify-content: space-between; gap: 2px; }
     .prayer-item {
-      text-align: center; font-size: 10px; color: var(--muted); min-width: 0; flex: 1;
-      padding: 3px 0; border-radius: 8px;
+      text-align: center; font-size: 10px; color: var(--muted); flex: 1; padding: 4px 0; border-radius: 8px;
     }
     .prayer-item .time { display: block; font-weight: 700; color: var(--text); font-size: 12px; margin-top: 1px; }
     .prayer-item.current { background: rgba(45, 106, 79, 0.09); color: var(--green-dark); }
     .prayer-item.current .time { color: var(--green-dark); font-weight: 800; }
 
-    /* Поиск мест */
-    .search-box {
-      position: relative; display: flex; align-items: center; margin-bottom: 8px;
-    }
+    /* Строка 3: Поиск + Переключатель города в один ряд */
+    .search-city-row { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; }
+    .search-box-wrap { position: relative; flex: 1; display: flex; align-items: center; min-width: 0; }
     .search-input {
-      width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
-      padding: 8px 32px 8px 30px; font-size: 12.5px; font-family: 'Manrope', sans-serif;
+      width: 100%; height: 36px; background: var(--bg); border: 1px solid var(--line); border-radius: 11px;
+      padding: 0 28px 0 28px; font-size: 12px; font-family: 'Manrope', sans-serif;
       color: var(--text); outline: none; transition: border-color 0.2s;
     }
     .search-input:focus { border-color: var(--green); background: #ffffff; }
-    .search-icon { position: absolute; left: 9px; font-size: 12px; opacity: 0.6; pointer-events: none; }
+    .search-icon-svg { position: absolute; left: 8px; font-size: 12px; opacity: 0.6; pointer-events: none; }
     .search-clear-btn {
-      position: absolute; right: 8px; width: 20px; height: 20px; border-radius: 50%;
-      border: none; background: #ddd7cd; color: #555; font-size: 11px; cursor: pointer;
+      position: absolute; right: 7px; width: 18px; height: 18px; border-radius: 50%;
+      border: none; background: #ddd7cd; color: #555; font-size: 10px; cursor: pointer;
       display: flex; align-items: center; justify-content: center; padding: 0;
     }
     .search-dropdown {
@@ -164,31 +169,28 @@
     .search-item-title { font-size: 13px; font-weight: 700; color: var(--text); }
     .search-item-meta { font-size: 11px; color: var(--muted); }
 
-    /* Города и категории */
-    .city-switch {
-      display: flex; background: var(--bg); border-radius: 12px; padding: 2px;
-      margin-bottom: 8px; border: 1px solid var(--line);
+    /* Кнопка переключения города */
+    .city-toggle-btn {
+      height: 36px; width: 105px; flex: none; border: 1px solid var(--line); border-radius: 11px;
+      background: var(--bg); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 12.5px;
+      color: var(--green-dark); cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 4px; padding: 0 6px;
     }
-    .city-switch button {
-      flex: 1; border: none; background: none; padding: 8px 0; min-height: 36px; border-radius: 10px;
-      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; color: var(--muted); cursor: pointer;
-    }
-    .city-switch button[aria-pressed="true"] {
-      background: var(--surface); color: var(--green-dark); box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    }
+    .city-toggle-btn:active { background: #eee8dc; }
 
+    /* Строка 4: Категории */
     .cat-row { display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
     .cat-row::-webkit-scrollbar { display: none; }
     .cat-item {
       background: none; border: none; white-space: nowrap; font-family: 'Manrope', sans-serif;
-      font-weight: 600; font-size: 12.5px; color: var(--muted); padding: 5px 2px; min-height: 36px;
+      font-weight: 600; font-size: 12.5px; color: var(--muted); padding: 4px 2px; min-height: 32px;
       border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 5px; cursor: pointer;
     }
     .cat-item svg { width: 16px; height: 16px; flex: none; }
     .cat-item[aria-selected="true"] { color: var(--green-dark); border-bottom-color: var(--green); font-weight: 700; }
 
     #offline-pill {
-      display: none; position: absolute; top: calc(215px + var(--safe-top)); left: 50%;
+      display: none; position: absolute; top: calc(165px + var(--safe-top)); left: 50%;
       transform: translateX(-50%); z-index: 1001; background: rgba(25, 28, 25, 0.9);
       color: #90e0b0; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
       backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
@@ -216,7 +218,7 @@
     /* Режим Каталога / Списка (List View) */
     .list-view {
       position: absolute; inset: 0; z-index: 999; background: var(--bg);
-      padding-top: calc(220px + var(--safe-top)); padding-bottom: calc(80px + var(--safe-bottom));
+      padding-top: calc(175px + var(--safe-top)); padding-bottom: calc(80px + var(--safe-bottom));
       overflow-y: auto; -webkit-overflow-scrolling: touch;
     }
     .list-header { padding: 4px 16px 10px; }
@@ -545,30 +547,34 @@
       </div>
     </div>
 
-    <!-- Строка намазов (Sajda Style) -->
-    <div class="prayer-card">
-      <div class="prayer-top-status">
-        <span class="prayer-city-badge">
+    <!-- Строка 2: Однострочный блок намаза (раскрывается по нажатию) -->
+    <div class="prayer-bar-wrap">
+      <button class="prayer-bar-btn" id="prayer-toggle-btn" aria-expanded="false">
+        <div class="prayer-bar-left">
           <span id="prayer-icon"></span>
-          <span id="prayer-city-label">Мекка</span>
-        </span>
-        <span class="prayer-countdown-badge" id="prayer-countdown">Загрузка...</span>
-      </div>
-      <div class="prayer-times" id="prayer-times">
-        <div class="prayer-item"><span>—</span><span class="time">--:--</span></div>
+          <span id="prayer-bar-text">Время намаза — Загрузка...</span>
+        </div>
+        <span class="prayer-chevron" id="prayer-chevron">▾</span>
+      </button>
+      <div class="prayer-dropdown" id="prayer-dropdown" hidden>
+        <div class="prayer-times-grid" id="prayer-times">
+          <div class="prayer-item"><span>—</span><span class="time">--:--</span></div>
+        </div>
       </div>
     </div>
 
-    <!-- Живой поиск мест -->
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="place-search" class="search-input" placeholder="Поиск мест, отелей, аптек...">
-      <button id="search-clear-btn" class="search-clear-btn" hidden>✕</button>
-      <div id="search-dropdown" class="search-dropdown" hidden></div>
+    <!-- Строка 3: Живой поиск + Выбор города в один ряд -->
+    <div class="search-city-row">
+      <div class="search-box-wrap">
+        <span class="search-icon-svg">🔍</span>
+        <input type="text" id="place-search" class="search-input" placeholder="Поиск мест, отелей, аптек...">
+        <button id="search-clear-btn" class="search-clear-btn" hidden>✕</button>
+        <div id="search-dropdown" class="search-dropdown" hidden></div>
+      </div>
+      <button id="city-toggle-btn" class="city-toggle-btn">🕋 Мекка</button>
     </div>
 
-    <!-- Выбор города и категории -->
-    <div class="city-switch" id="city-switch" role="group" aria-label="Выбор города"></div>
+    <!-- Строка 4: Категории -->
     <div class="cat-row" id="category-row" role="tablist" aria-label="Категории мест"></div>
 
     <div class="rate-tooltip" id="rate-tooltip">
@@ -636,7 +642,7 @@
           </a>
         </div>
         <div class="sos-memo">
-          <b>🏥 Медпункты в Аль-Харам:</b> Дежурные бесплатные пункты скорой помощи работают круглосуточно на первом этаже у ворот короля Абдулазиза (№1) и ворот Аджьяд.
+          <b>🏥 Медпункты в Аль-Харам:</b> Бесплатные дежурные медпункты скорой помощи работают круглосуточно на первом этаже у ворот короля Абдулазиза (№1) и ворот Аджьяд.
         </div>
       </div>
     </div>
@@ -798,20 +804,25 @@
       });
     }
 
-    // ===== БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ ВСЕХ DOM-ЭЛЕМЕНТОВ (Строго до вызова любых функций) =====
+    // ===== БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ ВСЕХ DOM-ЭЛЕМЕНТОВ (Строго до вызова функций) =====
     const dom = {
       debug: document.getElementById('debug'),
       debugBtn: document.getElementById('debug-btn'),
       menuToggleBtn: document.getElementById('menu-toggle-btn'),
       menuDrawer: document.getElementById('menu-drawer'),
       prayerIcon: document.getElementById('prayer-icon'),
+      prayerBarBtn: document.getElementById('prayer-toggle-btn'),
+      prayerBarText: document.getElementById('prayer-bar-text'),
+      prayerChevron: document.getElementById('prayer-chevron'),
+      prayerDropdown: document.getElementById('prayer-dropdown'),
       prayerTimes: document.getElementById('prayer-times'),
-      prayerCityLabel: document.getElementById('prayer-city-label'),
-      prayerCountdown: document.getElementById('prayer-countdown'),
       rateUsdRub: document.getElementById('rate-usd-rub'),
       rateHelpBtn: document.getElementById('rate-help-btn'),
       rateTooltip: document.getElementById('rate-tooltip'),
-      citySwitch: document.getElementById('city-switch'),
+      placeSearch: document.getElementById('place-search'),
+      searchClearBtn: document.getElementById('search-clear-btn'),
+      searchDropdown: document.getElementById('search-dropdown'),
+      cityToggleBtn: document.getElementById('city-toggle-btn'),
       categoryRow: document.getElementById('category-row'),
       offlinePill: document.getElementById('offline-pill'),
       mapStyleBtn: document.getElementById('map-style-btn'),
@@ -838,21 +849,6 @@
       sheet: document.getElementById('sheet'),
       sheetToolbar: document.getElementById('sheet-toolbar'),
       sheetContent: document.getElementById('sheet-content'),
-      taxiModal: document.getElementById('taxi-modal'),
-      taxiClose: document.getElementById('taxi-close'),
-      taxiArabicName: document.getElementById('taxi-arabic-name'),
-      taxiArabicLandmark: document.getElementById('taxi-arabic-landmark'),
-      taxiCopyBtn: document.getElementById('taxi-copy-btn'),
-      reviewModal: document.getElementById('review-modal'),
-      reviewClose: document.getElementById('review-close'),
-      reviewText: document.getElementById('review-text'),
-      reviewSubmit: document.getElementById('review-submit'),
-      reviewStatus: document.getElementById('review-status'),
-      ratingPicker: document.getElementById('rating-picker'),
-      // Новые модули
-      placeSearch: document.getElementById('place-search'),
-      searchClearBtn: document.getElementById('search-clear-btn'),
-      searchDropdown: document.getElementById('search-dropdown'),
       listView: document.getElementById('list-view'),
       listItems: document.getElementById('list-items'),
       listCountLabel: document.getElementById('list-count-label'),
@@ -863,7 +859,18 @@
       sosModal: document.getElementById('sos-modal'),
       sosClose: document.getElementById('sos-close'),
       sosGpsCopyBtn: document.getElementById('sos-gps-copy-btn'),
-      sosGpsStatus: document.getElementById('sos-gps-status')
+      sosGpsStatus: document.getElementById('sos-gps-status'),
+      taxiModal: document.getElementById('taxi-modal'),
+      taxiClose: document.getElementById('taxi-close'),
+      taxiArabicName: document.getElementById('taxi-arabic-name'),
+      taxiArabicLandmark: document.getElementById('taxi-arabic-landmark'),
+      taxiCopyBtn: document.getElementById('taxi-copy-btn'),
+      reviewModal: document.getElementById('review-modal'),
+      reviewClose: document.getElementById('review-close'),
+      reviewText: document.getElementById('review-text'),
+      reviewSubmit: document.getElementById('review-submit'),
+      reviewStatus: document.getElementById('review-status'),
+      ratingPicker: document.getElementById('rating-picker')
     };
 
     dom.debugBtn.onclick = function() {
@@ -913,8 +920,8 @@
     }
 
     const CITIES = {
-      mecca: { label: "Мекка", center: [21.4225, 39.8262] },
-      medina: { label: "Медина", center: [24.4672, 39.6112] }
+      mecca: { label: "Мекка", icon: "🕋", center: [21.4225, 39.8262] },
+      medina: { label: "Медина", icon: "🕌", center: [24.4672, 39.6112] }
     };
     const CATEGORIES = {
       all: "Все", food: "Еда", health: "Здоровье", shopping: "Магазины",
@@ -1017,24 +1024,23 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // Города
-    Object.entries(CITIES).forEach(([key, city]) => {
-      const btn = document.createElement('button');
-      btn.dataset.cityKey = key;
-      btn.setAttribute('aria-pressed', key === currentCity ? 'true' : 'false');
-      btn.textContent = city.label;
-      btn.onclick = () => {
-        haptic.light();
-        currentCity = key;
-        dom.citySwitch.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
-        map.setView(CITIES[currentCity].center, 15);
-        setSheetState('hidden');
-        renderMarkers();
-        if (isListView) renderListView();
-        loadPrayerTimes(currentCity);
-      };
-      dom.citySwitch.appendChild(btn);
-    });
+    // ===== UI: ПЕРЕКЛЮЧАТЕЛЬ ГОРОДА (1 КЛИК) =====
+    function updateCityToggleBtn() {
+      const c = CITIES[currentCity];
+      dom.cityToggleBtn.textContent = `${c.icon} ${c.label}`;
+    }
+    updateCityToggleBtn();
+
+    dom.cityToggleBtn.onclick = () => {
+      haptic.medium();
+      currentCity = currentCity === 'mecca' ? 'medina' : 'mecca';
+      updateCityToggleBtn();
+      map.setView(CITIES[currentCity].center, 15);
+      setSheetState('hidden');
+      renderMarkers();
+      if (isListView) renderListView();
+      loadPrayerTimes(currentCity);
+    };
 
     // Категории
     Object.entries(CATEGORIES).forEach(([key, label]) => {
@@ -1054,7 +1060,7 @@
       dom.categoryRow.appendChild(btn);
     });
 
-    // Карта и стили
+    // ===== КАРТА И ПЕРЕКЛЮЧЕНИЕ СТИЛЕЙ =====
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
 
     function updateMapStyleChip() {
@@ -1089,7 +1095,10 @@
       zoomToBoundsOnClick: true
     });
     map.addLayer(clusterGroup);
-    map.on('click', () => setSheetState('hidden'));
+    map.on('click', () => {
+      setSheetState('hidden');
+      closePrayerDropdown();
+    });
 
     function renderMarkers() {
       clusterGroup.clearLayers();
@@ -1111,7 +1120,29 @@
 
     renderMarkers();
 
-    // ===== МОДУЛЬ 1: ЖИВОЙ ПОИСК (INSTANT SEARCH) =====
+    // ===== АККОРДЕОН НАМАЗОВ (РАСКРЫТИЕ ПО НАЖАТИЮ) =====
+    function closePrayerDropdown() {
+      dom.prayerDropdown.hidden = true;
+      dom.prayerBarBtn.classList.remove('open');
+      dom.prayerBarBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    dom.prayerBarBtn.onclick = (e) => {
+      e.stopPropagation();
+      haptic.light();
+      const isHidden = dom.prayerDropdown.hidden;
+      dom.prayerDropdown.hidden = !isHidden;
+      dom.prayerBarBtn.classList.toggle('open', isHidden);
+      dom.prayerBarBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.prayer-bar-wrap')) {
+        closePrayerDropdown();
+      }
+    });
+
+    // ===== ЖИВОЙ ПОИСК (INSTANT SEARCH) =====
     function handlePlaceSearch(q) {
       const query = (q || '').trim().toLowerCase();
       if (!query) {
@@ -1163,12 +1194,12 @@
       dom.searchDropdown.hidden = true;
     };
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.search-box')) {
+      if (!e.target.closest('.search-box-wrap')) {
         dom.searchDropdown.hidden = true;
       }
     });
 
-    // ===== МОДУЛЬ 2: GPS-ЛОКАТОР «ГДЕ Я» (CLIENT-SIDE) =====
+    // ===== GPS-ЛОКАТОР «ГДЕ Я» (CLIENT-SIDE) =====
     dom.gpsBtn.onclick = () => {
       haptic.medium();
       if (!navigator.geolocation) {
@@ -1207,7 +1238,7 @@
       );
     };
 
-    // ===== МОДУЛЬ 3: РЕЖИМ СПИСКА / КАТАЛОГА (LIST VIEW) =====
+    // ===== РЕЖИМ СПИСКА / КАТАЛОГА (LIST VIEW) =====
     function renderListView() {
       let refPoint = CITIES[currentCity].center;
       let refTitle = currentCity === 'medina' ? "мечети Пророка" : "мечети Аль-Харам";
@@ -1271,7 +1302,7 @@
       toggleViewMode();
     };
 
-    // ===== МОДУЛЬ 4: SOS ЭКСТРЕННАЯ ПОМОЩЬ =====
+    // ===== SOS ЭКСТРЕННАЯ ПОМОЩЬ =====
     dom.sosOpenBtn.onclick = () => {
       haptic.medium();
       dom.menuDrawer.classList.remove('open');
@@ -1310,7 +1341,7 @@
       );
     };
 
-    // ===== МОДУЛЬ 5: DEEP LINKING (ШЕРИНГ МЕСТ) =====
+    // ===== DEEP LINKING (ШЕРИНГ МЕСТ) =====
     function checkDeepLink() {
       const urlParams = new URLSearchParams(window.location.search);
       let placeId = urlParams.get('place') || urlParams.get('startapp');
@@ -1406,7 +1437,6 @@
     // Намазы
     async function loadPrayerTimes(cityKey) {
       const center = CITIES[cityKey].center;
-      if (dom.prayerCityLabel) dom.prayerCityLabel.textContent = CITIES[cityKey].label;
       const today = new Date();
       const dateKey = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
       const cacheKey = `ug_prayers_${cityKey}_${dateKey}`;
@@ -1469,11 +1499,17 @@
       }
 
       const nextName = times[nextPrayerIdx][0];
+      const nextTime = times[nextPrayerIdx][1];
       const hoursLeft = Math.floor(diffMinutes / 60);
       const minsLeft = diffMinutes % 60;
       const timeStr = hoursLeft > 0 ? `${hoursLeft} ч ${minsLeft} мин` : `${minsLeft} мин`;
-      if (dom.prayerCountdown) dom.prayerCountdown.textContent = `${nextName} через ${timeStr}`;
 
+      // Обновляем текст в свернутой однострочной плашке
+      if (dom.prayerBarText) {
+        dom.prayerBarText.innerHTML = `Время намаза — <b>${nextName}</b> через ${timeStr} (${nextTime})`;
+      }
+
+      // Обновляем сетку в выпадающей шторке
       if (dom.prayerTimes) {
         dom.prayerTimes.innerHTML = times.map(([name, time], i) => `
           <div class="prayer-item ${i === nextPrayerIdx ? 'current' : ''}">
@@ -1497,7 +1533,7 @@
     function goToPlace(place) {
       currentCity = place.city;
       currentCategory = 'all';
-      dom.citySwitch.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
+      updateCityToggleBtn();
       dom.categoryRow.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
       renderMarkers();
       loadPrayerTimes(currentCity);
@@ -1605,6 +1641,7 @@
       updateHotelChip();
       closeHotelModal();
       renderMarkers();
+      if (isListView) renderListView();
     }
 
     dom.hotelChip.onclick = openHotelModal;
@@ -1758,16 +1795,16 @@
 
         <div class="quick-actions-bar">
           <button class="action-chip" id="quick-fav-btn">
-            ${iconSvg('heart', 16)} <span>${isFav ? 'Сохранено' : 'В закладки'}</span>
+            ${iconSvg('heart', 15)} <span>${isFav ? 'Сохранено' : 'В закладки'}</span>
           </button>
           <button class="action-chip taxi-chip" id="quick-taxi-btn">
-            ${iconSvg('taxi', 16)} <span>Таксисту</span>
+            ${iconSvg('taxi', 15)} <span>Таксисту</span>
           </button>
           <button class="action-chip" id="quick-share-btn">
-            ${iconSvg('share', 16)} <span>Поделиться</span>
+            ${iconSvg('share', 15)} <span>Поделиться</span>
           </button>
           <button class="action-chip" id="quick-copy-btn">
-            ${iconSvg('copy', 16)} <span>Копия</span>
+            ${iconSvg('copy', 15)} <span>Копия</span>
           </button>
         </div>
 
