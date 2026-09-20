@@ -53,7 +53,7 @@
     svg { display: block; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
 
-    /* ===== ПАНЕЛЬ УПРАВЛЕНИЯ (ШАПКА) ===== */
+    /* Панель управления */
     #panel {
       position: absolute; top: calc(10px + var(--safe-top)); left: calc(12px + var(--safe-left));
       right: calc(12px + var(--safe-right)); z-index: 1000;
@@ -116,7 +116,7 @@
     .tool-pill.sos-pill { color: var(--danger); background: #fdf2f2; }
     .tool-pill svg { width: 17px; height: 17px; flex: none; }
 
-    /* Строка 2: Однострочный раскрываемый блок намаза */
+    /* Строка 2: Раскрываемый блок намаза */
     .prayer-bar-wrap { position: relative; margin-bottom: 7px; }
     .prayer-bar-btn {
       width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 11px;
@@ -141,7 +141,7 @@
     .prayer-item.current { background: rgba(45, 106, 79, 0.09); color: var(--green-dark); }
     .prayer-item.current .time { color: var(--green-dark); font-weight: 800; }
 
-    /* Строка 3: Поиск + Переключатель города в один ряд */
+    /* Строка 3: Поиск + Переключатель города */
     .search-city-row { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; }
     .search-box-wrap { position: relative; flex: 1; display: flex; align-items: center; min-width: 0; }
     .search-input {
@@ -169,7 +169,6 @@
     .search-item-title { font-size: 13px; font-weight: 700; color: var(--text); }
     .search-item-meta { font-size: 11px; color: var(--muted); }
 
-    /* Кнопка переключения города */
     .city-toggle-btn {
       height: 36px; width: 105px; flex: none; border: 1px solid var(--line); border-radius: 11px;
       background: var(--bg); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 12.5px;
@@ -189,6 +188,52 @@
     .cat-item svg { width: 16px; height: 16px; flex: none; }
     .cat-item[aria-selected="true"] { color: var(--green-dark); border-bottom-color: var(--green); font-weight: 700; }
 
+    /* Панель выбора маршрутов (активна при выборе категории Маршруты) */
+    .route-selector-bar {
+      display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+      padding: 6px 2px 2px; margin-top: 4px; border-top: 1px dashed var(--line);
+    }
+    .route-selector-bar::-webkit-scrollbar { display: none; }
+    .route-pill-btn {
+      background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+      padding: 6px 12px; font-size: 11.5px; font-weight: 700; color: var(--text);
+      white-space: nowrap; cursor: pointer; font-family: 'Manrope', sans-serif;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .route-pill-btn.active {
+      background: var(--green-dark); color: #ffffff; border-color: var(--green-dark);
+    }
+
+    /* Плавающий баннер активного маршрута над картой */
+    .active-route-banner {
+      position: absolute; top: calc(165px + var(--safe-top)); left: 14px; right: 14px;
+      z-index: 1000; background: rgba(25, 30, 26, 0.94); color: #ffffff;
+      border-radius: 16px; padding: 9px 14px; backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.15);
+    }
+    .route-banner-info { min-width: 0; }
+    .route-banner-title { font-size: 12.5px; font-weight: 800; color: #7fe0a0; }
+    .route-banner-meta { font-size: 11px; color: #dedede; margin-top: 2px; }
+    .route-banner-close {
+      background: rgba(255,255,255,0.2); border: none; border-radius: 50%;
+      width: 26px; height: 26px; color: #ffffff; font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex: none;
+    }
+
+    /* Бейджи остановок маршрута на карте */
+    .route-stop-pin {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gold); color: #ffffff;
+      border: 2px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 13px; font-family: 'Manrope', sans-serif;
+      cursor: pointer; transition: transform 0.15s ease;
+    }
+    .route-stop-pin:active { transform: scale(1.2); }
+    .route-stop-pin.start { background: var(--green-dark); }
+    .route-stop-pin.end { background: #b91c1c; }
+
     #offline-pill {
       display: none; position: absolute; top: calc(165px + var(--safe-top)); left: 50%;
       transform: translateX(-50%); z-index: 1001; background: rgba(25, 28, 25, 0.9);
@@ -196,7 +241,7 @@
       backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    /* Плавающие кнопки управления: GPS и Каталог */
+    /* Плавающие кнопки: GPS и Каталог */
     .floating-controls {
       position: absolute; bottom: calc(20px + var(--safe-bottom)); left: 16px; right: 16px;
       display: flex; justify-content: space-between; align-items: center; z-index: 1000;
@@ -242,7 +287,7 @@
       background: var(--green-light); padding: 4px 8px; border-radius: 8px; white-space: nowrap; flex: none;
     }
 
-    /* Пульсирующий маркер геопозиции пользователя */
+    /* Пульсирующий маркер геопозиции */
     .user-pulse-marker {
       width: 16px; height: 16px; border-radius: 50%; background: #2563eb;
       border: 3px solid #ffffff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.35);
@@ -356,6 +401,21 @@
       text-decoration: none; padding: 10px 4px; min-height: 40px; display: flex; align-items: center; justify-content: center;
       border-radius: 8px; font-size: 12.5px; font-weight: 700; border: 1px solid var(--line);
     }
+
+    /* Таймлайн остановок в карточке маршрута */
+    .route-timeline-wrap { margin: 12px 0; border-top: 1px solid var(--line); padding-top: 10px; }
+    .route-timeline-item {
+      display: flex; gap: 10px; margin-bottom: 10px; cursor: pointer;
+    }
+    .timeline-num {
+      width: 24px; height: 24px; border-radius: 50%; background: var(--gold); color: white;
+      font-weight: 800; font-size: 11.5px; display: flex; align-items: center; justify-content: center; flex: none;
+    }
+    .timeline-num.start { background: var(--green-dark); }
+    .timeline-num.end { background: #b91c1c; }
+    .timeline-info { min-width: 0; }
+    .timeline-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .timeline-desc { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
 
     .rating-card {
       display: flex; align-items: center; justify-content: space-between;
@@ -547,7 +607,7 @@
       </div>
     </div>
 
-    <!-- Строка 2: Однострочный блок намаза (раскрывается по нажатию) -->
+    <!-- Строка 2: Однострочный блок намаза -->
     <div class="prayer-bar-wrap">
       <button class="prayer-bar-btn" id="prayer-toggle-btn" aria-expanded="false">
         <div class="prayer-bar-left">
@@ -567,7 +627,7 @@
     <div class="search-city-row">
       <div class="search-box-wrap">
         <span class="search-icon-svg">🔍</span>
-        <input type="text" id="place-search" class="search-input" placeholder="Поиск мест, отелей, аптек...">
+        <input type="text" id="place-search" class="search-input" placeholder="Поиск мест, отелей, остановок...">
         <button id="search-clear-btn" class="search-clear-btn" hidden>✕</button>
         <div id="search-dropdown" class="search-dropdown" hidden></div>
       </div>
@@ -577,9 +637,21 @@
     <!-- Строка 4: Категории -->
     <div class="cat-row" id="category-row" role="tablist" aria-label="Категории мест"></div>
 
+    <!-- Панель выбора конкретного маршрута (появляется при тапе на «Маршруты») -->
+    <div class="route-selector-bar" id="route-selector-bar" hidden></div>
+
     <div class="rate-tooltip" id="rate-tooltip">
       Курс ЦБ РФ не совпадает с курсом обмена в Саудовской Аравии — там действует рыночный курс местных обменников.
     </div>
+  </div>
+
+  <!-- Плавающий баннер активного маршрута -->
+  <div class="active-route-banner" id="active-route-banner" hidden>
+    <div class="route-banner-info">
+      <div class="route-banner-title" id="route-banner-title">—</div>
+      <div class="route-banner-meta" id="route-banner-meta">—</div>
+    </div>
+    <button class="route-banner-close" id="route-banner-close" aria-label="Закрыть маршрут">✕</button>
   </div>
 
   <div id="offline-pill">⚡ Офлайн режим: данные из кэша</div>
@@ -804,7 +876,7 @@
       });
     }
 
-    // ===== БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ ВСЕХ DOM-ЭЛЕМЕНТОВ (Строго до вызова функций) =====
+    // ===== БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ ВСЕХ DOM-ЭЛЕМЕНТОВ =====
     const dom = {
       debug: document.getElementById('debug'),
       debugBtn: document.getElementById('debug-btn'),
@@ -824,6 +896,11 @@
       searchDropdown: document.getElementById('search-dropdown'),
       cityToggleBtn: document.getElementById('city-toggle-btn'),
       categoryRow: document.getElementById('category-row'),
+      routeSelectorBar: document.getElementById('route-selector-bar'),
+      activeRouteBanner: document.getElementById('active-route-banner'),
+      routeBannerTitle: document.getElementById('route-banner-title'),
+      routeBannerMeta: document.getElementById('route-banner-meta'),
+      routeBannerClose: document.getElementById('route-banner-close'),
       offlinePill: document.getElementById('offline-pill'),
       mapStyleBtn: document.getElementById('map-style-btn'),
       mapStyleModal: document.getElementById('map-style-modal'),
@@ -910,6 +987,7 @@
       money: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 6V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v1"/><circle cx="17" cy="13" r="1.5"/>',
       transport: '<path d="M5.5 11l1.8-5.2A1.5 1.5 0 0 1 8.7 4.8h6.6c.6 0 1.2.4 1.4 1l1.8 5.2"/><rect x="3" y="11" width="18" height="6.5" rx="2"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/><path d="M5 14h2M17 14h2"/>',
       grid: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
+      routes: '<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a4.5 4.5 0 0 0 0-9H7.5a4.5 4.5 0 0 1 0-9H15"/><circle cx="18" cy="5" r="3"/>',
       copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
       taxi: '<path d="M5 11l2-5h10l2 5"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7" cy="18" r="1.5"/><circle cx="17" cy="18" r="1.5"/><path d="M10 3h4v3h-4z"/>',
       share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>'
@@ -924,22 +1002,22 @@
       medina: { label: "Медина", icon: "🕌", center: [24.4672, 39.6112] }
     };
     const CATEGORIES = {
-      all: "Все", food: "Еда", health: "Здоровье", shopping: "Магазины",
+      all: "Все", routes: "Маршруты", food: "Еда", health: "Здоровье", shopping: "Магазины",
       connectivity: "Связь", money: "Деньги", transport: "Транспорт",
       religion: "Мечети", useful: "Отели"
     };
     const CATEGORY_ICON_KEYS = {
-      all: "grid", food: "food", health: "health", shopping: "shopping",
+      all: "grid", routes: "routes", food: "food", health: "health", shopping: "shopping",
       connectivity: "connectivity", money: "money", transport: "transport",
       religion: "mosque", useful: "building"
     };
     const CATEGORY_EMOJI = {
       food: "🍽", health: "💊", shopping: "🛒", connectivity: "📱",
-      money: "💰", transport: "🚕", religion: "🕌", useful: "🏨"
+      money: "💰", transport: "🚕", religion: "🕌", useful: "🏨", routes: "🗺"
     };
     const CATEGORY_LABELS_RU = {
       food: "Еда", health: "Здоровье", shopping: "Магазин", connectivity: "Связь",
-      money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель"
+      money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель", routes: "Маршрут"
     };
 
     const MAP_STYLES = {
@@ -966,32 +1044,100 @@
       }
     };
 
-        const SEED_PLACES = [
-      // Святыни
+    // БАЗА ДАННЫХ 3 ТИПОВ МАРШРУТОВ
+    const ROUTES_DATA = {
+      mecca: [
+        {
+          id: "makkah-umrah-steps",
+          type: "umrah",
+          badge: "🕋 Обряд Умры",
+          title: "Полный путь Умры (по шагам)",
+          desc: "Пошаговый маршрут: от намерения в Микате до стрижки волос.",
+          duration: "3-4 часа",
+          distance: "8.5 км",
+          color: "#2d6a4f",
+          stops: [
+            { num: 1, name: "Микат ат-Тан'им (Мечеть Аиши)", name_ar: "مسجد السيدة عائشة (التنعيم)", landmark_ar: "طريق المدينة المنورة - ميقات التنعيم", lat: 21.46272, lng: 39.79811, desc: "Вхождение в ихрам, 2 ракаата намаза, произнесение намерения и начало тальбии." },
+            { num: 2, name: "Вход в Аль-Харам (Ворота Короля Абдулазиза)", name_ar: "باب الملك عبد العزيز (رقم 1)", landmark_ar: "الساحة الجنوبية للحرم المكي", lat: 21.41924, lng: 39.82676, desc: "Вход в мечеть с правой ноги с мольбой о милости Аллаха." },
+            { num: 3, name: "Зона Матаф (Кааба)", name_ar: "صحن المطاف - الكعبة المشرفة", landmark_ar: "المسجد الحرام - محاذاة الحجر الأسود", lat: 21.422487, lng: 39.826206, desc: "Совершение 7 кругов Тавафа против часовой стрелки, начиная от линии Черного камня." },
+            { num: 4, name: "Холм ас-Сафа", name_ar: "جبل الصفا", landmark_ar: "بداية المسعى - بجوار الكعبة", lat: 21.42150, lng: 39.82730, desc: "Начало обряда Са'й. Подъем на холм, обращение к Кибле и возвеличивание Аллаха." },
+            { num: 5, name: "Холм аль-Марва", name_ar: "جبل المروة", landmark_ar: "نهاية المسعى", lat: 21.42430, lng: 39.82770, desc: "Окончание 7-го круга Са'й. Чтение дуа перед выходом." },
+            { num: 6, name: "Парикмахерские у Марвы", name_ar: "صالونات الحلاقة والتقصير", landmark_ar: "الساحة الخارجية خلف المروة", lat: 21.42480, lng: 39.82820, desc: "Стрижка или сбривание волос (тахсир/хальк). Полный выход из состояния ихрама!" }
+          ]
+        },
+        {
+          id: "makkah-ziyarat-history",
+          type: "ziyarat",
+          badge: "🕌 Зиярат: Святыни",
+          title: "Исторические места и горы Мекки",
+          desc: "Главные места Сиры: пещеры Хира и Саур, долины Мина и Арафат.",
+          duration: "4-5 часов",
+          distance: "42 км (на авто)",
+          color: "#b8935a",
+          stops: [
+            { num: 1, name: "Джабаль ан-Нур (Пещера Хира)", name_ar: "جبل النور - غار حراء", landmark_ar: "حي الغسالة - طريق جبل النور", lat: 21.45800, lng: 39.85800, desc: "Место уединения Пророка ﷺ и ниспослания первых аятов священного Корана." },
+            { num: 2, name: "Джабаль Саур (Пещера Саур)", name_ar: "جبل ثور - غار ثور", landmark_ar: "جنوب مكة - حي الهجرة", lat: 21.37600, lng: 39.85100, desc: "Пещера, в которой укрывались Пророк ﷺ и Абу Бакр (р.а.) во время переселения в Медину." },
+            { num: 3, name: "Долина Мина (Мост Джамарат)", name_ar: "مشعر منى - الجمرات", landmark_ar: "طريق الملك فهد - منى", lat: 21.41330, lng: 39.87330, desc: "Долина палаточного городка и комплекс бросания камешков." },
+            { num: 4, name: "Долина Муздалифа", name_ar: "مشعر مزدلفة", landmark_ar: "بين منى وعرفات", lat: 21.39000, lng: 39.90000, desc: "Священное место ночлега паломников в ночь праздника Курбан-Байрам." },
+            { num: 5, name: "Гора Арафат (Джабаль ар-Рахма)", name_ar: "جبل الرحمة - عرفات", landmark_ar: "ميدان عرفات - جبل الرحمة", lat: 21.35470, lng: 39.98420, desc: "Главный столп паломничества. Холм, у которого Пророк ﷺ читал прощальную проповедь." }
+          ]
+        },
+        {
+          id: "makkah-kudai-shuttle",
+          type: "shuttle",
+          badge: "🚌 Шаттл Кудай",
+          title: "Линия шаттла: Паркинг Кудай ⇄ Харам",
+          desc: "Круглосуточный скоростной трансфер через выделенный тоннель Кудай.",
+          duration: "10-15 мин",
+          distance: "3.2 км",
+          color: "#1e3a8a",
+          stops: [
+            { num: 1, name: "Автостанция Кудай (Kudai Parking)", name_ar: "مواقف كدي للحافلات", landmark_ar: "مواقف كدي - الدائري الثالث", lat: 21.39652, lng: 39.82901, desc: "Посадка в автобусы, большая стоянка и кассы." },
+            { num: 2, name: "Остановка Kudai Towers", name_ar: "أبراج كدي", landmark_ar: "طريق كدي العام", lat: 21.40500, lng: 39.82850, desc: "Промежуточная остановка у отелей района Кудай." },
+            { num: 3, name: "Терминал Аджьяд (Ворота Короля Абдулазиза)", name_ar: "محطة أجياد - الحرم المكي", landmark_ar: "نفق كدي - مدخل ساحات أجياد", lat: 21.41850, lng: 39.82680, desc: "Конечная высадка в 2 минутах ходьбы от площади Харама." }
+          ]
+        }
+      ],
+      medina: [
+        {
+          id: "medina-ziyarat-main",
+          type: "ziyarat",
+          badge: "🕌 Зиярат: Медина",
+          title: "Великие мечети и битва при Ухуде",
+          desc: "Главный маршрут паломника по священным местам Лучезарной Медины.",
+          duration: "3-4 часа",
+          distance: "16 км",
+          color: "#b8935a",
+          stops: [
+            { num: 1, name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "المنطقة المركزية - باب السلام", lat: 24.46721, lng: 39.61080, desc: "Старт маршрута, приветствие Пророка ﷺ и посещение Рауды." },
+            { num: 2, name: "Мечеть Куба", name_ar: "مسجد قباء", landmark_ar: "طريق الهجرة - مسجد قباء", lat: 24.43932, lng: 39.61731, desc: "Первая мечеть в исламе. Совершение двух ракаатов намаза приравнивается к Умре." },
+            { num: 3, name: "Мечеть аль-Киблатайн (Двух Кибл)", name_ar: "مسجد القبلتين", landmark_ar: "طريق خالد بن الوليد", lat: 24.48417, lng: 39.57861, desc: "Место, где сподвижники изменили направление молитвы с Иерусалима на Мекку." },
+            { num: 4, name: "Семь мечетей (Битва у Рва / Хандак)", name_ar: "المساجد السبعة - الخندق", landmark_ar: "سفح جبل سلع - الخندق", lat: 24.47600, lng: 39.59300, desc: "Историческое место оборонительной битвы мусульман у вырытого рва." },
+            { num: 5, name: "Гора Ухуд (Холм лучников и шахиды)", name_ar: "جبل أحد - مقبرة الشهداء", landmark_ar: "سيد الشهداء حمزة - جبل الرماة", lat: 24.50333, lng: 39.61222, desc: "Место битвы при Ухуде, холм лучников и могила Хамзы (р.а.)." }
+          ]
+        },
+        {
+          id: "medina-train-transfer",
+          type: "shuttle",
+          badge: "🚄 Экспресс Haramain",
+          title: "Трансфер: Вокзал Haramain ⇄ Центр",
+          desc: "Маршрут автобусов-экспрессов от скоростного ж/д вокзала до мечети.",
+          duration: "15-20 мин",
+          distance: "9.5 км",
+          color: "#1e3a8a",
+          stops: [
+            { num: 1, name: "Вокзал Haramain High Speed Railway", name_ar: "محطة قطار الحرمين - المدينة", landmark_ar: "حي المعرفة - محطة القطار", lat: 24.46351, lng: 39.67023, desc: "Выход из скоростного поезда, кассы и посадка на шаттл." },
+            { num: 2, name: "Кольцо King Abdulaziz Road", name_ar: "طريق الملك عبد العزيز", landmark_ar: "تقاطع الدائري الثاني مع الملك عبد العزيز", lat: 24.46800, lng: 39.63500, desc: "Промежуточный заезд к отелям восточной зоны." },
+            { num: 3, name: "Северный терминал мечети Пророка", name_ar: "المنطقة المركزية الشمالية", landmark_ar: "قرب بوابة 330 للمسجد النبوي", lat: 24.47200, lng: 39.61100, desc: "Конечная остановка шаттлов в 100 метрах от мечети." }
+          ]
+        }
+      ]
+    };
+
+    // 29 верифицированных мест
+    const SEED_PLACES = [
       { id: "k-1", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", name_ar: "المسجد الحرام - الكعبة المشرفة", landmark_ar: "بوابة الملك عبد العزيز", description: "Главная святыня ислама, Кибла паломников.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
       { id: "k-2", city: "medina", category: "religion", name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "المنطقة المركزية - باب السلام", description: "Вторая святыня ислама. Здесь находится благословенная Рауда.", lat: 24.467210, lng: 39.610800, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 120000 },
-
-      // Связь (Connectivity)
-      { id: "c-1", city: "mecca", category: "connectivity", name: "STC — Clock Tower (Abraj Al Bait)", name_ar: "شركة الاتصالات السعودية (stc) - أبراج البيت", landmark_ar: "مجمع أبراج البيت - وقف الملك عبد العزيز", description: "Официальный салон связи STC на 4-м этаже ТЦ Часовой башни. Оформление SIM и eSIM по паспорту.", lat: 21.419550, lng: 39.825600, hours_text: "09:00–23:00", google_rating: 4.4, google_rating_count: 820 },
-      { id: "c-2", city: "medina", category: "connectivity", name: "Mobily — Al Haram Northern Central Area", name_ar: "موبايلي - فرع المنطقة المركزية الشمالية", landmark_ar: "المنطقة المركزية الشمالية - قرب المسجد النبوي", description: "Официальный салон Mobily рядом с мечетью Пророка. Продажа туристических пакетов и eSIM.", lat: 24.471820, lng: 39.610480, hours_text: "08:00–23:00", google_rating: 4.3, google_rating_count: 310 },
-      { id: "c-3", city: "mecca", category: "connectivity", name: "Zain — Al Safwah Towers", name_ar: "زين - أبراج الصفوة", landmark_ar: "أبراج الصفوة - مقابل باب الملك عبد العزيز", description: "Официальный офис Zain напротив ворот короля Абдулазиза. Замена SIM и подключение интернета.", lat: 21.419120, lng: 39.826840, hours_text: "09:00–23:30", google_rating: 4.2, google_rating_count: 450 },
-
-      // Транспорт (Transport)
-      { id: "t-1", city: "mecca", category: "transport", name: "Makkah Haramain Railway Station", name_ar: "محطة قطار الحرمين السريع - مكة المكرمة (الرصيفة)", landmark_ar: "محطة قطار الحرمين - حي الرصيفة", description: "Главный вокзал скоростного поезда Haramain (в Медину и аэропорт Джидды). Кассы, багаж, такси.", lat: 21.417250, lng: 39.791520, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 6800 },
-      { id: "t-2", city: "medina", category: "transport", name: "Madinah Haramain Railway Station", name_ar: "محطة قطار الحرمين السريع - المدينة المنورة", landmark_ar: "محطة قطار الحرمين - حي المعرفة", description: "Скоростной железнодорожный вокзал Медины. Рейсы в Мекку и аэропорт Джидды.", lat: 24.463510, lng: 39.670230, hours_text: "06:00–00:00", google_rating: 4.7, google_rating_count: 5400 },
-      { id: "t-3", city: "mecca", category: "transport", name: "SAPTCO Bus Terminal — Jarwal", name_ar: "محطة حافلات سابتكو - جرول", landmark_ar: "منطقة جرول - محطة حافلات سابتكو", description: "Центральный терминал государственных автобусов SAPTCO у северной площади Харама.", lat: 21.432810, lng: 39.821540, hours_text: "Круглосуточно", google_rating: 4.1, google_rating_count: 1420 },
-      { id: "t-4", city: "mecca", category: "transport", name: "Kudai Bus Terminal & Shuttle Station", name_ar: "مواقف ومحطة كدي للحافلات الترددية", landmark_ar: "مواقف كدي - محطة النقل الترددي للحرم", description: "Главный хаб автобусов-шаттлов к Хараму через тоннель Кудай. Круглосуточные трансферы.", lat: 21.396520, lng: 39.829010, hours_text: "Круглосуточно", google_rating: 4.3, google_rating_count: 980 },
-
-      // Микаты и мечети (Religion)
-      { id: "r-1", city: "medina", category: "religion", name: "Miqat Dhu al-Hulayfah (Абьяр Али)", name_ar: "ميقات ذو الحليفة (مسجد الشجرة / آبار علي)", landmark_ar: "ميقات آبار علي - طريق الهجرة مخرج مكة", description: "Главный Микат для выезжающих на Умру из Медины. Душевые для гусля, продажа ихрамов.", lat: 24.413140, lng: 39.542820, hours_text: "Круглосуточно", google_rating: 4.9, google_rating_count: 12500 },
-      { id: "r-2", city: "mecca", category: "religion", name: "Masjid Aisha (Miqat at-Tan'im)", name_ar: "مسجد السيدة عائشة (ميقات التنعيم)", landmark_ar: "مسجد التنعيم - طريق المدينة المنورة", description: "Ближайший микат к Мекке (~7.5 км) для совершения повторной Умры. Душевые и омовельни.", lat: 21.462720, lng: 39.798110, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 18900 },
-      { id: "r-3", city: "medina", category: "religion", name: "Masjid Quba", name_ar: "مسجد قباء", landmark_ar: "مسجد قباء - طريق الهجرة", description: "Первая мечеть ислама. Намаз в ней равен награде за Умру по хадису Пророка ﷺ.", lat: 24.439320, lng: 39.617310, hours_text: "Круглосуточно", google_rating: 4.9, google_rating_count: 34000 },
-
-      // Полезное и Замзам (Useful)
-      { id: "u-1", city: "mecca", category: "useful", name: "King Abdullah Zamzam Factory (Kudai)", name_ar: "مشروع الملك عبد الله لسقيا زمزم - كدي", landmark_ar: "مصنع مياه زمزم - كدي الدائري الثالث", description: "Государственный завод фасовки воды Замзам. Покупка 5-литровых коробок для вылета по паспорту.", lat: 21.393430, lng: 39.818810, hours_text: "08:00–22:00", google_rating: 4.7, google_rating_count: 4300 },
-      { id: "u-2", city: "mecca", category: "useful", name: "Al-Haram Luggage Lockers", name_ar: "صناديق الأمانات وحفظ الأمتعة - ساحات الحرم", landmark_ar: "الساحات الشرقية للحرم المكي - خلف المروة", description: "Официальные камеры хранения на восточной площади Харама (за Марва). Вход с чемоданами закрыт.", lat: 21.423850, lng: 39.828520, hours_text: "Круглосуточно", google_rating: 4.2, google_rating_count: 530 },
-
-      // Базовые отели и проверенные точки
       { id: "1", city: "mecca", category: "health", name: "Nahdi Pharmacy — Ajyad", name_ar: "صيدلية النهدي - أجياد", landmark_ar: "شارع أجياد العام", description: "Крупная сеть, круглосуточно, медикаменты.", lat: 21.4195004, lng: 39.8272316, hours_text: "Круглосуточно", google_rating: 4.6, google_rating_count: 41, google_place_id: "ChIJ4TuXyTsFwhURQSI2UsENF5g" },
       { id: "2", city: "mecca", category: "shopping", name: "Bindawood — Clock Tower", name_ar: "سوبرماركت بن داود - أبراج البيت", landmark_ar: "برج الساعة - وقف الملك عبد العزيز", description: "Супермаркет у Харама в Часовой башне.", lat: 21.4195503, lng: 39.8249496, hours_text: "05:00–02:00", google_rating: 4.3, google_rating_count: 4611, google_place_id: "ChIJ_0DN8eEFwhURK7WV4AH6vAg" },
       { id: "3", city: "mecca", category: "food", name: "NUR Restaurant", name_ar: "مطعم نور - مأكولات شرقية", landmark_ar: "شارع أجياد", description: "Казахская кухня, сытные блюда, гриль.", lat: 21.4067987, lng: 39.8299392, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 22, google_place_id: "ChIJG9q8CwAFwhURW7kN2Yuw8Qk" },
@@ -1001,7 +1147,6 @@
       { id: "7", city: "medina", category: "useful", name: "Maien Taiba Hotel", name_ar: "فندق معين طيبة", landmark_ar: "المنطقة المركزية الشمالية - قرب الحرم", description: "Отель рядом с мечетью Пророка и воротами Рауда.", lat: 24.4641768, lng: 39.6131972, hours_text: "Круглосуточно", google_place_id: "ChIJR5RRSDu_vRURHnTru0dMoDs" },
       { id: "8", city: "medina", category: "food", name: "Zaitoon Restaurant", name_ar: "مطعم زيتون", landmark_ar: "المنطقة المركزية - بجوار المسجد النبوي", description: "Популярный ресторан пакистанской и арабской кухни.", lat: 24.4714678, lng: 39.6100381, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609, google_place_id: "ChIJ94a-adC_vRURYd7NZAkQ9zE" }
     ];
-
 
     dom.menuToggleBtn.innerHTML = iconSvg('menu', 18);
     dom.prayerIcon.innerHTML = iconSvg('mosque', 14);
@@ -1013,6 +1158,9 @@
     let selectedMarker = null;
     let userLocationMarker = null;
     let activeViewingPlace = null;
+    let activeRoute = null;
+    let activeRoutePolyline = null;
+    let routeStopMarkers = [];
     let favoritePlaceIds = new Set(JSON.parse(localStorage.getItem("ug_favs_cache") || "[]"));
     let accessToken = localStorage.getItem("ug_token");
     let userId = localStorage.getItem("ug_user_id");
@@ -1039,6 +1187,16 @@
       });
     }
 
+    function makeStopIcon(num, isStart, isEnd) {
+      const cls = isStart ? 'start' : (isEnd ? 'end' : '');
+      return L.divIcon({
+        className: '',
+        html: `<div class="route-stop-pin ${cls}"><span>${num}</span></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      });
+    }
+
     function haversineMeters(lat1, lng1, lat2, lng2) {
       const R = 6371000;
       const toRad = d => d * Math.PI / 180;
@@ -1060,8 +1218,10 @@
       currentCity = currentCity === 'mecca' ? 'medina' : 'mecca';
       updateCityToggleBtn();
       map.setView(CITIES[currentCity].center, 15);
+      clearActiveRoute();
       setSheetState('hidden');
       renderMarkers();
+      if (currentCategory === 'routes') renderRouteSelector();
       if (isListView) renderListView();
       loadPrayerTimes(currentCity);
     };
@@ -1078,7 +1238,16 @@
         haptic.light();
         currentCategory = key;
         dom.categoryRow.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === currentCategory ? 'true' : 'false'));
-        renderMarkers();
+
+        if (currentCategory === 'routes') {
+          dom.routeSelectorBar.hidden = false;
+          renderRouteSelector();
+        } else {
+          dom.routeSelectorBar.hidden = true;
+          clearActiveRoute();
+          renderMarkers();
+        }
+
         if (isListView) renderListView();
       };
       dom.categoryRow.appendChild(btn);
@@ -1126,6 +1295,8 @@
 
     function renderMarkers() {
       clusterGroup.clearLayers();
+      if (currentCategory === 'routes') return; // В режиме маршрутов стандартные метки скрыты
+
       const filtered = allPlaces.filter(p =>
         p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
       );
@@ -1144,7 +1315,173 @@
 
     renderMarkers();
 
-    // ===== АККОРДЕОН НАМАЗОВ (РАСКРЫТИЕ ПО НАЖАТИЮ) =====
+    // ===== МОДУЛЬ МАРШРУТОВ (ROUTING ENGINE) =====
+    function clearActiveRoute() {
+      if (activeRoutePolyline) {
+        map.removeLayer(activeRoutePolyline);
+        activeRoutePolyline = null;
+      }
+      routeStopMarkers.forEach(m => map.removeLayer(m));
+      routeStopMarkers = [];
+      activeRoute = null;
+      dom.activeRouteBanner.hidden = true;
+    }
+
+    function renderRouteSelector() {
+      const routes = ROUTES_DATA[currentCity] || [];
+      dom.routeSelectorBar.innerHTML = routes.map((r, idx) => `
+        <button class="route-pill-btn ${activeRoute && activeRoute.id === r.id ? 'active' : ''}" data-route-id="${r.id}">
+          <span>${r.badge}</span>
+        </button>
+      `).join('');
+
+      dom.routeSelectorBar.querySelectorAll('.route-pill-btn').forEach(btn => {
+        btn.onclick = () => {
+          haptic.medium();
+          const selected = routes.find(r => r.id === btn.dataset.routeId);
+          if (selected) {
+            displayRoute(selected);
+            renderRouteSelector();
+          }
+        };
+      });
+
+      // Если маршрут еще не выбран — сразу строим первый по умолчанию
+      if (!activeRoute && routes.length > 0) {
+        displayRoute(routes[0]);
+        renderRouteSelector();
+      }
+    }
+
+    function displayRoute(route) {
+      clearActiveRoute();
+      activeRoute = route;
+
+      clusterGroup.clearLayers(); // Скрываем обычные точки
+
+      const latlngs = route.stops.map(s => [s.lat, s.lng]);
+
+      // Рисуем линию пути
+      activeRoutePolyline = L.polyline(latlngs, {
+        color: route.color,
+        weight: 5,
+        opacity: 0.85,
+        dashArray: '8, 10'
+      }).addTo(map);
+
+      // Расставляем номерные остановки
+      route.stops.forEach((stop, idx) => {
+        const isStart = idx === 0;
+        const isEnd = idx === route.stops.length - 1;
+        const marker = L.marker([stop.lat, stop.lng], { icon: makeStopIcon(stop.num, isStart, isEnd) }).addTo(map);
+        marker.on('click', () => openSheetForStop(stop, route));
+        routeStopMarkers.push(marker);
+      });
+
+      // Масштабируем карту под весь маршрут
+      map.fitBounds(activeRoutePolyline.getBounds(), { padding: [160, 40] });
+
+      // Показываем плавающий баннер активного маршрута
+      dom.routeBannerTitle.textContent = route.title;
+      dom.routeBannerMeta.textContent = `${route.distance} · ~${route.duration} · ${route.stops.length} остановок`;
+      dom.activeRouteBanner.hidden = false;
+
+      // Открываем обзорную карточку маршрута
+      openSheetForRoute(route);
+    }
+
+    dom.routeBannerClose.onclick = () => {
+      clearActiveRoute();
+      dom.routeSelectorBar.querySelectorAll('.route-pill-btn').forEach(b => b.classList.remove('active'));
+      renderMarkers();
+      setSheetState('hidden');
+    };
+
+    function openSheetForRoute(route) {
+      const stops = route.stops;
+      const origin = `${stops[0].lat},${stops[0].lng}`;
+      const dest = `${stops[stops.length - 1].lat},${stops[stops.length - 1].lng}`;
+      const waypoints = stops.slice(1, -1).map(s => `${s.lat},${s.lng}`).join('|');
+      const gmapsMultiUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}`;
+
+      dom.sheetContent.innerHTML = `
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-title">${escapeHtml(route.title)}</div>
+            <div class="sheet-cat">${escapeHtml(route.badge)} · ${escapeHtml(route.distance)} (${escapeHtml(route.duration)})</div>
+          </div>
+        </div>
+        <div class="sheet-desc" style="margin:8px 0 12px;">${escapeHtml(route.desc)}</div>
+        <button class="route-main-btn" id="route-gmaps-all-btn">
+          🧭 <span>Открыть весь маршрут в Google Maps</span>
+        </button>
+        <div class="route-timeline-wrap">
+          <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px;">ОСТАНОВКИ МАРШРУТА:</div>
+          ${stops.map((s, idx) => `
+            <div class="route-timeline-item" data-stop-idx="${idx}">
+              <div class="timeline-num ${idx === 0 ? 'start' : (idx === stops.length - 1 ? 'end' : '')}">${s.num}</div>
+              <div class="timeline-info">
+                <div class="timeline-name">${escapeHtml(s.name)}</div>
+                <div class="timeline-desc">${escapeHtml(s.desc)}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      dom.sheetContent.querySelector('#route-gmaps-all-btn').onclick = () => {
+        window.open(gmapsMultiUrl, '_blank');
+      };
+
+      dom.sheetContent.querySelectorAll('.route-timeline-item').forEach(item => {
+        item.onclick = () => {
+          const idx = Number(item.dataset.stopIdx);
+          const stop = route.stops[idx];
+          map.flyTo([stop.lat, stop.lng], 16, { duration: 0.6 });
+          openSheetForStop(stop, route);
+        };
+      });
+
+      setSheetState('peek');
+    }
+
+    function openSheetForStop(stop, route) {
+      const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${stop.lat},${stop.lng}`;
+      dom.sheetContent.innerHTML = `
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-title">Остановка ${stop.num}: ${escapeHtml(stop.name)}</div>
+            <div class="sheet-cat">${escapeHtml(route.title)}</div>
+          </div>
+        </div>
+        <div class="sheet-desc" style="margin:10px 0;">${escapeHtml(stop.desc)}</div>
+        <div class="quick-actions-bar">
+          <button class="action-chip taxi-chip" id="stop-taxi-btn">
+            ${iconSvg('taxi', 15)} <span>Таксисту</span>
+          </button>
+          <button class="action-chip" id="stop-nav-btn">
+            🧭 <span>Маршрут</span>
+          </button>
+          <button class="action-chip" id="stop-back-btn">
+            📋 <span>Все остановки</span>
+          </button>
+        </div>
+      `;
+
+      dom.sheetContent.querySelector('#stop-taxi-btn').onclick = () => {
+        openTaxiModal({ name: stop.name, name_ar: stop.name_ar, landmark_ar: stop.landmark_ar, city: currentCity });
+      };
+      dom.sheetContent.querySelector('#stop-nav-btn').onclick = () => {
+        window.open(gmapsUrl, '_blank');
+      };
+      dom.sheetContent.querySelector('#stop-back-btn').onclick = () => {
+        openSheetForRoute(route);
+      };
+
+      setSheetState('peek');
+    }
+
+    // ===== АККОРДЕОН НАМАЗОВ =====
     function closePrayerDropdown() {
       dom.prayerDropdown.hidden = true;
       dom.prayerBarBtn.classList.remove('open');
@@ -1559,6 +1896,7 @@
       currentCategory = 'all';
       updateCityToggleBtn();
       dom.categoryRow.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
+      clearActiveRoute();
       renderMarkers();
       loadPrayerTimes(currentCity);
       map.flyTo([place.lat, place.lng], 16, { duration: 0.6 });
