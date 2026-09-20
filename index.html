@@ -168,7 +168,7 @@
       backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    /* ЖУК И ОКНО ОТЛАДКИ */
+    /* Отладчик (🐞) */
     .debug-toggle {
       position: absolute; bottom: calc(14px + var(--safe-bottom)); right: calc(14px + var(--safe-right)); z-index: 3000;
       width: 44px; height: 44px; border-radius: 50%; background: white;
@@ -324,6 +324,16 @@
     }
     .taxi-tip { font-size: 12px; color: var(--muted); line-height: 1.45; text-align: center; margin-bottom: 12px; }
 
+    /* Выбор стиля карты */
+    .style-option-btn {
+      width: 100%; text-align: left; padding: 14px 12px; border: 1px solid var(--line);
+      background: var(--bg); border-radius: 14px; margin-bottom: 8px; font-family: 'Manrope', sans-serif;
+      cursor: pointer; display: flex; flex-direction: column; gap: 3px;
+    }
+    .style-option-btn.active { border-color: var(--green); background: var(--green-light); }
+    .style-title { font-weight: 700; font-size: 14px; color: var(--text); }
+    .style-desc { font-size: 11.5px; color: var(--muted); }
+
     .rating-picker { display: flex; gap: 6px; margin-bottom: 12px; justify-content: center; }
     .rating-picker button {
       width: 44px; height: 44px; border: 1.5px solid var(--line); border-radius: 10px;
@@ -345,7 +355,7 @@
       font-size: 14px; font-family: 'Manrope', sans-serif; min-height: 44px;
     }
     .hotel-search-hint { font-size: 12px; color: var(--muted); margin: 6px 0 10px; line-height: 1.4; }
-    #hotel-list, #fav-list, #guide-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    #hotel-list, #fav-list, #guide-scroll, #map-style-list { overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .hotel-item, .fav-item {
       width: 100%; text-align: left; padding: 12px 6px; border: none; border-bottom: 1px solid var(--line);
       background: none; font-family: 'Manrope', sans-serif; min-height: 52px;
@@ -414,6 +424,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             <span>Умра & Тасбих ›</span>
           </button>
+          <button class="tool-pill" id="map-style-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <span id="map-style-chip-text">Стиль карты ›</span>
+          </button>
           <button class="tool-pill" id="hotel-chip"></button>
           <button class="tool-pill" id="fav-header-btn"></button>
         </div>
@@ -453,6 +467,17 @@
       <button class="sheet-close" aria-label="Закрыть карточку" onclick="setSheetState('hidden')">✕</button>
     </div>
     <div id="sheet-content"></div>
+  </div>
+
+  <!-- Модальное окно: Выбор стиля карты -->
+  <div id="map-style-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="map-style-modal-title">
+      <div class="modal-head">
+        <h2 id="map-style-modal-title" class="modal-title">Стиль карты</h2>
+        <button class="modal-close" aria-label="Закрыть" id="map-style-close">✕</button>
+      </div>
+      <div id="map-style-list"></div>
+    </div>
   </div>
 
   <!-- Модальное окно: Режим Такси -->
@@ -569,12 +594,12 @@
     </div>
   </div>
 
-  <!-- Окно отладки и жук -->
+  <!-- Отладчик -->
   <div id="debug"></div>
   <button class="debug-toggle" id="debug-btn" aria-label="Показать журнал отладки">🐞</button>
 
   <script>
-    // ===== БЕССМЕРТНЫЙ ЖУК-ОТЛАДЧИК (Перехватывает 100% ошибок) =====
+    // ===== ОТЛАДЧИК (Перехват системных ошибок) =====
     window.__debugLogs = [];
     function debugLog(type, msg) {
       const time = new Date().toTimeString().split(' ')[0];
@@ -593,12 +618,6 @@
     window.addEventListener('unhandledrejection', function(e) {
       debugLog('PROMISE', e.reason?.message || e.reason || 'Ошибка промиса');
     });
-    console.error = (function(orig) {
-      return function(...args) {
-        debugLog('CONSOLE', args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
-        orig.apply(console, args);
-      };
-    })(console.error);
 
     document.getElementById('debug-btn').onclick = function() {
       const el = document.getElementById('debug');
@@ -608,7 +627,6 @@
       }
     };
 
-    // Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -676,6 +694,31 @@
       money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель"
     };
 
+    // Конфигурация 3 вариантов стилей карты
+    const MAP_STYLES = {
+      voyager: {
+        name: "CARTO Voyager (Теплый)",
+        desc: "Песочно-кремовые тона, идеально сочетается со стилем Umra Guide",
+        url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=cb1_2wjd_1_49134346db0663b43ee9dad5",
+        subdomains: "abcd",
+        maxZoom: 20
+      },
+      positron: {
+        name: "CARTO Positron (Светлый)",
+        desc: "Белоснежный минимализм в стиле Sajda и Apple Maps",
+        url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_2wjd_1_49134346db0663b43ee9dad5",
+        subdomains: "abcd",
+        maxZoom: 20
+      },
+      osm_hot: {
+        name: "OSM Humanitarian (Детали)",
+        desc: "Высокая детализация пешеходных дорожек и галерей Харама",
+        url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+        subdomains: "abc",
+        maxZoom: 19
+      }
+    };
+
     // 29 верифицированных мест + святыни с арабскими названиями для такси
     const SEED_PLACES = [
       { id: "k-1", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", name_ar: "المسجد الحرام - الكعبة المشرفة", landmark_ar: "بوابة الملك عبد العزيز", description: "Главная святыня ислама, Кибла паломников.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
@@ -704,6 +747,8 @@
     let reviewPlaceId = null;
     let reviewRating = 5;
     let cachedPrayerTimesList = [];
+    let currentMapStyle = localStorage.getItem("ug_map_style") || "voyager";
+    let currentTileLayer = null;
 
     let selectedHotel = null;
     try { selectedHotel = JSON.parse(localStorage.getItem("ug_hotel") || "null"); } catch (e) { selectedHotel = null; }
@@ -731,7 +776,7 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // ===== ШАГ 1: ИНИЦИАЛИЗАЦИЯ UI ЭЛЕМЕНТОВ (Строго в первую очередь!) =====
+    // ===== UI: ГОРОДА И КАТЕГОРИИ =====
     const citySwitchEl = document.getElementById('city-switch');
     Object.entries(CITIES).forEach(([key, city]) => {
       const btn = document.createElement('button');
@@ -767,22 +812,26 @@
       categoryRow.appendChild(btn);
     });
 
-    // ===== ШАГ 2: БЕЗОТКАЗНАЯ КАРТА (Esri World Street Map — чистая, без водяных знаков) =====
+    // ===== КАРТА И ПЕРЕКЛЮЧЕНИЕ СТИЛЕЙ =====
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
 
-    // Основной слой Esri (дороги на латинице/английском, без сторонних магазинов и надписей api key)
-    const baseTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: '&copy; Esri &copy; OpenStreetMap'
-    }).addTo(map);
-
-    // Резервный тайловый слой при сетевых сбоях
-    baseTileLayer.on('tileerror', function() {
-      L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+    function applyMapStyle(styleKey) {
+      const cfg = MAP_STYLES[styleKey] || MAP_STYLES.voyager;
+      if (currentTileLayer) {
+        map.removeLayer(currentTileLayer);
+      }
+      currentTileLayer = L.tileLayer(cfg.url, {
+        subdomains: cfg.subdomains,
+        maxZoom: cfg.maxZoom,
+        attribution: '&copy; OpenStreetMap &copy; CARTO'
       }).addTo(map);
-    });
+      currentTileLayer.bringToBack();
+      currentMapStyle = styleKey;
+      localStorage.setItem("ug_map_style", styleKey);
+      updateMapStyleChip();
+    }
+
+    applyMapStyle(currentMapStyle);
 
     const clusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
@@ -811,10 +860,49 @@
       clusterGroup.addLayers(markersToAdd);
     }
 
-    // Первичная отрисовка маркеров из памяти происходит мгновенно
     renderMarkers();
 
-    // ===== ШАГ 3: ВСПОМОГАТЕЛЬНЫЕ МОДУЛИ =====
+    // Модальное окно выбора стиля карты
+    const mapStyleBtn = document.getElementById('map-style-btn');
+    const mapStyleModalEl = document.getElementById('map-style-modal');
+    const mapStyleCloseEl = document.getElementById('map-style-close');
+    const mapStyleListEl = document.getElementById('map-style-list');
+    const mapStyleChipTextEl = document.getElementById('map-style-chip-text');
+
+    function updateMapStyleChip() {
+      const cur = MAP_STYLES[currentMapStyle];
+      if (cur && mapStyleChipTextEl) {
+        mapStyleChipTextEl.textContent = `Стиль: ${cur.name.split(' ')[1]} ›`;
+      }
+    }
+
+    function renderMapStyleList() {
+      mapStyleListEl.innerHTML = Object.entries(MAP_STYLES).map(([k, s]) => `
+        <button class="style-option-btn ${k === currentMapStyle ? 'active' : ''}" data-style="${k}">
+          <div class="style-title">${k === currentMapStyle ? '✓ ' : ''}${escapeHtml(s.name)}</div>
+          <div class="style-desc">${escapeHtml(s.desc)}</div>
+        </button>
+      `).join('');
+
+      mapStyleListEl.querySelectorAll('.style-option-btn').forEach(btn => {
+        btn.onclick = () => {
+          haptic.success();
+          applyMapStyle(btn.dataset.style);
+          mapStyleModalEl.hidden = true;
+        };
+      });
+    }
+
+    mapStyleBtn.onclick = () => {
+      haptic.light();
+      menuDrawerEl.classList.remove('open');
+      renderMapStyleList();
+      mapStyleModalEl.hidden = false;
+    };
+    mapStyleCloseEl.onclick = () => { mapStyleModalEl.hidden = true; };
+    mapStyleModalEl.addEventListener('click', (e) => { if (e.target === mapStyleModalEl) mapStyleModalEl.hidden = true; });
+
+    // Курс валюты
     async function loadExchangeRate() {
       const cachedRub = localStorage.getItem("ug_rate_rub");
       if (cachedRub) document.getElementById("rate-usd-rub").textContent = cachedRub;
@@ -827,7 +915,7 @@
         localStorage.setItem("ug_rate_rub", usdRub);
       } catch (e) {
         if (!cachedRub) document.getElementById("rate-usd-rub").textContent = "92.50";
-        log("Курс валюты загружен из кэша");
+        log("Курс валюты из кэша");
       }
     }
 
@@ -850,6 +938,7 @@
       menuDrawerEl.classList.remove('open');
     });
 
+    // Намазы
     const prayerTimesEl = document.getElementById('prayer-times');
     const prayerCityLabelEl = document.getElementById('prayer-city-label');
     const prayerCountdownEl = document.getElementById('prayer-countdown');
@@ -891,7 +980,7 @@
           ];
           cachedPrayerTimesList = fallbackTimes;
           renderPrayerTimes(fallbackTimes);
-          log("Намазы: использовано резервное расписание");
+          log("Резервное расписание намазов");
         }
       }
     }
