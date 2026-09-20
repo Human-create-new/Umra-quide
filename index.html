@@ -605,10 +605,10 @@
       const time = new Date().toTimeString().split(' ')[0];
       const entry = `[${time}] [${type}] ${msg}`;
       window.__debugLogs.push(entry);
-      const el = document.getElementById('debug');
-      if (el) {
-        el.textContent = window.__debugLogs.join('\n');
-        el.scrollTop = el.scrollHeight;
+      const elDebug = document.getElementById('debug');
+      if (elDebug) {
+        elDebug.textContent = window.__debugLogs.join('\n');
+        elDebug.scrollTop = elDebug.scrollHeight;
       }
     }
     window.onerror = function(msg, url, line, col, err) {
@@ -619,19 +619,71 @@
       debugLog('PROMISE', e.reason?.message || e.reason || 'Ошибка промиса');
     });
 
-    document.getElementById('debug-btn').onclick = function() {
-      const el = document.getElementById('debug');
-      if (el) {
-        el.textContent = window.__debugLogs.length ? window.__debugLogs.join('\n') : '✅ Журнал чист. Ошибок скрипта нет.';
-        el.classList.toggle('visible');
-      }
-    };
-
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
+
+    // ===== БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ ВСЕХ DOM-ЭЛЕМЕНТОВ СРАЗУ (Исключает TDZ) =====
+    const dom = {
+      debug: document.getElementById('debug'),
+      debugBtn: document.getElementById('debug-btn'),
+      menuToggleBtn: document.getElementById('menu-toggle-btn'),
+      menuDrawer: document.getElementById('menu-drawer'),
+      prayerIcon: document.getElementById('prayer-icon'),
+      prayerTimes: document.getElementById('prayer-times'),
+      prayerCityLabel: document.getElementById('prayer-city-label'),
+      prayerCountdown: document.getElementById('prayer-countdown'),
+      rateUsdRub: document.getElementById('rate-usd-rub'),
+      rateHelpBtn: document.getElementById('rate-help-btn'),
+      rateTooltip: document.getElementById('rate-tooltip'),
+      citySwitch: document.getElementById('city-switch'),
+      categoryRow: document.getElementById('category-row'),
+      offlinePill: document.getElementById('offline-pill'),
+      mapStyleBtn: document.getElementById('map-style-btn'),
+      mapStyleModal: document.getElementById('map-style-modal'),
+      mapStyleClose: document.getElementById('map-style-close'),
+      mapStyleList: document.getElementById('map-style-list'),
+      mapStyleChipText: document.getElementById('map-style-chip-text'),
+      hotelChip: document.getElementById('hotel-chip'),
+      hotelModal: document.getElementById('hotel-modal'),
+      hotelClose: document.getElementById('hotel-close'),
+      hotelList: document.getElementById('hotel-list'),
+      hotelSearch: document.getElementById('hotel-search'),
+      hotelClearBtn: document.getElementById('hotel-clear-btn'),
+      favHeaderBtn: document.getElementById('fav-header-btn'),
+      favModal: document.getElementById('fav-modal'),
+      favClose: document.getElementById('fav-close'),
+      favList: document.getElementById('fav-list'),
+      guideOpenBtn: document.getElementById('guide-open-btn'),
+      guideModal: document.getElementById('guide-modal'),
+      guideClose: document.getElementById('guide-close'),
+      tasbeehCount: document.getElementById('tasbeeh-count'),
+      tasbeehAdd: document.getElementById('tasbeeh-add'),
+      tasbeehRst: document.getElementById('tasbeeh-rst'),
+      sheet: document.getElementById('sheet'),
+      sheetToolbar: document.getElementById('sheet-toolbar'),
+      sheetContent: document.getElementById('sheet-content'),
+      taxiModal: document.getElementById('taxi-modal'),
+      taxiClose: document.getElementById('taxi-close'),
+      taxiArabicName: document.getElementById('taxi-arabic-name'),
+      taxiArabicLandmark: document.getElementById('taxi-arabic-landmark'),
+      taxiCopyBtn: document.getElementById('taxi-copy-btn'),
+      reviewModal: document.getElementById('review-modal'),
+      reviewClose: document.getElementById('review-close'),
+      reviewText: document.getElementById('review-text'),
+      reviewSubmit: document.getElementById('review-submit'),
+      reviewStatus: document.getElementById('review-status'),
+      ratingPicker: document.getElementById('rating-picker')
+    };
+
+    dom.debugBtn.onclick = function() {
+      if (dom.debug) {
+        dom.debug.textContent = window.__debugLogs.length ? window.__debugLogs.join('\n') : '✅ Журнал чист. Ошибок скрипта нет.';
+        dom.debug.classList.toggle('visible');
+      }
+    };
 
     const SUPABASE_URL = "https://yhbmhqqhrvdtoiucrwxh.supabase.co";
     const SUPABASE_KEY = "sb_publishable_fa30VjQuhLoSnmvrlfUiEQ_IdnQsIuZ";
@@ -694,7 +746,6 @@
       money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель"
     };
 
-    // Конфигурация 3 вариантов стилей карты
     const MAP_STYLES = {
       voyager: {
         name: "CARTO Voyager (Теплый)",
@@ -719,7 +770,6 @@
       }
     };
 
-    // 29 верифицированных мест + святыни с арабскими названиями для такси
     const SEED_PLACES = [
       { id: "k-1", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", name_ar: "المسجد الحرام - الكعبة المشرفة", landmark_ar: "بوابة الملك عبد العزيز", description: "Главная святыня ислама, Кибла паломников.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
       { id: "k-2", city: "medina", category: "religion", name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "المنطقة المركزية - باب السلام", description: "Вторая святыня ислама. Здесь находится благословенная Рауда.", lat: 24.467210, lng: 39.610800, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 120000 },
@@ -733,8 +783,8 @@
       { id: "8", city: "medina", category: "food", name: "Zaitoon Restaurant", name_ar: "مطعم زيتون", landmark_ar: "المنطقة المركزية - بجوار المسجد النبوي", description: "Популярный ресторан пакистанской и арабской кухни.", lat: 24.4714678, lng: 39.6100381, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609, google_place_id: "ChIJ94a-adC_vRURYd7NZAkQ9zE" }
     ];
 
-    document.getElementById('menu-toggle-btn').innerHTML = iconSvg('menu', 18);
-    document.getElementById('prayer-icon').innerHTML = iconSvg('mosque', 14);
+    dom.menuToggleBtn.innerHTML = iconSvg('menu', 18);
+    dom.prayerIcon.innerHTML = iconSvg('mosque', 14);
 
     let currentCity = "mecca";
     let currentCategory = "all";
@@ -776,8 +826,7 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // ===== UI: ГОРОДА И КАТЕГОРИИ =====
-    const citySwitchEl = document.getElementById('city-switch');
+    // Города
     Object.entries(CITIES).forEach(([key, city]) => {
       const btn = document.createElement('button');
       btn.dataset.cityKey = key;
@@ -786,16 +835,16 @@
       btn.onclick = () => {
         haptic.light();
         currentCity = key;
-        citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
+        dom.citySwitch.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
         map.setView(CITIES[currentCity].center, 15);
         setSheetState('hidden');
         renderMarkers();
         loadPrayerTimes(currentCity);
       };
-      citySwitchEl.appendChild(btn);
+      dom.citySwitch.appendChild(btn);
     });
 
-    const categoryRow = document.getElementById('category-row');
+    // Категории
     Object.entries(CATEGORIES).forEach(([key, label]) => {
       const btn = document.createElement('button');
       btn.className = 'cat-item';
@@ -809,11 +858,18 @@
         document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === currentCategory ? 'true' : 'false'));
         renderMarkers();
       };
-      categoryRow.appendChild(btn);
+      dom.categoryRow.appendChild(btn);
     });
 
-    // ===== КАРТА И ПЕРЕКЛЮЧЕНИЕ СТИЛЕЙ =====
+    // Карта и стили
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
+
+    function updateMapStyleChip() {
+      const cur = MAP_STYLES[currentMapStyle];
+      if (cur && dom.mapStyleChipText) {
+        dom.mapStyleChipText.textContent = `Стиль: ${cur.name.split(' ')[1]} ›`;
+      }
+    }
 
     function applyMapStyle(styleKey) {
       const cfg = MAP_STYLES[styleKey] || MAP_STYLES.voyager;
@@ -831,6 +887,7 @@
       updateMapStyleChip();
     }
 
+    // Применяем стиль карты
     applyMapStyle(currentMapStyle);
 
     const clusterGroup = L.markerClusterGroup({
@@ -863,89 +920,68 @@
     renderMarkers();
 
     // Модальное окно выбора стиля карты
-    const mapStyleBtn = document.getElementById('map-style-btn');
-    const mapStyleModalEl = document.getElementById('map-style-modal');
-    const mapStyleCloseEl = document.getElementById('map-style-close');
-    const mapStyleListEl = document.getElementById('map-style-list');
-    const mapStyleChipTextEl = document.getElementById('map-style-chip-text');
-
-    function updateMapStyleChip() {
-      const cur = MAP_STYLES[currentMapStyle];
-      if (cur && mapStyleChipTextEl) {
-        mapStyleChipTextEl.textContent = `Стиль: ${cur.name.split(' ')[1]} ›`;
-      }
-    }
-
     function renderMapStyleList() {
-      mapStyleListEl.innerHTML = Object.entries(MAP_STYLES).map(([k, s]) => `
+      dom.mapStyleList.innerHTML = Object.entries(MAP_STYLES).map(([k, s]) => `
         <button class="style-option-btn ${k === currentMapStyle ? 'active' : ''}" data-style="${k}">
           <div class="style-title">${k === currentMapStyle ? '✓ ' : ''}${escapeHtml(s.name)}</div>
           <div class="style-desc">${escapeHtml(s.desc)}</div>
         </button>
       `).join('');
 
-      mapStyleListEl.querySelectorAll('.style-option-btn').forEach(btn => {
+      dom.mapStyleList.querySelectorAll('.style-option-btn').forEach(btn => {
         btn.onclick = () => {
           haptic.success();
           applyMapStyle(btn.dataset.style);
-          mapStyleModalEl.hidden = true;
+          dom.mapStyleModal.hidden = true;
         };
       });
     }
 
-    mapStyleBtn.onclick = () => {
+    dom.mapStyleBtn.onclick = () => {
       haptic.light();
-      menuDrawerEl.classList.remove('open');
+      dom.menuDrawer.classList.remove('open');
       renderMapStyleList();
-      mapStyleModalEl.hidden = false;
+      dom.mapStyleModal.hidden = false;
     };
-    mapStyleCloseEl.onclick = () => { mapStyleModalEl.hidden = true; };
-    mapStyleModalEl.addEventListener('click', (e) => { if (e.target === mapStyleModalEl) mapStyleModalEl.hidden = true; });
+    dom.mapStyleClose.onclick = () => { dom.mapStyleModal.hidden = true; };
+    dom.mapStyleModal.addEventListener('click', (e) => { if (e.target === dom.mapStyleModal) dom.mapStyleModal.hidden = true; });
 
     // Курс валюты
     async function loadExchangeRate() {
       const cachedRub = localStorage.getItem("ug_rate_rub");
-      if (cachedRub) document.getElementById("rate-usd-rub").textContent = cachedRub;
+      if (cachedRub && dom.rateUsdRub) dom.rateUsdRub.textContent = cachedRub;
 
       try {
         const res = await fetch("https://www.cbr-xml-daily.ru/daily_json.js");
         const data = await res.json();
         const usdRub = data.Valute.USD.Value.toFixed(2);
-        document.getElementById("rate-usd-rub").textContent = usdRub;
+        if (dom.rateUsdRub) dom.rateUsdRub.textContent = usdRub;
         localStorage.setItem("ug_rate_rub", usdRub);
       } catch (e) {
-        if (!cachedRub) document.getElementById("rate-usd-rub").textContent = "92.50";
+        if (!cachedRub && dom.rateUsdRub) dom.rateUsdRub.textContent = "92.50";
         log("Курс валюты из кэша");
       }
     }
 
-    const rateHelpBtn = document.getElementById('rate-help-btn');
-    const rateTooltipEl = document.getElementById('rate-tooltip');
-    rateHelpBtn.addEventListener('click', (e) => {
+    dom.rateHelpBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      rateTooltipEl.classList.toggle('open');
+      dom.rateTooltip.classList.toggle('open');
     });
 
-    const menuToggleBtn = document.getElementById('menu-toggle-btn');
-    const menuDrawerEl = document.getElementById('menu-drawer');
-    menuToggleBtn.addEventListener('click', (e) => {
+    dom.menuToggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       haptic.light();
-      menuDrawerEl.classList.toggle('open');
+      dom.menuDrawer.classList.toggle('open');
     });
     document.addEventListener('click', () => {
-      rateTooltipEl.classList.remove('open');
-      menuDrawerEl.classList.remove('open');
+      dom.rateTooltip.classList.remove('open');
+      dom.menuDrawer.classList.remove('open');
     });
 
     // Намазы
-    const prayerTimesEl = document.getElementById('prayer-times');
-    const prayerCityLabelEl = document.getElementById('prayer-city-label');
-    const prayerCountdownEl = document.getElementById('prayer-countdown');
-
     async function loadPrayerTimes(cityKey) {
       const center = CITIES[cityKey].center;
-      prayerCityLabelEl.textContent = CITIES[cityKey].label;
+      if (dom.prayerCityLabel) dom.prayerCityLabel.textContent = CITIES[cityKey].label;
       const today = new Date();
       const dateKey = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
       const cacheKey = `ug_prayers_${cityKey}_${dateKey}`;
@@ -1011,14 +1047,16 @@
       const hoursLeft = Math.floor(diffMinutes / 60);
       const minsLeft = diffMinutes % 60;
       const timeStr = hoursLeft > 0 ? `${hoursLeft} ч ${minsLeft} мин` : `${minsLeft} мин`;
-      prayerCountdownEl.textContent = `${nextName} через ${timeStr}`;
+      if (dom.prayerCountdown) dom.prayerCountdown.textContent = `${nextName} через ${timeStr}`;
 
-      prayerTimesEl.innerHTML = times.map(([name, time], i) => `
-        <div class="prayer-item ${i === nextPrayerIdx ? 'current' : ''}">
-          <span>${name}</span>
-          <span class="time">${time}</span>
-        </div>
-      `).join('');
+      if (dom.prayerTimes) {
+        dom.prayerTimes.innerHTML = times.map(([name, time], i) => `
+          <div class="prayer-item ${i === nextPrayerIdx ? 'current' : ''}">
+            <span>${name}</span>
+            <span class="time">${time}</span>
+          </div>
+        `).join('');
+      }
     }
 
     function selectMarkerAndOpenSheet(marker, place) {
@@ -1034,8 +1072,8 @@
     function goToPlace(place) {
       currentCity = place.city;
       currentCategory = 'all';
-      citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
-      document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
+      dom.citySwitch.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
+      dom.categoryRow.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === 'all' ? 'true' : 'false'));
       renderMarkers();
       loadPrayerTimes(currentCity);
       map.flyTo([place.lat, place.lng], 16, { duration: 0.6 });
@@ -1049,23 +1087,18 @@
     }
 
     // Избранное
-    const favHeaderBtn = document.getElementById('fav-header-btn');
-    const favModalEl = document.getElementById('fav-modal');
-    const favListEl = document.getElementById('fav-list');
-    const favCloseEl = document.getElementById('fav-close');
-
     function updateFavHeaderBtn() {
       const n = favoritePlaceIds.size;
-      favHeaderBtn.innerHTML = `${iconSvg('heart')}<span>Избранное (${n}) ›</span>`;
-      favHeaderBtn.classList.toggle('fav-active', n > 0);
+      dom.favHeaderBtn.innerHTML = `${iconSvg('heart')}<span>Избранное (${n}) ›</span>`;
+      dom.favHeaderBtn.classList.toggle('fav-active', n > 0);
     }
     updateFavHeaderBtn();
 
     function openFavModal() {
       haptic.light();
-      menuDrawerEl.classList.remove('open');
+      dom.menuDrawer.classList.remove('open');
       const favs = allPlaces.filter(p => favoritePlaceIds.has(p.id));
-      favListEl.innerHTML = favs.length
+      dom.favList.innerHTML = favs.length
         ? favs.map(p => `
             <button class="fav-item" data-id="${escapeHtml(p.id)}">
               <div class="fav-icon">${p.name === KAABA_NAME ? '🕋' : (CATEGORY_EMOJI[p.category] || '📍')}</div>
@@ -1077,30 +1110,23 @@
           `).join('')
         : '<div class="fav-empty">Пока нет сохранённых мест. Нажмите ❤️ на карточке места, чтобы добавить.</div>';
 
-      favListEl.querySelectorAll('.fav-item').forEach(btn => {
+      dom.favList.querySelectorAll('.fav-item').forEach(btn => {
         btn.onclick = () => {
           const place = favs.find(p => p.id === btn.dataset.id);
-          if (place) { favModalEl.hidden = true; goToPlace(place); }
+          if (place) { dom.favModal.hidden = true; goToPlace(place); }
         };
       });
 
-      favModalEl.hidden = false;
+      dom.favModal.hidden = false;
     }
-    favHeaderBtn.onclick = openFavModal;
-    favCloseEl.onclick = () => { favModalEl.hidden = true; };
-    favModalEl.addEventListener('click', (e) => { if (e.target === favModalEl) favModalEl.hidden = true; });
+    dom.favHeaderBtn.onclick = openFavModal;
+    dom.favClose.onclick = () => { dom.favModal.hidden = true; };
+    dom.favModal.addEventListener('click', (e) => { if (e.target === dom.favModal) dom.favModal.hidden = true; });
 
     // Отели
-    const hotelChipEl = document.getElementById('hotel-chip');
-    const hotelModalEl = document.getElementById('hotel-modal');
-    const hotelListEl = document.getElementById('hotel-list');
-    const hotelCloseEl = document.getElementById('hotel-close');
-    const hotelClearBtnEl = document.getElementById('hotel-clear-btn');
-    const hotelSearchEl = document.getElementById('hotel-search');
-
     function updateHotelChip() {
       const label = selectedHotel ? selectedHotel.name : "Выбрать отель";
-      hotelChipEl.innerHTML = `${iconSvg('building')}<span>${escapeHtml(label)} ›</span>`;
+      dom.hotelChip.innerHTML = `${iconSvg('building')}<span>${escapeHtml(label)} ›</span>`;
     }
     updateHotelChip();
 
@@ -1109,7 +1135,7 @@
       const q = (filterText || '').trim().toLowerCase();
       const filtered = q ? hotels.filter(h => h.name.toLowerCase().includes(q)) : hotels;
 
-      hotelListEl.innerHTML = filtered.length
+      dom.hotelList.innerHTML = filtered.length
         ? filtered.map(h => `
             <button class="hotel-item" data-id="${escapeHtml(h.id)}">
               <div>
@@ -1120,7 +1146,7 @@
           `).join('')
         : '<div class="hotel-empty">Ничего не найдено</div>';
 
-      hotelListEl.querySelectorAll('.hotel-item').forEach(btn => {
+      dom.hotelList.querySelectorAll('.hotel-item').forEach(btn => {
         btn.onclick = () => {
           const hotel = hotels.find(h => h.id === btn.dataset.id);
           if (hotel) selectHotel(hotel);
@@ -1130,13 +1156,13 @@
 
     function openHotelModal() {
       haptic.light();
-      menuDrawerEl.classList.remove('open');
-      hotelSearchEl.value = '';
+      dom.menuDrawer.classList.remove('open');
+      dom.hotelSearch.value = '';
       renderHotelList('');
-      hotelModalEl.hidden = false;
+      dom.hotelModal.hidden = false;
     }
-    function closeHotelModal() { hotelModalEl.hidden = true; }
-    hotelSearchEl.addEventListener('input', () => renderHotelList(hotelSearchEl.value));
+    function closeHotelModal() { dom.hotelModal.hidden = true; }
+    dom.hotelSearch.addEventListener('input', () => renderHotelList(dom.hotelSearch.value));
 
     function selectHotel(place) {
       haptic.success();
@@ -1156,44 +1182,34 @@
       renderMarkers();
     }
 
-    hotelChipEl.onclick = openHotelModal;
-    hotelCloseEl.onclick = closeHotelModal;
-    hotelClearBtnEl.onclick = clearHotel;
-    hotelModalEl.addEventListener('click', (e) => { if (e.target === hotelModalEl) closeHotelModal(); });
+    dom.hotelChip.onclick = openHotelModal;
+    dom.hotelClose.onclick = closeHotelModal;
+    dom.hotelClearBtn.onclick = clearHotel;
+    dom.hotelModal.addEventListener('click', (e) => { if (e.target === dom.hotelModal) closeHotelModal(); });
 
     // Умра & Тасбих
-    const guideModalEl = document.getElementById('guide-modal');
-    const guideOpenBtn = document.getElementById('guide-open-btn');
-    const guideCloseEl = document.getElementById('guide-close');
-    const tasbeehCountEl = document.getElementById('tasbeeh-count');
-    const tasbeehAddBtn = document.getElementById('tasbeeh-add');
-    const tasbeehRstBtn = document.getElementById('tasbeeh-rst');
     let tasbeehRound = 0;
-
-    guideOpenBtn.onclick = () => {
+    dom.guideOpenBtn.onclick = () => {
       haptic.light();
-      menuDrawerEl.classList.remove('open');
-      guideModalEl.hidden = false;
+      dom.menuDrawer.classList.remove('open');
+      dom.guideModal.hidden = false;
     };
-    guideCloseEl.onclick = () => { guideModalEl.hidden = true; };
-    guideModalEl.addEventListener('click', (e) => { if (e.target === guideModalEl) guideModalEl.hidden = true; });
+    dom.guideClose.onclick = () => { dom.guideModal.hidden = true; };
+    dom.guideModal.addEventListener('click', (e) => { if (e.target === dom.guideModal) dom.guideModal.hidden = true; });
 
-    tasbeehAddBtn.onclick = () => {
+    dom.tasbeehAdd.onclick = () => {
       haptic.medium();
       tasbeehRound = (tasbeehRound + 1) % 8;
-      tasbeehCountEl.textContent = `${tasbeehRound} / 7`;
+      dom.tasbeehCount.textContent = `${tasbeehRound} / 7`;
       if (tasbeehRound === 7) haptic.success();
     };
-    tasbeehRstBtn.onclick = () => {
+    dom.tasbeehRst.onclick = () => {
       haptic.light();
       tasbeehRound = 0;
-      tasbeehCountEl.textContent = `0 / 7`;
+      dom.tasbeehCount.textContent = `0 / 7`;
     };
 
     // Bottom Sheet
-    const sheetEl = document.getElementById('sheet');
-    const sheetContentEl = document.getElementById('sheet-content');
-    const sheetToolbarEl = document.getElementById('sheet-toolbar');
     let sheetState = 'hidden';
 
     function pxFor(state) {
@@ -1203,49 +1219,49 @@
     }
 
     function setSheetState(state) {
-      sheetEl.classList.add('animate');
-      sheetEl.classList.remove('state-peek', 'state-full');
+      dom.sheet.classList.add('animate');
+      dom.sheet.classList.remove('state-peek', 'state-full');
       if (state === 'hidden') {
-        sheetEl.style.height = '0px';
-        sheetEl.setAttribute('aria-hidden', 'true');
+        dom.sheet.style.height = '0px';
+        dom.sheet.setAttribute('aria-hidden', 'true');
         activeViewingPlace = null;
         if (selectedMarker) {
           selectedMarker.setIcon(makeIcon(selectedMarker._category, false, selectedMarker._name));
           selectedMarker = null;
         }
       } else {
-        sheetEl.setAttribute('aria-hidden', 'false');
-        sheetEl.classList.add('state-' + state);
-        sheetEl.style.height = pxFor(state) + 'px';
+        dom.sheet.setAttribute('aria-hidden', 'false');
+        dom.sheet.classList.add('state-' + state);
+        dom.sheet.style.height = pxFor(state) + 'px';
       }
       sheetState = state;
     }
     window.setSheetState = setSheetState;
 
     let dragStartY = 0, dragStartHeight = 0, dragging = false, moved = false;
-    sheetToolbarEl.addEventListener('pointerdown', (e) => {
+    dom.sheetToolbar.addEventListener('pointerdown', (e) => {
       dragging = true; moved = false;
       dragStartY = e.clientY;
-      dragStartHeight = sheetEl.offsetHeight;
-      sheetEl.classList.remove('animate');
-      sheetToolbarEl.setPointerCapture(e.pointerId);
+      dragStartHeight = dom.sheet.offsetHeight;
+      dom.sheet.classList.remove('animate');
+      dom.sheetToolbar.setPointerCapture(e.pointerId);
     });
-    sheetToolbarEl.addEventListener('pointermove', (e) => {
+    dom.sheetToolbar.addEventListener('pointermove', (e) => {
       if (!dragging) return;
       const delta = dragStartY - e.clientY;
       if (Math.abs(delta) > 5) moved = true;
       let newHeight = dragStartHeight + delta;
       newHeight = Math.max(60, Math.min(newHeight, window.innerHeight * 0.9));
-      sheetEl.style.height = newHeight + 'px';
+      dom.sheet.style.height = newHeight + 'px';
     });
-    sheetToolbarEl.addEventListener('pointerup', () => {
+    dom.sheetToolbar.addEventListener('pointerup', () => {
       if (!dragging) return;
       dragging = false;
       if (!moved) {
         setSheetState(sheetState === 'peek' ? 'full' : 'peek');
         return;
       }
-      const h = sheetEl.offsetHeight;
+      const h = dom.sheet.offsetHeight;
       if (h < pxFor('peek') * 0.55) { setSheetState('hidden'); return; }
       const nearest = Math.abs(h - pxFor('peek')) < Math.abs(h - pxFor('full')) ? 'peek' : 'full';
       setSheetState(nearest);
@@ -1302,7 +1318,7 @@
         ? `<img class="sheet-photo" src="${escapeHtml(place.photo_url)}" alt="" loading="lazy">`
         : '';
 
-      sheetContentEl.innerHTML = `
+      dom.sheetContent.innerHTML = `
         ${photoHtml}
         <div class="sheet-head">
           <div>
@@ -1349,16 +1365,16 @@
         </div>
       `;
 
-      sheetContentEl.querySelector('#quick-fav-btn').onclick = (e) => toggleFavorite(place.id, e.currentTarget);
-      sheetContentEl.querySelector('#quick-taxi-btn').onclick = () => openTaxiModal(place);
-      sheetContentEl.querySelector('#quick-copy-btn').onclick = () => copyPlaceLocation(place);
-      sheetContentEl.querySelector('#route-toggle-btn').onclick = () => {
+      dom.sheetContent.querySelector('#quick-fav-btn').onclick = (e) => toggleFavorite(place.id, e.currentTarget);
+      dom.sheetContent.querySelector('#quick-taxi-btn').onclick = () => openTaxiModal(place);
+      dom.sheetContent.querySelector('#quick-copy-btn').onclick = () => copyPlaceLocation(place);
+      dom.sheetContent.querySelector('#route-toggle-btn').onclick = () => {
         haptic.light();
-        sheetContentEl.querySelector('#route-sub-row').classList.toggle('open');
+        dom.sheetContent.querySelector('#route-sub-row').classList.toggle('open');
       };
-      sheetContentEl.querySelector('.leave-review-btn').onclick = () => openReviewModal(place.id);
+      dom.sheetContent.querySelector('.leave-review-btn').onclick = () => openReviewModal(place.id);
 
-      const reviewsListEl = sheetContentEl.querySelector('.reviews-list');
+      const reviewsListEl = dom.sheetContent.querySelector('.reviews-list');
       loadReviews(place.id).then(reviews => {
         if (!activeViewingPlace || activeViewingPlace.id !== place.id) return;
         reviewsListEl.innerHTML = reviews && reviews.length
@@ -1370,33 +1386,27 @@
     }
 
     // Режим Такси
-    const taxiModalEl = document.getElementById('taxi-modal');
-    const taxiCloseEl = document.getElementById('taxi-close');
-    const taxiArabicNameEl = document.getElementById('taxi-arabic-name');
-    const taxiArabicLandmarkEl = document.getElementById('taxi-arabic-landmark');
-    const taxiCopyBtn = document.getElementById('taxi-copy-btn');
-
     function openTaxiModal(place) {
       haptic.medium();
-      taxiArabicNameEl.textContent = place.name_ar || place.name;
-      taxiArabicLandmarkEl.textContent = place.landmark_ar || (place.city === 'medina' ? "المدينة المنورة - قرب المسجد النبوي" : "مكة المكرمة - قرب الحرم المكي");
-      taxiModalEl.hidden = false;
+      dom.taxiArabicName.textContent = place.name_ar || place.name;
+      dom.taxiArabicLandmark.textContent = place.landmark_ar || (place.city === 'medina' ? "المدينة المنورة - قرب المسجد النبوي" : "مكة المكرمة - قرب الحرم المكي");
+      dom.taxiModal.hidden = false;
     }
-    taxiCloseEl.onclick = () => { taxiModalEl.hidden = true; };
-    taxiModalEl.addEventListener('click', (e) => { if (e.target === taxiModalEl) taxiModalEl.hidden = true; });
-    taxiCopyBtn.onclick = () => {
+    dom.taxiClose.onclick = () => { dom.taxiModal.hidden = true; };
+    dom.taxiModal.addEventListener('click', (e) => { if (e.target === dom.taxiModal) dom.taxiModal.hidden = true; });
+    dom.taxiCopyBtn.onclick = () => {
       haptic.success();
-      const txt = `${taxiArabicNameEl.textContent}\n${taxiArabicLandmarkEl.textContent}`;
+      const txt = `${dom.taxiArabicName.textContent}\n${dom.taxiArabicLandmark.textContent}`;
       navigator.clipboard?.writeText(txt);
-      taxiCopyBtn.textContent = 'Скопировано в буфер!';
-      setTimeout(() => { taxiCopyBtn.textContent = 'Скопировать название'; }, 1500);
+      dom.taxiCopyBtn.textContent = 'Скопировано в буфер!';
+      setTimeout(() => { dom.taxiCopyBtn.textContent = 'Скопировать название'; }, 1500);
     };
 
     function copyPlaceLocation(place) {
       haptic.light();
       const txt = `${place.name}\nКоординаты: ${place.lat}, ${place.lng}`;
       navigator.clipboard?.writeText(txt);
-      const btn = sheetContentEl.querySelector('#quick-copy-btn span');
+      const btn = dom.sheetContent.querySelector('#quick-copy-btn span');
       if (btn) {
         btn.textContent = 'Скопировано!';
         setTimeout(() => { btn.textContent = 'Копия'; }, 1500);
@@ -1404,41 +1414,34 @@
     }
 
     // Отзывы
-    const reviewModalEl = document.getElementById('review-modal');
-    const reviewCloseEl = document.getElementById('review-close');
-    const reviewTextEl = document.getElementById('review-text');
-    const reviewSubmitEl = document.getElementById('review-submit');
-    const reviewStatusEl = document.getElementById('review-status');
-    const ratingPickerEl = document.getElementById('rating-picker');
-
     function openReviewModal(placeId) {
       haptic.light();
       reviewPlaceId = placeId;
       reviewRating = 5;
-      reviewTextEl.value = '';
-      reviewStatusEl.textContent = '';
+      dom.reviewText.value = '';
+      dom.reviewStatus.textContent = '';
       updateRatingPicker();
-      reviewModalEl.hidden = false;
+      dom.reviewModal.hidden = false;
     }
-    function closeReviewModal() { reviewModalEl.hidden = true; }
+    function closeReviewModal() { dom.reviewModal.hidden = true; }
     function updateRatingPicker() {
-      ratingPickerEl.querySelectorAll('button').forEach(b => {
+      dom.ratingPicker.querySelectorAll('button').forEach(b => {
         b.setAttribute('aria-pressed', String(Number(b.dataset.rating) === reviewRating));
       });
     }
-    ratingPickerEl.querySelectorAll('button').forEach(b => {
+    dom.ratingPicker.querySelectorAll('button').forEach(b => {
       b.onclick = () => {
         haptic.light();
         reviewRating = Number(b.dataset.rating);
         updateRatingPicker();
       };
     });
-    reviewCloseEl.onclick = closeReviewModal;
-    reviewModalEl.addEventListener('click', (e) => { if (e.target === reviewModalEl) closeReviewModal(); });
-    reviewSubmitEl.onclick = async () => {
-      const text = reviewTextEl.value.trim();
-      if (text.length < 3) { reviewStatusEl.textContent = 'Напишите чуть подробнее.'; return; }
-      await submitReview(reviewPlaceId, reviewRating, text, reviewStatusEl);
+    dom.reviewClose.onclick = closeReviewModal;
+    dom.reviewModal.addEventListener('click', (e) => { if (e.target === dom.reviewModal) closeReviewModal(); });
+    dom.reviewSubmit.onclick = async () => {
+      const text = dom.reviewText.value.trim();
+      if (text.length < 3) { dom.reviewStatus.textContent = 'Напишите чуть подробнее.'; return; }
+      await submitReview(reviewPlaceId, reviewRating, text, dom.reviewStatus);
     };
 
     // Авторизация
@@ -1566,12 +1569,12 @@
             allPlaces = data;
             localStorage.setItem("ug_places_cache", JSON.stringify(data));
             renderMarkers();
-            document.getElementById('offline-pill').style.display = 'none';
+            if (dom.offlinePill) dom.offlinePill.style.display = 'none';
           }
         }
       } catch (e) {
         log("Офлайн: используются кэшированные места");
-        document.getElementById('offline-pill').style.display = 'block';
+        if (dom.offlinePill) dom.offlinePill.style.display = 'block';
         renderMarkers();
       }
     }
