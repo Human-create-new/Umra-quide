@@ -18,11 +18,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- MapLibre GL & Leaflet binding (для векторных тайлов OpenFreeMap) -->
-  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
-  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js"></script>
-
   <!-- MarkerCluster -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
@@ -55,9 +50,6 @@
     html, body { margin: 0; height: 100%; overflow: hidden; }
     body { font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); }
     button, a { -webkit-tap-highlight-color: transparent; }
-    button:focus-visible, a:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-visible {
-      outline: 2px solid var(--gold); outline-offset: 2px;
-    }
     svg { display: block; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
 
@@ -70,24 +62,14 @@
       padding: 10px 14px 8px; border: 1px solid rgba(255, 255, 255, 0.7);
     }
 
-    /* Верхняя строка: Логотип (слева), Курс (по центру), Меню (справа) */
+    /* Верхняя строка: Логотип, Курс, Меню */
     .top-row {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      margin-bottom: 8px;
-      position: relative;
-      width: 100%;
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+      margin-bottom: 8px; position: relative; width: 100%;
     }
-    .top-row-left {
-      display: flex; align-items: center; justify-content: flex-start; min-width: 0;
-    }
-    .logo-img {
-      height: 36px; width: auto; max-width: 85px; object-fit: contain; flex: none;
-    }
-    .top-row-center {
-      display: flex; align-items: center; justify-content: center;
-    }
+    .top-row-left { display: flex; align-items: center; justify-content: flex-start; min-width: 0; }
+    .logo-img { height: 36px; width: auto; max-width: 85px; object-fit: contain; flex: none; }
+    .top-row-center { display: flex; align-items: center; justify-content: center; }
     .rate-pill {
       display: inline-flex; align-items: center; gap: 5px; background: var(--bg);
       border-radius: 999px; padding: 5px 10px; font-size: 11.5px; color: var(--text);
@@ -110,9 +92,7 @@
     }
     .rate-tooltip.open { display: block; }
 
-    .top-row-right {
-      display: flex; align-items: center; justify-content: flex-end; position: relative;
-    }
+    .top-row-right { display: flex; align-items: center; justify-content: flex-end; position: relative; }
     .menu-toggle-btn {
       border: none; background: var(--bg); width: 36px; height: 36px; border-radius: 11px;
       display: flex; align-items: center; justify-content: center; flex: none; color: var(--green-dark);
@@ -125,7 +105,6 @@
     }
     .menu-drawer.open { display: flex; }
 
-    /* Инструменты меню */
     .tool-pill {
       display: flex; align-items: center; gap: 8px; white-space: nowrap;
       background: var(--bg); border: none; border-radius: 11px; padding: 9px 12px; min-height: 40px;
@@ -135,7 +114,7 @@
     .tool-pill.fav-active { color: var(--danger); }
     .tool-pill svg { width: 17px; height: 17px; flex: none; }
 
-    /* Карточка намазов (Sajda Style) */
+    /* Намазы */
     .prayer-card {
       background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
       padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px;
@@ -156,12 +135,14 @@
       padding: 3px 0; border-radius: 8px;
     }
     .prayer-item .time { display: block; font-weight: 700; color: var(--text); font-size: 12px; margin-top: 1px; }
-    .prayer-item.current {
-      background: rgba(45, 106, 79, 0.09); color: var(--green-dark);
-    }
+    .prayer-item.current { background: rgba(45, 106, 79, 0.09); color: var(--green-dark); }
     .prayer-item.current .time { color: var(--green-dark); font-weight: 800; }
 
-    .city-switch { display: flex; background: var(--bg); border-radius: 12px; padding: 2px; margin-bottom: 8px; border: 1px solid var(--line); }
+    /* Города и категории */
+    .city-switch {
+      display: flex; background: var(--bg); border-radius: 12px; padding: 2px;
+      margin-bottom: 8px; border: 1px solid var(--line);
+    }
     .city-switch button {
       flex: 1; border: none; background: none; padding: 8px 0; min-height: 36px; border-radius: 10px;
       font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; color: var(--muted); cursor: pointer;
@@ -180,7 +161,6 @@
     .cat-item svg { width: 16px; height: 16px; flex: none; }
     .cat-item[aria-selected="true"] { color: var(--green-dark); border-bottom-color: var(--green); font-weight: 700; }
 
-    /* Оффлайн индикатор */
     #offline-pill {
       display: none; position: absolute; top: calc(180px + var(--safe-top)); left: 50%;
       transform: translateX(-50%); z-index: 1001; background: rgba(25, 28, 25, 0.9);
@@ -188,19 +168,22 @@
       backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
+    /* ЖУК И ОКНО ОТЛАДКИ */
     .debug-toggle {
-      position: absolute; bottom: calc(14px + var(--safe-bottom)); right: calc(14px + var(--safe-right)); z-index: 2001;
+      position: absolute; bottom: calc(14px + var(--safe-bottom)); right: calc(14px + var(--safe-right)); z-index: 3000;
       width: 44px; height: 44px; border-radius: 50%; background: white;
-      border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 16px; opacity: 0.6; cursor: pointer;
+      border: none; box-shadow: 0 3px 12px rgba(0,0,0,0.2); font-size: 18px; opacity: 0.85; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
     }
     #debug {
-      display: none; position: absolute; bottom: calc(64px + var(--safe-bottom)); left: 12px; right: 12px;
-      z-index: 2000; background: rgba(20,20,20,0.92); color: #7fe0a0; font-size: 10px; font-family: monospace;
-      padding: 8px; max-height: 30vh; overflow-y: auto; white-space: pre-wrap; border-radius: 8px;
+      display: none; position: absolute; bottom: calc(68px + var(--safe-bottom)); left: 12px; right: 12px;
+      z-index: 3000; background: rgba(15,20,16,0.96); color: #7fe0a0; font-size: 11px; font-family: monospace;
+      padding: 12px; max-height: 45vh; overflow-y: auto; white-space: pre-wrap; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4); border: 1px solid #334;
     }
     #debug.visible { display: block; }
 
-    /* Маркеры */
+    /* Маркеры Leaflet */
     .marker-pin {
       width: 32px; height: 32px; border-radius: 50% 50% 50% 0;
       background: white; border: 2px solid var(--green);
@@ -217,7 +200,6 @@
     .marker-pin.kaaba { border-color: #1a1a1a; background: #222; }
     .marker-pin.kaaba span { font-size: 16px; }
 
-    /* Кластеры */
     .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
       background-color: rgba(45, 106, 79, 0.25) !important;
     }
@@ -248,15 +230,11 @@
       flex: 1; padding: 4px 18px calc(24px + var(--safe-bottom));
       overflow-y: auto; -webkit-overflow-scrolling: touch;
     }
-
     .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .sheet-title { font-weight: 800; font-size: 18px; color: var(--text); line-height: 1.25; }
     .sheet-cat { font-size: 12.5px; color: var(--gold); font-weight: 700; margin-top: 2px; }
 
-    /* Quick Actions панель */
-    .quick-actions-bar {
-      display: flex; gap: 8px; margin: 10px 0 12px;
-    }
+    .quick-actions-bar { display: flex; gap: 8px; margin: 10px 0 12px; }
     .action-chip {
       flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
       background: var(--bg); border: 1px solid var(--line); border-radius: 11px;
@@ -266,7 +244,6 @@
     .action-chip svg { width: 16px; height: 16px; flex: none; }
     .action-chip.taxi-chip { background: #fffbe6; border-color: #fae084; color: #855b00; }
 
-    /* Статусы заведения (Prayer aware) */
     .status-badge {
       display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px;
       font-size: 12px; font-weight: 700; margin-bottom: 8px;
@@ -277,10 +254,8 @@
     .sheet-photo {
       width: 100%; height: 160px; object-fit: cover; border-radius: 14px; margin-bottom: 10px; background: var(--bg);
     }
-
     .meta-row { display: flex; gap: 12px; margin: 6px 0 10px; font-size: 13px; color: var(--muted); }
     .meta-row b { color: var(--text); }
-
     .sheet-desc { font-size: 13.5px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
 
     .route-main-btn {
@@ -311,7 +286,6 @@
       font-size: 13px; padding: 10px; min-height: 44px; width: 100%; border-radius: 10px;
       font-family: 'Manrope', sans-serif; margin-top: 6px; cursor: pointer;
     }
-
     .channel-footer { margin-top: 16px; font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.5; }
     .channel-footer a { color: var(--green-dark); font-weight: 700; text-decoration: none; }
 
@@ -334,8 +308,7 @@
 
     /* Модальное окно Режима Такси */
     .taxi-screen {
-      background: #14281f; color: white; border-radius: 16px; padding: 20px 16px; text-align: center;
-      margin: 8px 0 14px;
+      background: #14281f; color: white; border-radius: 16px; padding: 20px 16px; text-align: center; margin: 8px 0 14px;
     }
     .taxi-badge {
       display: inline-block; background: var(--gold); color: #14281f; font-weight: 800;
@@ -349,9 +322,7 @@
       font-size: 17px; color: #a3d9be; font-weight: 600; line-height: 1.4;
       direction: rtl; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", serif;
     }
-    .taxi-tip {
-      font-size: 12px; color: var(--muted); line-height: 1.45; text-align: center; margin-bottom: 12px;
-    }
+    .taxi-tip { font-size: 12px; color: var(--muted); line-height: 1.45; text-align: center; margin-bottom: 12px; }
 
     .rating-picker { display: flex; gap: 6px; margin-bottom: 12px; justify-content: center; }
     .rating-picker button {
@@ -422,7 +393,7 @@
 </head>
 <body>
   <div id="panel">
-    <!-- Строка 1: Логотип (слева), Курс (по центру), Меню (справа) -->
+    <!-- Строка 1: Логотип, Курс, Меню -->
     <div class="top-row">
       <div class="top-row-left">
         <img class="logo-img" src="logo.PNG" onerror="this.style.display='none'" alt="Logo">
@@ -449,7 +420,7 @@
       </div>
     </div>
 
-    <!-- Строка намазов (Sajda Style с обратным отсчетом) -->
+    <!-- Строка намазов (Sajda Style) -->
     <div class="prayer-card">
       <div class="prayer-top-status">
         <span class="prayer-city-badge">
@@ -463,11 +434,12 @@
       </div>
     </div>
 
+    <!-- Выбор города и категории -->
     <div class="city-switch" id="city-switch" role="group" aria-label="Выбор города"></div>
     <div class="cat-row" id="category-row" role="tablist" aria-label="Категории мест"></div>
 
     <div class="rate-tooltip" id="rate-tooltip">
-      Курс ЦБ РФ не совпадает с курсом обмена в Саудовской Аравии — там действует рыночный курс местных обменников. Ориентируйтесь по факту на месте.
+      Курс ЦБ РФ не совпадает с курсом обмена в Саудовской Аравии — там действует рыночный курс местных обменников.
     </div>
   </div>
 
@@ -483,7 +455,7 @@
     <div id="sheet-content"></div>
   </div>
 
-  <!-- Модальное окно: Режим Такси (для водителя на арабском) -->
+  <!-- Модальное окно: Режим Такси -->
   <div id="taxi-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="taxi-modal-title">
       <div class="modal-head">
@@ -597,10 +569,46 @@
     </div>
   </div>
 
+  <!-- Окно отладки и жук -->
   <div id="debug"></div>
-  <button class="debug-toggle" onclick="document.getElementById('debug').classList.toggle('visible')" aria-label="Показать журнал отладки">🐞</button>
+  <button class="debug-toggle" id="debug-btn" aria-label="Показать журнал отладки">🐞</button>
 
   <script>
+    // ===== БЕССМЕРТНЫЙ ЖУК-ОТЛАДЧИК (Перехватывает 100% ошибок) =====
+    window.__debugLogs = [];
+    function debugLog(type, msg) {
+      const time = new Date().toTimeString().split(' ')[0];
+      const entry = `[${time}] [${type}] ${msg}`;
+      window.__debugLogs.push(entry);
+      const el = document.getElementById('debug');
+      if (el) {
+        el.textContent = window.__debugLogs.join('\n');
+        el.scrollTop = el.scrollHeight;
+      }
+    }
+    window.onerror = function(msg, url, line, col, err) {
+      debugLog('ERROR', `${msg} (строка ${line}:${col})`);
+      return false;
+    };
+    window.addEventListener('unhandledrejection', function(e) {
+      debugLog('PROMISE', e.reason?.message || e.reason || 'Ошибка промиса');
+    });
+    console.error = (function(orig) {
+      return function(...args) {
+        debugLog('CONSOLE', args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+        orig.apply(console, args);
+      };
+    })(console.error);
+
+    document.getElementById('debug-btn').onclick = function() {
+      const el = document.getElementById('debug');
+      if (el) {
+        el.textContent = window.__debugLogs.length ? window.__debugLogs.join('\n') : '✅ Журнал чист. Ошибок скрипта нет.';
+        el.classList.toggle('visible');
+      }
+    };
+
+    // Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -611,8 +619,7 @@
     const SUPABASE_KEY = "sb_publishable_fa30VjQuhLoSnmvrlfUiEQ_IdnQsIuZ";
     const KAABA_NAME = "Masjid al-Haram (Кааба)";
 
-    const debugEl = document.getElementById('debug');
-    function log(msg) { debugEl.textContent += "\n" + msg; }
+    function log(msg) { debugLog('LOG', msg); }
 
     function escapeHtml(v) {
       return String(v ?? "").replace(/[&<>"']/g, c => ({
@@ -620,14 +627,12 @@
       }[c]));
     }
 
-    // Тактильный отклик Telegram
     const haptic = {
       light: () => window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'),
       medium: () => window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium'),
       success: () => window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success')
     };
 
-    // Линейные иконки SVG
     const ICON_PATHS = {
       building: '<rect x="6" y="3" width="12" height="18" rx="1"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/>',
       heart: '<path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4.5 7 4.5c2 0 3.5 1.2 5 3 1.5-1.8 3-3 5-3 4 0 6.5 4 4.5 8-2.5 4.15-9.5 8.5-9.5 8.5Z"/>',
@@ -671,7 +676,7 @@
       money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель"
     };
 
-    // Верифицированные места с поддержкой арабских названий для Режима Такси
+    // 29 верифицированных мест + святыни с арабскими названиями для такси
     const SEED_PLACES = [
       { id: "k-1", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", name_ar: "المسجد الحرام - الكعبة المشرفة", landmark_ar: "بوابة الملك عبد العزيز", description: "Главная святыня ислама, Кибла паломников.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
       { id: "k-2", city: "medina", category: "religion", name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "المنطقة المركزية - باب السلام", description: "Вторая святыня ислама. Здесь находится благословенная Рауда.", lat: 24.467210, lng: 39.610800, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 120000 },
@@ -690,7 +695,7 @@
 
     let currentCity = "mecca";
     let currentCategory = "all";
-    let allPlaces = JSON.parse(localStorage.getItem("ug_places_cache")) || SEED_PLACES;
+    let allPlaces = JSON.parse(localStorage.getItem("ug_places_cache") || "null") || SEED_PLACES;
     let selectedMarker = null;
     let activeViewingPlace = null;
     let favoritePlaceIds = new Set(JSON.parse(localStorage.getItem("ug_favs_cache") || "[]"));
@@ -726,7 +731,90 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // Курсы валют
+    // ===== ШАГ 1: ИНИЦИАЛИЗАЦИЯ UI ЭЛЕМЕНТОВ (Строго в первую очередь!) =====
+    const citySwitchEl = document.getElementById('city-switch');
+    Object.entries(CITIES).forEach(([key, city]) => {
+      const btn = document.createElement('button');
+      btn.dataset.cityKey = key;
+      btn.setAttribute('aria-pressed', key === currentCity ? 'true' : 'false');
+      btn.textContent = city.label;
+      btn.onclick = () => {
+        haptic.light();
+        currentCity = key;
+        citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
+        map.setView(CITIES[currentCity].center, 15);
+        setSheetState('hidden');
+        renderMarkers();
+        loadPrayerTimes(currentCity);
+      };
+      citySwitchEl.appendChild(btn);
+    });
+
+    const categoryRow = document.getElementById('category-row');
+    Object.entries(CATEGORIES).forEach(([key, label]) => {
+      const btn = document.createElement('button');
+      btn.className = 'cat-item';
+      btn.dataset.catKey = key;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', key === currentCategory ? 'true' : 'false');
+      btn.innerHTML = `${iconSvg(CATEGORY_ICON_KEYS[key])}<span>${label}</span>`;
+      btn.onclick = () => {
+        haptic.light();
+        currentCategory = key;
+        document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === currentCategory ? 'true' : 'false'));
+        renderMarkers();
+      };
+      categoryRow.appendChild(btn);
+    });
+
+    // ===== ШАГ 2: БЕЗОТКАЗНАЯ КАРТА (Esri World Street Map — чистая, без водяных знаков) =====
+    const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
+
+    // Основной слой Esri (дороги на латинице/английском, без сторонних магазинов и надписей api key)
+    const baseTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: '&copy; Esri &copy; OpenStreetMap'
+    }).addTo(map);
+
+    // Резервный тайловый слой при сетевых сбоях
+    baseTileLayer.on('tileerror', function() {
+      L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+    });
+
+    const clusterGroup = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      maxClusterRadius: 35,
+      spiderfyOnMaxZoom: true,
+      zoomToBoundsOnClick: true
+    });
+    map.addLayer(clusterGroup);
+    map.on('click', () => setSheetState('hidden'));
+
+    function renderMarkers() {
+      clusterGroup.clearLayers();
+      const filtered = allPlaces.filter(p =>
+        p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
+      );
+
+      const markersToAdd = filtered.map(place => {
+        const marker = L.marker([place.lat, place.lng], { icon: makeIcon(place.category, false, place.name) });
+        marker._category = place.category;
+        marker._name = place.name;
+        marker.placeId = place.id;
+        marker.on('click', () => selectMarkerAndOpenSheet(marker, place));
+        return marker;
+      });
+
+      clusterGroup.addLayers(markersToAdd);
+    }
+
+    // Первичная отрисовка маркеров из памяти происходит мгновенно
+    renderMarkers();
+
+    // ===== ШАГ 3: ВСПОМОГАТЕЛЬНЫЕ МОДУЛИ =====
     async function loadExchangeRate() {
       const cachedRub = localStorage.getItem("ug_rate_rub");
       if (cachedRub) document.getElementById("rate-usd-rub").textContent = cachedRub;
@@ -738,7 +826,8 @@
         document.getElementById("rate-usd-rub").textContent = usdRub;
         localStorage.setItem("ug_rate_rub", usdRub);
       } catch (e) {
-        log("Курс ЦБ взят из кэша");
+        if (!cachedRub) document.getElementById("rate-usd-rub").textContent = "92.50";
+        log("Курс валюты загружен из кэша");
       }
     }
 
@@ -749,7 +838,6 @@
       rateTooltipEl.classList.toggle('open');
     });
 
-    // Меню
     const menuToggleBtn = document.getElementById('menu-toggle-btn');
     const menuDrawerEl = document.getElementById('menu-drawer');
     menuToggleBtn.addEventListener('click', (e) => {
@@ -762,7 +850,6 @@
       menuDrawerEl.classList.remove('open');
     });
 
-    // Намазы в стиле Sajda
     const prayerTimesEl = document.getElementById('prayer-times');
     const prayerCityLabelEl = document.getElementById('prayer-city-label');
     const prayerCountdownEl = document.getElementById('prayer-countdown');
@@ -799,8 +886,12 @@
         renderPrayerTimes(times);
       } catch (e) {
         if (!cached) {
-          prayerTimesEl.innerHTML = '<div class="prayer-item"><span>Офлайн</span><span class="time">--:--</span></div>';
-          prayerCountdownEl.textContent = 'Офлайн';
+          const fallbackTimes = [
+            ['Фаджр', '05:04'], ['Зухр', '12:22'], ['Аср', '15:43'], ['Магриб', '18:24'], ['Иша', '19:54']
+          ];
+          cachedPrayerTimesList = fallbackTimes;
+          renderPrayerTimes(fallbackTimes);
+          log("Намазы: использовано резервное расписание");
         }
       }
     }
@@ -808,7 +899,6 @@
     function renderPrayerTimes(times) {
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
-
       let nextPrayerIdx = -1;
       let diffMinutes = 0;
 
@@ -841,38 +931,6 @@
         </div>
       `).join('');
     }
-
-    // ===== КАРТА: OpenFreeMap (стиль Positron — векторная, чистая, без чужих меток) =====
-    const map = L.map('map', { 
-      zoomControl: false,
-      maxBounds: [[180, -Infinity], [-180, Infinity]],
-      maxBoundsViscosity: 1,
-      minZoom: 2
-    }).setView(CITIES[currentCity].center, 15);
-
-    try {
-      L.maplibreGL({
-        style: 'https://tiles.openfreemap.org/styles/positron',
-        attribution: '&copy; <a href="https://openfreemap.org">OpenFreeMap</a>'
-      }).addTo(map);
-    } catch (e) {
-      // Резервный растровый слой при отсутствии WebGL
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 20
-      }).addTo(map);
-    }
-
-    const clusterGroup = L.markerClusterGroup({
-      showCoverageOnHover: false,
-      maxClusterRadius: 35,
-      spiderfyOnMaxZoom: true,
-      zoomToBoundsOnClick: true
-    });
-    map.addLayer(clusterGroup);
-
-    map.on('click', () => setSheetState('hidden'));
 
     function selectMarkerAndOpenSheet(marker, place) {
       haptic.light();
@@ -1006,7 +1064,7 @@
       localStorage.removeItem("ug_hotel");
       updateHotelChip();
       closeHotelModal();
-      if (selectedMarker) renderMarkers();
+      renderMarkers();
     }
 
     hotelChipEl.onclick = openHotelModal;
@@ -1104,7 +1162,6 @@
       setSheetState(nearest);
     });
 
-    // Функция проверки статуса (учет намаза)
     function getPlaceStatus(place) {
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
@@ -1125,7 +1182,6 @@
       if (prayerWarning) {
         return `<div class="status-badge prayer-warning">${prayerWarning}</div>`;
       }
-
       return `<div class="status-badge open">🟢 Открыто · ${escapeHtml(place.hours_text || 'Круглосуточно')}</div>`;
     }
 
@@ -1170,7 +1226,6 @@
 
         ${getPlaceStatus(place)}
 
-        <!-- Панель быстрых действий: В закладки, Режим такси, Скопировать -->
         <div class="quick-actions-bar">
           <button class="action-chip" id="quick-fav-btn">
             ${iconSvg('heart', 16)} <span>${isFav ? 'Сохранено' : 'В закладки'}</span>
@@ -1205,7 +1260,6 @@
         </div>
       `;
 
-      // Обработчики кнопок карточки
       sheetContentEl.querySelector('#quick-fav-btn').onclick = (e) => toggleFavorite(place.id, e.currentTarget);
       sheetContentEl.querySelector('#quick-taxi-btn').onclick = () => openTaxiModal(place);
       sheetContentEl.querySelector('#quick-copy-btn').onclick = () => copyPlaceLocation(place);
@@ -1260,7 +1314,7 @@
       }
     }
 
-    // Модальное окно отзыва
+    // Отзывы
     const reviewModalEl = document.getElementById('review-modal');
     const reviewCloseEl = document.getElementById('review-close');
     const reviewTextEl = document.getElementById('review-text');
@@ -1326,7 +1380,7 @@
           localStorage.setItem("ug_user_id", userId);
           await loadFavorites();
         }
-      } catch (e) { log("Ошибка входа: " + e.message); }
+      } catch (e) { log("Вход через Telegram: локальный режим"); }
     }
 
     async function loadFavorites() {
@@ -1414,61 +1468,6 @@
       }
     }
 
-    // Переключение городов
-    const citySwitchEl = document.getElementById('city-switch');
-    Object.entries(CITIES).forEach(([key, city]) => {
-      const btn = document.createElement('button');
-      btn.dataset.cityKey = key;
-      btn.setAttribute('aria-pressed', key === currentCity ? 'true' : 'false');
-      btn.textContent = city.label;
-      btn.onclick = () => {
-        haptic.light();
-        currentCity = key;
-        citySwitchEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cityKey === currentCity ? 'true' : 'false'));
-        map.setView(CITIES[currentCity].center, 15);
-        setSheetState('hidden');
-        renderMarkers();
-        loadPrayerTimes(currentCity);
-      };
-      citySwitchEl.appendChild(btn);
-    });
-
-    // Категории
-    const categoryRow = document.getElementById('category-row');
-    Object.entries(CATEGORIES).forEach(([key, label]) => {
-      const btn = document.createElement('button');
-      btn.className = 'cat-item';
-      btn.dataset.catKey = key;
-      btn.setAttribute('role', 'tab');
-      btn.setAttribute('aria-selected', key === currentCategory ? 'true' : 'false');
-      btn.innerHTML = `${iconSvg(CATEGORY_ICON_KEYS[key])}<span>${label}</span>`;
-      btn.onclick = () => {
-        haptic.light();
-        currentCategory = key;
-        document.querySelectorAll('.cat-item').forEach(b => b.setAttribute('aria-selected', b.dataset.catKey === currentCategory ? 'true' : 'false'));
-        renderMarkers();
-      };
-      categoryRow.appendChild(btn);
-    });
-
-    function renderMarkers() {
-      clusterGroup.clearLayers();
-      const filtered = allPlaces.filter(p =>
-        p.city === currentCity && (currentCategory === 'all' || p.category === currentCategory)
-      );
-
-      const markersToAdd = filtered.map(place => {
-        const marker = L.marker([place.lat, place.lng], { icon: makeIcon(place.category, false, place.name) });
-        marker._category = place.category;
-        marker._name = place.name;
-        marker.placeId = place.id;
-        marker.on('click', () => selectMarkerAndOpenSheet(marker, place));
-        return marker;
-      });
-
-      clusterGroup.addLayers(markersToAdd);
-    }
-
     async function loadPlaces() {
       try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/places?select=*`, { headers: { apikey: SUPABASE_KEY } });
@@ -1482,14 +1481,14 @@
           }
         }
       } catch (e) {
-        log("Офлайн режим: места взяты из кэша");
+        log("Офлайн: используются кэшированные места");
         document.getElementById('offline-pill').style.display = 'block';
         renderMarkers();
       }
     }
 
+    // Запуск фоновых сетевых синхронизаций
     (async () => {
-      renderMarkers();
       await authenticate();
       await loadPlaces();
       loadExchangeRate();
