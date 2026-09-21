@@ -8,7 +8,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Umra Guide">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="logo.png">
   <title>Umra Guide</title>
 
   <!-- Telegram WebApp SDK -->
@@ -64,7 +63,7 @@
       padding: 10px 12px 8px; border: 1px solid rgba(255, 255, 255, 0.7);
     }
 
-    /* Строка 1: Логотип, Курс, Меню */
+    /* Строка 1: Новый встроенный логотип, Курс, Меню */
     .top-row {
       display: grid; grid-template-columns: auto 1fr auto; align-items: center;
       gap: 8px; margin-bottom: 7px; width: 100%;
@@ -74,7 +73,7 @@
       width: 32px; height: 35px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
     }
     .brand-logo-img {
-      width: 30px; height: 33px; aspect-ratio: 128 / 140; object-fit: contain; display: block; flex-shrink: 0;
+      width: 30px; height: 33px; aspect-ratio: 48 / 52; object-fit: contain; display: block; flex-shrink: 0;
     }
 
     .top-row-center { display: flex; align-items: center; justify-content: center; min-width: 0; }
@@ -374,15 +373,25 @@
     .status-badge.open { background: var(--green-light); color: var(--green-dark); }
     .status-badge.prayer-warning { background: #fff3cd; color: #856404; }
 
-    /* Тройная навигация */
-    .nav-label { font-size: 11.5px; font-weight: 800; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.3px; }
-    .route-nav-row { display: flex; gap: 6px; margin-bottom: 12px; }
-    .route-nav-row a {
+    /* ЕДИНАЯ КНОПКА «ПОСТРОИТЬ МАРШРУТ» С РАСКРЫТИЕМ */
+    .route-main-btn {
+      background: var(--green); color: white; border: none; border-radius: 12px;
+      padding: 13px 16px; font-size: 14px; font-weight: 700; width: 100%; min-height: 46px;
+      font-family: 'Manrope', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 2px 8px rgba(45, 106, 79, 0.25); margin: 6px 0;
+    }
+    .route-main-btn:active { background: var(--green-dark); }
+    .route-main-btn .route-chevron { font-size: 11px; transition: transform 0.2s ease; margin-left: 4px; }
+    .route-main-btn.open .route-chevron { transform: rotate(180deg); }
+
+    .route-sub-row { display: none; gap: 6px; margin: 6px 0 12px; }
+    .route-sub-row.open { display: flex; }
+    .route-sub-row a {
       flex: 1; text-align: center; background: var(--bg); color: var(--green-dark) !important;
       text-decoration: none; padding: 10px 4px; min-height: 40px; display: flex; align-items: center; justify-content: center;
       border-radius: 10px; font-size: 12px; font-weight: 700; border: 1px solid var(--line);
     }
-    .route-nav-row a:active { background: #e8f5e9; }
+    .route-sub-row a:active { background: #e8f5e9; }
 
     /* Быстрые действия: В избранное + Таксисту */
     .quick-actions-bar { display: flex; gap: 8px; margin: 6px 0 14px; }
@@ -570,12 +579,11 @@
 </head>
 <body>
   <div id="panel">
-    <!-- Строка 1: Логотип, Курс, Меню -->
+    <!-- Строка 1: Новый встроенный логотип Umra Guide (чистый Data URI без артефактов) -->
     <div class="top-row">
       <div class="top-row-left">
         <div class="brand-logo-wrap" title="Umra Guide">
-          <!-- Используется logo.png с сохранением пропорций без искажений -->
-          <img class="brand-logo-img" src="logo.png" alt="Umra Guide" onerror="this.src='logo.PNG';">
+          <img class="brand-logo-img" alt="Umra Guide" src="data:image/png;base64,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">
         </div>
       </div>
 
@@ -868,7 +876,7 @@
       });
     }
 
-    // ===== БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ DOM-ДЕРЕВА =====
+    // ===== БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ DOM =====
     const dom = {
       debug: document.getElementById('debug'),
       debugBtn: document.getElementById('debug-btn'),
@@ -1099,7 +1107,7 @@
             { num: 1, name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "المنطقة المركزية - باب السلام", lat: 24.46720, lng: 39.61080, desc: "Старт маршрута, приветствие Пророка ﷺ и посещение Рауды." },
             { num: 2, name: "Мечеть Куба", name_ar: "مسجد قباء", landmark_ar: "طريق الهجرة - مسجد قباء", lat: 24.43930, lng: 39.61730, desc: "Первая мечеть в исламе. Намаз в ней равен награде за Умру." },
             { num: 3, name: "Мечеть аль-Киблатайн (Двух Кибл)", name_ar: "مسجد القبلتين", landmark_ar: "طريق خالد بن الوليد", lat: 24.48415, lng: 39.57860, desc: "Место, где сподвижники изменили направление молитвы на Мекку." },
-            { num: 4, name: "Семь мечетей (Битва у Рва / Хандак)", name_ar: "المсаجد السبعة - الخندق", landmark_ar: "سفح جبل سلع - الخندق", lat: 24.47600, lng: 39.59300, desc: "Историческое место оборонительной битвы мусульман у вырытого рва." },
+            { num: 4, name: "Семь мечетей (Битва у Рва / Хандак)", name_ar: "المساجد السبعة - الخندق", landmark_ar: "سفح جبل سلع - الخندق", lat: 24.47600, lng: 39.59300, desc: "Историческое место оборонительной битвы мусульман у вырытого рва." },
             { num: 5, name: "Гора Ухуд (Холм лучников и шахиды)", name_ar: "جبل أحد - مقبرة الشهداء", landmark_ar: "سيد الشهداء حمزة - جبل الرماة", lat: 24.50330, lng: 39.61220, desc: "Место битвы при Ухуде, холм лучников и могила Хамзы (р.а.)." }
           ]
         },
@@ -1144,7 +1152,7 @@
       { id: "5", city: "mecca", category: "useful", name: "Al Ghufran Safwah Hotel", name_ar: "فندق الغفران الصفوة", landmark_ar: "أبراج الصفوة - أمام باب الملك عبد العزيز", description: "Отель в Safwa Towers, 5 мин до Харама.", lat: 21.4192450, lng: 39.8267641, hours_text: "Круглосуточно", google_place_id: "ChIJqWGgiLcEwhURrsRR1zW_bbk" },
       { id: "6", city: "mecca", category: "useful", name: "Novotel Thakher Makkah Hotel", name_ar: "فندق نوفوتيل ذاخر مكة", landmark_ar: "مشروع ذاخر مكة - ريع ذاخر", description: "Район Аль-Андалус, шаттл до Харама.", lat: 21.4451432, lng: 39.8346235, hours_text: "Круглосуточно", google_place_id: "ChIJdZOWJ90DwhUR0ptTckEU40A" },
       { id: "7", city: "medina", category: "useful", name: "Maien Taiba Hotel", name_ar: "فندق معين طيبة", landmark_ar: "المنطقة المركزية الشمالية - قرب الحرم", description: "Отель рядом с мечетью Пророка и воротами Рауда.", lat: 24.4641768, lng: 39.6131972, hours_text: "Круглосуточно", google_place_id: "ChIJR5RRSDu_vRURHnTru0dMoDs" },
-      { id: "8", city: "medina", category: "food", name: "Zaitoon Restaurant", name_ar: "مطعم زيتون", landmark_ar: "المنطقة المركزية - بجوار المسجد النبوي", description: "Популярный ресторан пакистанской и арабской кухни.", lat: 24.4714678, lng: 39.6100381, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609, google_place_id: "ChIJ94a-adC_vRURYd7NZAkQ9zE" }
+      { id: "8", city: "medina", category: "food", name: "Zaitoon Restaurant", name_ar: "مطعم زيتون", landmark_ar: "المنطقة المركزية - بجوار المسجد النبвой", description: "Популярный ресторан пакистанской и арабской кухни.", lat: 24.4714678, lng: 39.6100381, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609, google_place_id: "ChIJ94a-adC_vRURYd7NZAkQ9zE" }
     ];
 
     dom.menuToggleBtn.innerHTML = iconSvg('menu', 18);
@@ -1328,7 +1336,7 @@
 
     renderMarkers();
 
-    // ===== МАРШРУТЫ (БЕЗ АВТОЗАПУСКА, С ТРОЙНОЙ НАВИГАЦИЕЙ) =====
+    // ===== МАРШРУТЫ (БЕЗ АВТОЗАПУСКА, С ВЫПАДАЮЩИМИ ВАРИАНТАМИ) =====
     function clearActiveRoute() {
       if (activeRoutePolyline) {
         map.removeLayer(activeRoutePolyline);
@@ -1407,12 +1415,18 @@
           </button>
         </div>
         <div class="sheet-desc">${escapeHtml(route.desc)}</div>
-        <div class="nav-label">ОТКРЫТЬ ВЕСЬ МАРШРУТ В НАВИГАТОРЕ:</div>
-        <div class="route-nav-row">
+        
+        <!-- КНОПКА ПОСТРОИТЬ МАРШРУТ С ВЫПАДАЮЩИМИ ОПЦИЯМИ -->
+        <button class="route-main-btn" id="route-open-nav-btn">
+          🧭 <span>Построить весь маршрут</span>
+          <span class="route-chevron">▾</span>
+        </button>
+        <div class="route-sub-row" id="route-sub-nav-row">
           <a href="${gmapsMultiUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
           <a href="${appleMultiUrl}" target="_blank" rel="noopener noreferrer">Apple Maps</a>
           <a href="${yandexMultiUrl}" target="_blank" rel="noopener noreferrer">Яндекс</a>
         </div>
+
         <div class="route-timeline-wrap">
           <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px;">ОСТАНОВКИ МАРШРУТА:</div>
           ${stops.map((s, idx) => `
@@ -1427,6 +1441,14 @@
         </div>
         <button class="route-reset-btn" id="route-close-btn">✕ Завершить и закрыть маршрут</button>
       `;
+
+      const navBtn = dom.sheetContent.querySelector('#route-open-nav-btn');
+      const subRow = dom.sheetContent.querySelector('#route-sub-nav-row');
+      navBtn.onclick = () => {
+        haptic.light();
+        const isOpen = subRow.classList.toggle('open');
+        navBtn.classList.toggle('open', isOpen);
+      };
 
       dom.sheetContent.querySelector('#route-share-btn').onclick = () => {
         const text = `🗺 Маршрут «${route.title}» в Umra Guide:\n${stops.map(s => `${s.num}. ${s.name}`).join('\n')}\nСсылка в Google Maps: ${gmapsMultiUrl}`;
@@ -1471,12 +1493,18 @@
           </button>
         </div>
         <div class="sheet-desc">${escapeHtml(stop.desc)}</div>
-        <div class="nav-label">ПОСТРОИТЬ МАРШРУТ ДО ОСТАНОВКИ:</div>
-        <div class="route-nav-row">
+        
+        <!-- КНОПКА ПОСТРОИТЬ МАРШРУТ С ВЫПАДАЮЩИМИ ОПЦИЯМИ -->
+        <button class="route-main-btn" id="stop-open-nav-btn">
+          🧭 <span>Построить маршрут</span>
+          <span class="route-chevron">▾</span>
+        </button>
+        <div class="route-sub-row" id="stop-sub-nav-row">
           <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
           <a href="${appleUrl}" target="_blank" rel="noopener noreferrer">Apple Maps</a>
           <a href="${yandexUrl}" target="_blank" rel="noopener noreferrer">Яндекс</a>
         </div>
+
         <div class="quick-actions-bar">
           <button class="action-chip taxi-chip" id="stop-taxi-btn">
             ${iconSvg('taxi', 16)} <span>Таксисту</span>
@@ -1486,6 +1514,14 @@
           </button>
         </div>
       `;
+
+      const navBtn = dom.sheetContent.querySelector('#stop-open-nav-btn');
+      const subRow = dom.sheetContent.querySelector('#stop-sub-nav-row');
+      navBtn.onclick = () => {
+        haptic.light();
+        const isOpen = subRow.classList.toggle('open');
+        navBtn.classList.toggle('open', isOpen);
+      };
 
       dom.sheetContent.querySelector('#stop-share-btn').onclick = () => {
         const text = `📍 Остановка ${stop.num}: ${stop.name} (${stop.name_ar || ''})\n${stop.desc}\nКоординаты: ${stop.lat}, ${stop.lng}\nhttps://maps.google.com/?q=${stop.lat},${stop.lng}`;
@@ -1503,7 +1539,7 @@
       setSheetState('peek');
     }
 
-    // ===== КАРТОЧКА МЕСТА (РОКИРОВКА КНОПОК) =====
+    // ===== КАРТОЧКА МЕСТА (КНОПКА «ПОСТРОИТЬ МАРШРУТ» С РАСКРЫТИЕМ) =====
     function openSheetForPlace(place) {
       activeViewingPlace = place;
 
@@ -1553,9 +1589,12 @@
         <!-- 3. Описание и суть на первом плане -->
         <div class="sheet-desc">${escapeHtml(place.description || '')}</div>
 
-        <!-- 4. Навигация в 3 картах -->
-        <div class="nav-label">ПОСТРОИТЬ МАРШРУТ:</div>
-        <div class="route-nav-row">
+        <!-- 4. КНОПКА «ПОСТРОИТЬ МАРШРУТ» С РАСКРЫТИЕМ В 3 ВАРИАНТА -->
+        <button class="route-main-btn" id="place-route-toggle-btn">
+          🧭 <span>Построить маршрут</span>
+          <span class="route-chevron">▾</span>
+        </button>
+        <div class="route-sub-row" id="place-route-sub-row">
           <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
           <a href="${appleUrl}" target="_blank" rel="noopener noreferrer">Apple Maps</a>
           <a href="${yandexUrl}" target="_blank" rel="noopener noreferrer">Яндекс</a>
@@ -1581,6 +1620,15 @@
           Больше советов о поездке — в <a href="https://t.me/zametki_umra" target="_blank" rel="noopener noreferrer">Заметки об Умре</a>
         </div>
       `;
+
+      // Обработчик раскрытия кнопки навигации
+      const routeToggleBtn = dom.sheetContent.querySelector('#place-route-toggle-btn');
+      const routeSubRow = dom.sheetContent.querySelector('#place-route-sub-row');
+      routeToggleBtn.onclick = () => {
+        haptic.light();
+        const isOpen = routeSubRow.classList.toggle('open');
+        routeToggleBtn.classList.toggle('open', isOpen);
+      };
 
       dom.sheetContent.querySelector('#sheet-share-btn').onclick = () => sharePlace(place);
       dom.sheetContent.querySelector('#quick-fav-btn').onclick = (e) => toggleFavorite(place.id, e.currentTarget);
