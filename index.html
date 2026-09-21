@@ -8,6 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Umra Guide">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="logo.png">
   <title>Umra Guide</title>
 
   <!-- Telegram WebApp SDK -->
@@ -63,33 +64,33 @@
       padding: 10px 12px 8px; border: 1px solid rgba(255, 255, 255, 0.7);
     }
 
-    /* Строка 1: Оригинальный Логотип, Курс, Меню */
+    /* Строка 1: Логотип, Курс, Меню */
     .top-row {
-      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
-      margin-bottom: 7px; position: relative; width: 100%;
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+      gap: 8px; margin-bottom: 7px; width: 100%;
     }
-    .top-row-left { display: flex; align-items: center; justify-content: flex-start; min-width: 0; }
+    .top-row-left { display: flex; align-items: center; justify-content: flex-start; flex-shrink: 0; }
     .brand-logo-wrap {
-      width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 35px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
     }
     .brand-logo-img {
-      width: 28px; height: auto; max-height: 32px; object-fit: contain;
+      width: 30px; height: 33px; aspect-ratio: 128 / 140; object-fit: contain; display: block; flex-shrink: 0;
     }
 
-    .top-row-center { display: flex; align-items: center; justify-content: center; }
+    .top-row-center { display: flex; align-items: center; justify-content: center; min-width: 0; }
     .rate-pill {
       display: inline-flex; align-items: center; gap: 5px; background: var(--bg);
       border-radius: 999px; padding: 4px 10px; font-size: 11.5px; color: var(--text);
-      white-space: nowrap; flex: none; border: 1px solid var(--line);
+      white-space: nowrap; border: 1px solid var(--line); max-width: 100%; overflow: hidden;
     }
     .rate-pill .dollar-circle {
       width: 16px; height: 16px; border-radius: 50%; background: var(--green-dark); color: white;
-      display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex: none;
+      display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0;
     }
     .rate-pill b { font-weight: 700; }
     .rate-help-btn {
       border: none; background: var(--line); width: 15px; height: 15px; border-radius: 50%;
-      font-size: 9px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700; flex: none;
+      font-size: 9px; color: var(--muted); line-height: 1; padding: 0; font-weight: 700; flex-shrink: 0;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
     .rate-tooltip {
@@ -99,10 +100,10 @@
     }
     .rate-tooltip.open { display: block; }
 
-    .top-row-right { display: flex; align-items: center; justify-content: flex-end; position: relative; }
+    .top-row-right { display: flex; align-items: center; justify-content: flex-end; position: relative; flex-shrink: 0; }
     .menu-toggle-btn {
       border: none; background: var(--bg); width: 34px; height: 34px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center; flex: none; color: var(--green-dark);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--green-dark);
       cursor: pointer; border: 1px solid var(--line);
     }
     .menu-drawer {
@@ -120,7 +121,7 @@
     }
     .tool-pill.fav-active { color: var(--danger); }
     .tool-pill.sos-pill { color: var(--danger); background: #fdf2f2; }
-    .tool-pill svg { width: 17px; height: 17px; flex: none; }
+    .tool-pill svg { width: 17px; height: 17px; flex-shrink: 0; }
 
     /* Строка 2: Раскрываемый блок намаза */
     .prayer-bar-wrap { position: relative; margin-bottom: 7px; }
@@ -147,13 +148,14 @@
     .prayer-item.current { background: rgba(45, 106, 79, 0.09); color: var(--green-dark); }
     .prayer-item.current .time { color: var(--green-dark); font-weight: 800; }
 
-    /* Строка 3: Живой поиск + Переключатель города */
+    /* Строка 3: Живой поиск + Выбор города */
     .search-city-row { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; }
     .search-box-wrap { position: relative; flex: 1; display: flex; align-items: center; min-width: 0; }
     .search-input {
       width: 100%; height: 36px; background: var(--bg); border: 1px solid var(--line); border-radius: 11px;
       padding: 0 28px 0 28px; font-size: 12px; font-family: 'Manrope', sans-serif;
-      color: var(--text); outline: none; transition: border-color 0.2s;
+      color: var(--text); outline: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+      transition: border-color 0.2s;
     }
     .search-input:focus { border-color: var(--green); background: #ffffff; }
     .search-icon-svg { position: absolute; left: 8px; font-size: 12px; opacity: 0.6; pointer-events: none; }
@@ -176,7 +178,7 @@
     .search-item-meta { font-size: 11px; color: var(--muted); }
 
     .city-toggle-btn {
-      height: 36px; width: 105px; flex: none; border: 1px solid var(--line); border-radius: 11px;
+      height: 36px; width: 105px; flex-shrink: 0; border: 1px solid var(--line); border-radius: 11px;
       background: var(--bg); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 12.5px;
       color: var(--green-dark); cursor: pointer; display: flex; align-items: center; justify-content: center;
       gap: 4px; padding: 0 6px;
@@ -189,9 +191,9 @@
     .cat-item {
       background: none; border: none; white-space: nowrap; font-family: 'Manrope', sans-serif;
       font-weight: 600; font-size: 12.5px; color: var(--muted); padding: 4px 2px; min-height: 32px;
-      border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 5px; cursor: pointer;
+      border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 5px; cursor: pointer; flex-shrink: 0;
     }
-    .cat-item svg { width: 16px; height: 16px; flex: none; }
+    .cat-item svg { width: 16px; height: 16px; flex-shrink: 0; }
     .cat-item[aria-selected="true"] { color: var(--green-dark); border-bottom-color: var(--green); font-weight: 700; }
 
     /* Подкатегории Маршрутов */
@@ -204,7 +206,7 @@
       background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
       padding: 6px 12px; font-size: 11.5px; font-weight: 700; color: var(--text);
       white-space: nowrap; cursor: pointer; font-family: 'Manrope', sans-serif;
-      display: flex; align-items: center; gap: 5px;
+      display: flex; align-items: center; gap: 5px; flex-shrink: 0;
     }
     .route-pill-btn.active {
       background: var(--green-dark); color: #ffffff; border-color: var(--green-dark);
@@ -266,13 +268,13 @@
     .list-card-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .list-card-icon {
       width: 38px; height: 38px; border-radius: 12px; background: var(--bg);
-      display: flex; align-items: center; justify-content: center; font-size: 18px; flex: none;
+      display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
     }
     .list-card-name { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .list-card-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .list-card-dist {
       text-align: right; font-size: 12px; font-weight: 700; color: var(--green-dark);
-      background: var(--green-light); padding: 4px 8px; border-radius: 8px; white-space: nowrap; flex: none;
+      background: var(--green-light); padding: 4px 8px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
     }
 
     .user-pulse-marker {
@@ -295,13 +297,13 @@
     }
     #debug {
       display: none; position: absolute; bottom: calc(68px + var(--safe-bottom)); left: 12px; right: 12px;
-      z-index: 3000; background: rgba(15,20,16,0.96); color: #7fe0a0; font-size: 11px; font-family: monospace;
+      z-index: 3000; background: rgba(15,20,16,0.96); color: #7fe0a0; font-family: monospace; font-size: 11px;
       padding: 12px; max-height: 45vh; overflow-y: auto; white-space: pre-wrap; border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.4); border: 1px solid #334;
     }
     #debug.visible { display: block; }
 
-    /* Маркеры */
+    /* Маркеры Leaflet */
     .marker-pin {
       width: 32px; height: 32px; border-radius: 50% 50% 50% 0;
       background: white; border: 2px solid var(--green);
@@ -357,7 +359,7 @@
     .sheet-top-share-btn {
       width: 38px; height: 38px; border-radius: 50%; background: var(--bg);
       border: 1px solid var(--line); display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: var(--green-dark); flex: none; font-size: 16px;
+      cursor: pointer; color: var(--green-dark); flex-shrink: 0; font-size: 16px;
     }
     .sheet-top-share-btn:active { background: #e8f5e9; }
 
@@ -382,7 +384,7 @@
     }
     .route-nav-row a:active { background: #e8f5e9; }
 
-    /* Быстрые действия внизу */
+    /* Быстрые действия: В избранное + Таксисту */
     .quick-actions-bar { display: flex; gap: 8px; margin: 6px 0 14px; }
     .action-chip {
       flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -390,7 +392,7 @@
       padding: 11px 8px; font-size: 12.5px; font-weight: 700; color: var(--green-dark);
       cursor: pointer; font-family: 'Manrope', sans-serif;
     }
-    .action-chip svg { width: 16px; height: 16px; flex: none; }
+    .action-chip svg { width: 16px; height: 16px; flex-shrink: 0; }
     .action-chip.fav-active { color: var(--danger); border-color: #fca5a5; background: #fff5f5; }
     .action-chip.taxi-chip { background: #fffbe6; border-color: #fae084; color: #855b00; }
 
@@ -399,7 +401,7 @@
     .route-timeline-item { display: flex; gap: 10px; margin-bottom: 10px; cursor: pointer; }
     .timeline-num {
       width: 24px; height: 24px; border-radius: 50%; background: var(--gold); color: white;
-      font-weight: 800; font-size: 11.5px; display: flex; align-items: center; justify-content: center; flex: none;
+      font-weight: 800; font-size: 11.5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .timeline-num.start { background: var(--green-dark); }
     .timeline-num.end { background: #b91c1c; }
@@ -466,7 +468,7 @@
     .sos-phone-card b { display: block; font-size: 15px; color: var(--green-dark); }
     .sos-phone-card span { font-size: 10.5px; color: var(--muted); }
     .sos-phone-card.emergency b { color: var(--danger); }
-    .sos-icon { font-size: 22px; flex: none; }
+    .sos-icon { font-size: 22px; flex-shrink: 0; }
     .sos-memo {
       background: var(--bg); border-radius: 12px; padding: 10px; font-size: 11.5px; color: var(--muted); line-height: 1.45;
     }
@@ -528,7 +530,7 @@
     }
     .fav-item .fav-icon {
       width: 32px; height: 32px; border-radius: 8px; background: var(--bg);
-      display: flex; align-items: center; justify-content: center; font-size: 15px; flex: none;
+      display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
     }
     .hotel-item .hotel-name, .fav-item .fav-name { font-weight: 700; font-size: 14px; color: var(--text); }
     .hotel-item .hotel-city, .fav-item .fav-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
@@ -568,12 +570,12 @@
 </head>
 <body>
   <div id="panel">
-    <!-- Строка 1: Подлинный Логотип Umra Guide (Base64), Курс, Меню -->
+    <!-- Строка 1: Логотип, Курс, Меню -->
     <div class="top-row">
       <div class="top-row-left">
         <div class="brand-logo-wrap" title="Umra Guide">
-          <!-- Реальный логотип со скриншота без фона в цвете #1b4332 -->
-          <img class="brand-logo-img" alt="Umra Guide" src="data:image/png;base64,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">
+          <!-- Используется logo.png с сохранением пропорций без искажений -->
+          <img class="brand-logo-img" src="logo.png" alt="Umra Guide" onerror="this.src='logo.PNG';">
         </div>
       </div>
 
@@ -636,7 +638,7 @@
     <!-- Строка 4: Категории -->
     <div class="cat-row" id="category-row" role="tablist" aria-label="Категории мест"></div>
 
-    <!-- Подкатегории Маршрутов (активны только при выборе вкладки «Маршруты») -->
+    <!-- Подкатегории Маршрутов (появляются только при выборе «Маршруты») -->
     <div class="route-selector-bar" id="route-selector-bar" hidden></div>
 
     <div class="rate-tooltip" id="rate-tooltip">
@@ -1097,7 +1099,7 @@
             { num: 1, name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "المنطقة المركزية - باب السلام", lat: 24.46720, lng: 39.61080, desc: "Старт маршрута, приветствие Пророка ﷺ и посещение Рауды." },
             { num: 2, name: "Мечеть Куба", name_ar: "مسجد قباء", landmark_ar: "طريق الهجرة - مسجد قباء", lat: 24.43930, lng: 39.61730, desc: "Первая мечеть в исламе. Намаз в ней равен награде за Умру." },
             { num: 3, name: "Мечеть аль-Киблатайн (Двух Кибл)", name_ar: "مسجد القبلتين", landmark_ar: "طريق خالد بن الوليد", lat: 24.48415, lng: 39.57860, desc: "Место, где сподвижники изменили направление молитвы на Мекку." },
-            { num: 4, name: "Семь мечетей (Битва у Рва / Хандак)", name_ar: "المساجد السبعة - الخندق", landmark_ar: "سفح جبل سلع - الخندق", lat: 24.47600, lng: 39.59300, desc: "Историческое место оборонительной битвы мусульман у вырытого рва." },
+            { num: 4, name: "Семь мечетей (Битва у Рва / Хандак)", name_ar: "المсаجد السبعة - الخندق", landmark_ar: "سفح جبل سلع - الخندق", lat: 24.47600, lng: 39.59300, desc: "Историческое место оборонительной битвы мусульман у вырытого рва." },
             { num: 5, name: "Гора Ухуд (Холм лучников и шахиды)", name_ar: "جبل أحد - مقبرة الشهداء", landmark_ar: "سيد الشهداء حمزة - جبل الرماة", lat: 24.50330, lng: 39.61220, desc: "Место битвы при Ухуде, холм лучников и могила Хамзы (р.а.)." }
           ]
         },
@@ -1170,7 +1172,6 @@
     let selectedHotel = null;
     try { selectedHotel = JSON.parse(localStorage.getItem("ug_hotel") || "null"); } catch (e) { selectedHotel = null; }
 
-    // Раздельные иконки для разных категорий и типов
     function getPlaceEmoji(place) {
       if (place.name === KAABA_NAME) return "🕋";
       if (place.category === 'transport') {
@@ -1221,7 +1222,6 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // Переключатель города
     function updateCityToggleBtn() {
       const c = CITIES[currentCity];
       dom.cityToggleBtn.textContent = `${c.icon} ${c.label}`;
@@ -1268,7 +1268,6 @@
       dom.categoryRow.appendChild(btn);
     });
 
-    // Инициализация карты
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
 
     function updateMapStyleChip() {
@@ -1408,7 +1407,7 @@
           </button>
         </div>
         <div class="sheet-desc">${escapeHtml(route.desc)}</div>
-        <div class="nav-label">ОТКРЫТЬ ВЕСЬ МАРШРУТ ЦЕЛИКОМ В НАВИГАТОРЕ:</div>
+        <div class="nav-label">ОТКРЫТЬ ВЕСЬ МАРШРУТ В НАВИГАТОРЕ:</div>
         <div class="route-nav-row">
           <a href="${gmapsMultiUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
           <a href="${appleMultiUrl}" target="_blank" rel="noopener noreferrer">Apple Maps</a>
