@@ -2687,5 +2687,57 @@
       loadPrayerTimes(currentCity);
     })();
   </script>
+  // Логика баннера установки PWA
+let deferredPrompt = null;
+const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+const pwaBanner = document.getElementById('pwa-install-banner');
+const pwaBtn = document.getElementById('pwa-install-btn');
+const pwaText = document.getElementById('pwa-install-text');
+const pwaClose = document.getElementById('pwa-close-btn');
+
+if (!isStandalone && !localStorage.getItem('ug_pwa_dismissed')) {
+  if (isIos) {
+    pwaText.innerHTML = 'Нажмите <b>«Поделиться»</b> <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> и выберите <b>«На экран “Домой”»</b>';
+    pwaBtn.style.display = 'none';
+    pwaBanner.style.display = 'block';
+  } else {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      pwaBanner.style.display = 'block';
+    });
+  }
+}
+
+pwaBtn.onclick = async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      pwaBanner.style.display = 'none';
+    }
+    deferredPrompt = null;
+  }
+};
+
+pwaClose.onclick = () => {
+  pwaBanner.style.display = 'none';
+  localStorage.setItem('ug_pwa_dismissed', '1');
+};
+<!-- Баннер установки PWA на домашний экран -->
+<div id="pwa-install-banner" style="display:none; position:fixed; bottom:calc(20px + var(--safe-bottom)); left:16px; right:16px; z-index:2500; background:rgba(27,67,50,0.96); backdrop-filter:blur(10px); color:white; border-radius:18px; padding:14px 16px; box-shadow:0 8px 24px rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.2);">
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+    <div style="font-size:12.5px; line-height:1.4;">
+      <b style="display:block; font-size:14px; margin-bottom:2px;">Установить Umra Guide</b>
+      <span id="pwa-install-text">Добавьте гид на домашний экран для работы без интернета</span>
+    </div>
+    <div style="display:flex; gap:6px; flex-shrink:0;">
+      <button id="pwa-install-btn" style="background:#b8935a; color:white; border:none; border-radius:10px; padding:8px 14px; font-weight:700; font-size:12px; cursor:pointer;">Установить</button>
+      <button id="pwa-close-btn" style="background:rgba(255,255,255,0.2); color:white; border:none; border-radius:10px; width:32px; height:32px; font-size:14px; cursor:pointer;">✕</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
