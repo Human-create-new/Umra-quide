@@ -1,21 +1,16 @@
 const CACHE_NAME = 'umra-guide-v1';
-const STATIC_ASSETS = [
+const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './logo.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-  'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
-  'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
-  'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
-  'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return cache.addAll(ASSETS_TO_CACHE);
     })
   );
   self.skipWaiting();
@@ -33,26 +28,29 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Для API внешних сервисов (намаз, валюта) — сетевой запрос, при сбое — кэш
-  if (event.request.url.includes('api.aladhan.com') || event.request.url.includes('cbr-xml-daily.ru')) {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
-    );
+  // Для запросов к Supabase API всегда используем сеть
+  if (event.request.url.includes('supabase.co')) {
     return;
   }
-
-  // Для статики — Stale-While-Revalidate
+  
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((networkResponse) => {
+        // Кешируем внешние стили и скрипты карты на лету
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
         return networkResponse;
-      }).catch(() => cachedResponse);
-
-      return cachedResponse || fetchPromise;
+      }).catch(() => {
+        // Запасной ответ при полном отсутствии сети
+        return caches.match('./index.html');
+      });
     })
   );
 });
