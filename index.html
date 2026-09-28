@@ -10,6 +10,10 @@
   <link rel="manifest" href="manifest.json">
   <title>Umra Guide</title>
 
+  <!-- Иконка приложения (PWA & iOS) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%231b4332'/><path d='M256 120 L360 200 L360 360 L152 360 L152 200 Z' fill='none' stroke='%23b8935a' stroke-width='24' stroke-linejoin='round'/><circle cx='256' cy='250' r='40' fill='%23b8935a'/></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%231b4332'/><path d='M256 120 L360 200 L360 360 L152 360 L152 200 Z' fill='none' stroke='%23b8935a' stroke-width='24' stroke-linejoin='round'/><circle cx='256' cy='250' r='40' fill='%23b8935a'/></svg>">
+
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -600,7 +604,7 @@
 </head>
 <body>
   <div id="panel">
-    <!-- Строка 1: Новый оригинальный логотип Umra Guide (чистый Data URI) -->
+    <!-- Строка 1: Логотип Umra Guide -->
     <div class="top-row">
       <div class="top-row-left">
         <div class="brand-logo-wrap" title="Umra Guide">
@@ -637,7 +641,7 @@
       </div>
     </div>
 
-    <!-- Строка 2: Однострочный блок намаза -->
+    <!-- Строка 2: Раскрываемый блок намаза -->
     <div class="prayer-bar-wrap">
       <button class="prayer-bar-btn" id="prayer-toggle-btn" aria-expanded="false">
         <div class="prayer-bar-left">
@@ -653,7 +657,7 @@
       </div>
     </div>
 
-    <!-- Строка 3: Поиск + Выбор города в один ряд -->
+    <!-- Строка 3: Поиск + Выбор города -->
     <div class="search-city-row">
       <div class="search-box-wrap">
         <span class="search-icon-svg">🔍</span>
@@ -712,7 +716,6 @@
         <button class="modal-close" id="sos-close">✕</button>
       </div>
       <div class="sos-content">
-        <!-- ФИЧА: КНОПКА "Я ПОТЕРЯЛСЯ / В ОТЕЛЬ" -->
         <div class="lost-hotel-card">
           <div class="lost-hotel-title" id="lost-hotel-label">🏨 Возврат в ваш отель</div>
           <button class="lost-hotel-btn" id="lost-hotel-nav-btn">🚶 Маршрут пешком в мой отель</button>
@@ -826,7 +829,7 @@
     </div>
   </div>
 
-  <!-- ФИЧА: ИНТЕРАКТИВНЫЙ ТАВАФ & УМРА ГИД -->
+  <!-- Интерактивный Таваф & Умра Гид -->
   <div id="guide-modal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
       <div class="modal-head">
@@ -834,7 +837,6 @@
         <button class="modal-close" id="guide-close">✕</button>
       </div>
       <div id="guide-scroll">
-        <!-- СЧЕТЧИК 7 КРУГОВ -->
         <div class="tasbeeh-card">
           <div style="font-size:12px; font-weight:700; color:var(--green-dark);">СЧЕТЧИК КРУГОВ ТАВАФА (КААБА)</div>
           <div class="tasbeeh-num" id="tasbeeh-count">1 / 7</div>
@@ -842,7 +844,6 @@
             <button class="tasbeeh-btn-add" id="tasbeeh-add">+1 Круг</button>
             <button class="tasbeeh-btn-rst" id="tasbeeh-rst">Сброс</button>
           </div>
-          <!-- ТАБ-БАР КРУГОВ 1-7 -->
           <div class="tawaf-rounds-bar" id="tawaf-rounds-bar">
             <button class="tawaf-round-pill active" data-round="1">1</button>
             <button class="tawaf-round-pill" data-round="2">2</button>
@@ -854,7 +855,6 @@
           </div>
         </div>
 
-        <!-- КАРТОЧКА ДУА ДЛЯ ТЕКУЩЕГО КРУГА -->
         <div class="tawaf-dua-box" id="tawaf-dua-box">
           <div class="tawaf-dua-theme" id="tawaf-dua-theme">КРУГ 1: ВОЗВЕЛИЧИВАНИЕ И НАЧАЛО</div>
           <div class="arabic-dua" id="tawaf-arabic-text">بِسْمِ اللَّهِ وَاللَّهُ أَكْبَرُ، اللَّهُمَّ إِيمَانًا بِكَ وَتَصْدِيقًا بِكِتَابِكَ وَوَفَاءً بِعَهْدِكَ</div>
@@ -862,7 +862,6 @@
           <div class="translation-text" id="tawaf-trans-text">«С именем Аллаха, Аллах Велик! О Аллах, с верой в Тебя, с подтверждением истинности Твоего Писания и верностью завету с Тобой...»</div>
         </div>
 
-        <!-- ПОСТОЯННОЕ ДУА У ЙЕМЕНСКОГО УГЛА -->
         <div class="sunnah-corner-box">
           <b>🕋 У Йеменского угла (Рукн аль-Йамани):</b><br>
           Между Йеменским углом и Черным камнем читайте:<br>
@@ -893,6 +892,20 @@
           <h4>4. Стрижка волос (Тахсир / Хальк)</h4>
           <p>Мужчины сбривают или укорачивают волосы, женщины отрезают кончик пряди (1–2 см). Умра завершена!</p>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Баннер установки PWA на домашний экран -->
+  <div id="pwa-install-banner" style="display:none; position:fixed; bottom:calc(20px + var(--safe-bottom)); left:16px; right:16px; z-index:2500; background:rgba(27,67,50,0.96); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); color:white; border-radius:18px; padding:14px 16px; box-shadow:0 8px 24px rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.2);">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+      <div style="font-size:12.5px; line-height:1.4;">
+        <b style="display:block; font-size:14px; margin-bottom:2px;">Установить Umra Guide</b>
+        <span id="pwa-install-text">Добавьте гид на домашний экран для работы без интернета</span>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button id="pwa-install-btn" style="background:#b8935a; color:white; border:none; border-radius:10px; padding:8px 14px; font-weight:700; font-size:12px; cursor:pointer;">Установить</button>
+        <button id="pwa-close-btn" style="background:rgba(255,255,255,0.2); color:white; border:none; border-radius:10px; width:32px; height:32px; font-size:14px; cursor:pointer;">✕</button>
       </div>
     </div>
   </div>
@@ -1155,7 +1168,6 @@
 
     // 30 ПОЛНОСТЬЮ ВЕРИФИЦИРОВАННЫХ МЕСТ (МЕККА И МЕДИНА)
     const SEED_PLACES = [
-      // Мекка: Святыни и Микаты
       { id: "m-kaaba", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", name_ar: "المسجد الحرام - الكعبة المشرفة", landmark_ar: "محاذاة الحجر الأسود - صحن المطاف", description: "Главная святыня ислама, Кибла мусульман. Точка старта Тавафа.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
       { id: "m-taneem", city: "mecca", category: "religion", name: "Masjid Aisha (Микат ат-Тан'им)", name_ar: "مسجد السيدة عائشة (ميقات التنعيم)", landmark_ar: "المدخل الشرقي لمسجد التنعيم - ساحة الوضوء", description: "Ближайший микат для совершения Умры (~7.5 км от Харама). Восточные ворота.", lat: 21.469340, lng: 39.801130, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 18900 },
       { id: "m-hira", city: "mecca", category: "religion", name: "Джабаль ан-Нур (Пещера Хира)", name_ar: "جبل النور - غار حراء", landmark_ar: "مركز حراء الثقافي - مدخل الصعود", description: "Место ниспослания первых аятов Корана. Парковка и тропа подъема.", lat: 21.458050, lng: 39.858150, hours_text: "Круглосуточно", google_rating: 4.7, google_rating_count: 14200 },
@@ -1163,8 +1175,6 @@
       { id: "m-arafat", city: "mecca", category: "religion", name: "Гора Арафат (Джабаль ар-Рахма)", name_ar: "جبل الرحمة - عرفات", landmark_ar: "ميدان جبل الرحمة - مشعر عرفات", description: "Холм Милости в долине Арафат. Главный столп Хаджа.", lat: 21.354700, lng: 39.984200, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 22100 },
       { id: "m-jamarat", city: "mecca", category: "religion", name: "Долина Мина (Мост Джамарат)", name_ar: "مشعر منى - جسر الجمرات", landmark_ar: "الساحة الغربية لجسر الجمرات", description: "Обрядовый комплекс долины Мина для бросания камешков.", lat: 21.413350, lng: 39.873250, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 11800 },
       { id: "m-muzdalifah", city: "mecca", category: "religion", name: "Мечеть Маш'ар аль-Харам (Муздалифа)", name_ar: "مسجد المشعر الحرام - مزدلفة", landmark_ar: "طريق المشاة بمزدلفة", description: "Место ночлега паломников в ночь Курбан-Байрама.", lat: 21.385000, lng: 39.892000, hours_text: "Круглосуточно", google_rating: 4.7, google_rating_count: 4200 },
-
-      // Мекка: Инфраструктура и Транспорт
       { id: "m-stc-clock", city: "mecca", category: "connectivity", name: "STC — Clock Tower (Abraj Al Bait)", name_ar: "شركة الاتصالات السعودية (stc) - أبراج البيت", landmark_ar: "مجمع أبراج البيت - الدور الرابع", description: "Фирменный салон STC на 4-м этаже ТЦ Часовой башни. SIM и eSIM.", lat: 21.419550, lng: 39.825600, hours_text: "09:00–23:00", google_rating: 4.4, google_rating_count: 820 },
       { id: "m-zain-safwah", city: "mecca", category: "connectivity", name: "Zain — Al Safwah Towers", name_ar: "زين - أبراج الصفوة", landmark_ar: "أبراج الصفوة - مقابل باب الملك عبد العزيز", description: "Официальный салон связи Zain напротив ворот короля Абдулазиза.", lat: 21.419120, lng: 39.826840, hours_text: "09:00–23:30", google_rating: 4.2, google_rating_count: 450 },
       { id: "m-train-station", city: "mecca", category: "transport", name: "Вокзал скоростных поездов Haramain", name_ar: "محطة قطار الحرمين السريع - مكة المكرمة", landmark_ar: "حي الرصيفة - المدخل الرئيسي للمحطة", description: "Скоростные экспрессы в Медину (2 ч 15 мин) и аэропорт Джидды.", lat: 21.417250, lng: 39.791520, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 6800 },
@@ -1178,23 +1188,19 @@
       { id: "m-hotel-safwah", city: "mecca", category: "useful", name: "Отель Al Ghufran Safwah", name_ar: "فندق الغفران الصفوة", landmark_ar: "أبراج الصفوة - أمام باب الملك عبد العزيز", description: "Отель первой линии в Safwah Towers, 1 минута до входа в Харам.", lat: 21.419245, lng: 39.826764, hours_text: "Круглосуточно" },
       { id: "m-hotel-novotel", city: "mecca", category: "useful", name: "Отель Novotel Thakher Makkah", name_ar: "فندق نوفوتيل ذاخر مكة", landmark_ar: "مشروع ذاخر مكة - طريق الحجون", description: "Отель в районе Аль-Андалус с шаттлами до Харама.", lat: 21.445143, lng: 39.834624, hours_text: "Круглосуточно" },
       { id: "m-nur-restaurant", city: "mecca", category: "food", name: "Ресторан NUR — Ajyad", name_ar: "مطعم نور - مأكولات شرقية", landmark_ar: "شارع أجياد العام", description: "Восточная кухня, сытные горячие блюда, гриль.", lat: 21.406799, lng: 39.829939, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 220 },
-
-      // Медина: Святыни и Микат
       { id: "med-nabawi", city: "medina", category: "religion", name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "باب السلام (رقم 1) - المنطقة المركزية", description: "Вторая святыня ислама. Здесь находятся благословенная Рауда и могила Пророка ﷺ.", lat: 24.467210, lng: 39.610800, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 120000 },
       { id: "med-quba", city: "medina", category: "religion", name: "Мечеть Куба", name_ar: "مسجد قباء", landmark_ar: "المدخل الشمالي لمسجد قباء - ممشى الهجرة", description: "Первая мечеть в исламе. Намаз в ней равен Умре по хадису Пророка ﷺ.", lat: 24.439320, lng: 39.617310, hours_text: "Круглосуточно", google_rating: 4.9, google_rating_count: 34000 },
       { id: "med-qiblatain", city: "medina", category: "religion", name: "Мечеть аль-Киблатайн (Двух Кибл)", name_ar: "مسجد القبلتين", landmark_ar: "طريق خالد بن الوليد - حي القبلتين", description: "Мечеть, где во время молитвы было ниспослано повеление изменить Киблу на Каабу.", lat: 24.484150, lng: 39.578600, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 15400 },
       { id: "med-khandaq", city: "medina", category: "religion", name: "Семь мечетей (Битва у Рва / Хандак)", name_ar: "المساجد السبعة - الخندق", landmark_ar: "سفح جبل سلع - مسجد الفتح", description: "Историческое место оборонительной битвы у рва у подножия горы Саль'а.", lat: 24.476000, lng: 39.593000, hours_text: "Круглосуточно", google_rating: 4.7, google_rating_count: 6200 },
       { id: "med-uhud", city: "medina", category: "religion", name: "Гора Ухуд (Холм лучников и шахиды)", name_ar: "جبل أحد - مقبرة شهداء أحد", landmark_ar: "ميدان سيد الشهداء حمزة - جبل الرماة", description: "Место битвы при Ухуде, могилы 70 шахидов во главе с Хамзой (р.а.) и холм лучников.", lat: 24.503300, lng: 39.612200, hours_text: "Круглосуточно", google_rating: 4.9, google_rating_count: 28900 },
       { id: "med-zulhulaifa", city: "medina", category: "religion", name: "Микат Зуль-Хулейфа (Абьяр Али)", name_ar: "ميقات ذو الحليفة (مسجد الشجرة / آبار علي)", landmark_ar: "طريق الهجرة السريع - ميقات آبار علي", description: "Главный микат для паломников, направляющихся на Умру из Медины.", lat: 24.413140, lng: 39.542820, hours_text: "Круглосуточно", google_rating: 4.9, google_rating_count: 12500 },
-
-      // Медина: Инфраструктура и Транспорт
       { id: "med-train-station", city: "medina", category: "transport", name: "Вокзал скоростных поездов Haramain Медина", name_ar: "محطة قطار الحرمين السريع - المدينة المنورة", landmark_ar: "حي المعرفة - المدخل الشرقي", description: "Терминал скоростных поездов в Мекку и международный аэропорт Джидды.", lat: 24.463510, lng: 39.670230, hours_text: "06:00–00:00", google_rating: 4.7, google_rating_count: 5400 },
       { id: "med-mobily-central", city: "medina", category: "connectivity", name: "Mobily — Северный центральный район", name_ar: "موبايلي - فرع المنطقة المركزية الشمالية", landmark_ar: "المنطقة المركزية - أمام ساحات المسجد النبوي", description: "Официальный салон связи Mobily в 100 метрах от северных ворот мечети.", lat: 24.471820, lng: 39.610480, hours_text: "08:00–23:00", google_rating: 4.3, google_rating_count: 310 },
       { id: "med-hotel-maien", city: "medina", category: "useful", name: "Отель Maien Taiba", name_ar: "فندق معين طيبة", landmark_ar: "المنطقة المركزية الشمالية - قرب الحرم", description: "Отель в шаговой доступности от мечети Пророка и ворот женского входа в Рауду.", lat: 24.464177, lng: 39.613197, hours_text: "Круглосуточно" },
       { id: "med-restaurant-zaitoon", city: "medina", category: "food", name: "Ресторан Zaitoon", name_ar: "مطعم زيتون", landmark_ar: "المنطقة المركزية - شارع السلام", description: "Популярный ресторан восточной и арабской кухни рядом с мечетью Пророка.", lat: 24.471468, lng: 39.610038, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609 }
     ];
 
-    // 5 ВЫВЕРЕННЫХ МАРШРУТОВ (С ВХОДАМИ И ПЕШЕХОДНОЙ ЛОГИКОЙ)
+    // 5 ВЫВЕРЕННЫХ МАРШРУТОВ
     const ROUTES_DATA = {
       mecca: [
         {
@@ -1309,20 +1315,29 @@
     let selectedHotel = null;
     try { selectedHotel = JSON.parse(localStorage.getItem("ug_hotel") || "null"); } catch (e) { selectedHotel = null; }
 
+    // ИСПРАВЛЕННЫЙ АЛГОРИТМ ИКОНОК (Строгий приоритет отелей, Pullman Zamzam -> 🏨)
     function getPlaceEmoji(place) {
       if (place.name === KAABA_NAME) return "🕋";
+      if (place.id === "med-nabawi" || (place.name && place.name.includes("аль-Масджид ан-Набави"))) return "🕌";
+
+      // 1. Отели и полезный сервис
+      if (place.category === 'useful') {
+        const n = (place.name || '').toLowerCase();
+        if (n.includes('hotel') || n.includes('pullman') || n.includes('fairmont') || n.includes('swiss') || n.includes('отель') || n.includes('فندق')) return "🏨";
+        if (n.includes('locker') || n.includes('камер') || n.includes('багаж') || n.includes('أمانات')) return "🧳";
+        if (n.includes('pharmacy') || n.includes('аптек') || n.includes('nahdi') || n.includes('صيدلية')) return "💊";
+        if (n.includes('zamzam') || n.includes('замзам') || n.includes('water')) return "💧";
+        return "🏨";
+      }
+
+      // 2. Транспорт
       if (place.category === 'transport') {
         const n = (place.name || '').toLowerCase();
         if (n.includes('railway') || n.includes('поезд') || n.includes('вокзал') || n.includes('haramain')) return "🚄";
         if (n.includes('bus') || n.includes('автобус') || n.includes('saptco') || n.includes('шаттл') || n.includes('shuttle')) return "🚌";
         return "🚕";
       }
-      if (place.category === 'useful') {
-        const n = (place.name || '').toLowerCase();
-        if (n.includes('locker') || n.includes('камер') || n.includes('багаж') || n.includes('أمانات')) return "🧳";
-        if (n.includes('zamzam') || n.includes('замзам') || n.includes('water')) return "💧";
-        return "🏨";
-      }
+
       return CATEGORY_EMOJI[place.category] || "📍";
     }
 
@@ -1465,7 +1480,7 @@
 
     renderMarkers();
 
-    // ===== МАРШРУТЫ (С РАСКРЫВАЮЩИМИСЯ ВАРИАНТАМИ НАВИГАЦИИ) =====
+    // ===== МАРШРУТЫ =====
     function clearActiveRoute() {
       if (activeRoutePolyline) {
         map.removeLayer(activeRoutePolyline);
@@ -1545,7 +1560,6 @@
         </div>
         <div class="sheet-desc">${escapeHtml(route.desc)}</div>
         
-        <!-- КНОПКА ПОСТРОИТЬ МАРШРУТ С ВЫПАДАЮЩИМИ ВАРИАНТАМИ -->
         <button class="route-main-btn" id="route-open-nav-btn">
           🧭 <span>Построить весь маршрут</span>
           <span class="route-chevron">▾</span>
@@ -1623,7 +1637,6 @@
         </div>
         <div class="sheet-desc">${escapeHtml(stop.desc)}</div>
         
-        <!-- КНОПКА ПОСТРОИТЬ МАРШРУТ С ВЫПАДАЮЩИМИ ВАРИАНТАМИ -->
         <button class="route-main-btn" id="stop-open-nav-btn">
           🧭 <span>Построить маршрут</span>
           <span class="route-chevron">▾</span>
@@ -1668,7 +1681,7 @@
       setSheetState('peek');
     }
 
-    // ===== КАРТОЧКА МЕСТА (КНОПКА «ПОСТРОИТЬ МАРШРУТ» С РАСКРЫТИЕМ) =====
+    // ===== КАРТОЧКА МЕСТА =====
     function openSheetForPlace(place) {
       activeViewingPlace = place;
 
@@ -1715,7 +1728,6 @@
 
         <div class="sheet-desc">${escapeHtml(place.description || '')}</div>
 
-        <!-- КНОПКА «ПОСТРОИТЬ МАРШРУТ» С РАСКРЫТИЕМ В 3 ВАРИАНТА -->
         <button class="route-main-btn" id="place-route-toggle-btn">
           🧭 <span>Построить маршрут</span>
           <span class="route-chevron">▾</span>
@@ -2282,7 +2294,7 @@
               <div class="fav-icon">${getPlaceEmoji(p)}</div>
               <div>
                 <div class="fav-name">${escapeHtml(p.name)}</div>
-                <div class="fav-meta">${escapeHtml(CATEGORY_LABELS_RU[p.category] || '')} · ${escapeHtml(CITIES[p.city]?.label || p.city)}</div>
+                <div class="fav-meta">${escapeHtml(CATEGORY_LABELS_RU[place.category] || '')} · ${escapeHtml(CITIES[p.city]?.label || p.city)}</div>
               </div>
             </button>
           `).join('')
@@ -2509,7 +2521,7 @@
       setTimeout(() => { dom.taxiCopyBtn.textContent = 'Скопировать название'; }, 1500);
     };
 
-    // Отзывы
+    // Отзывы (С ПЕРЕДАЧЕЙ НАЗВАНИЯ В БАЗУ ДЛЯ ТЕЛЕГРАМ БОТА)
     function openReviewModal(placeId) {
       haptic.light();
       reviewPlaceId = placeId;
@@ -2634,8 +2646,13 @@
       return [];
     }
 
+    // ОТПРАВКА С ПЕРЕДАЧЕЙ НАЗВАНИЯ МЕСТА (place_name)
     async function submitReview(placeId, rating, text, statusEl) {
       if (!accessToken) { alert("Откройте приложение внутри Telegram, чтобы отправить отзыв"); return; }
+      
+      const targetPlace = allPlaces.find(p => p.id === placeId);
+      const placeName = targetPlace ? (targetPlace.name || targetPlace.name_ru || '') : '';
+
       try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
           method: "POST",
@@ -2643,7 +2660,14 @@
             apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json", Prefer: "return=minimal"
           },
-          body: JSON.stringify({ user_id: userId, place_id: placeId, rating: Number(rating), text, status: "pending" })
+          body: JSON.stringify({
+            user_id: userId,
+            place_id: placeId,
+            place_name: placeName,
+            rating: Number(rating),
+            text,
+            status: "pending"
+          })
         });
         if (res.status === 201) {
           haptic.success();
@@ -2678,66 +2702,63 @@
       }
     }
 
+    // Инициализация PWA баннера установки
+    function initPwaBanner() {
+      let deferredPrompt = null;
+      const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+      const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+      const pwaBanner = document.getElementById('pwa-install-banner');
+      const pwaBtn = document.getElementById('pwa-install-btn');
+      const pwaText = document.getElementById('pwa-install-text');
+      const pwaClose = document.getElementById('pwa-close-btn');
+
+      if (!pwaBanner) return;
+
+      if (!isStandalone && !localStorage.getItem('ug_pwa_dismissed')) {
+        if (isIos) {
+          pwaText.innerHTML = 'Нажмите <b>«Поделиться»</b> <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> и выберите <b>«На экран “Домой”»</b>';
+          if (pwaBtn) pwaBtn.style.display = 'none';
+          pwaBanner.style.display = 'block';
+        } else {
+          window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            pwaBanner.style.display = 'block';
+          });
+        }
+      }
+
+      if (pwaBtn) {
+        pwaBtn.onclick = async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+              pwaBanner.style.display = 'none';
+            }
+            deferredPrompt = null;
+          }
+        };
+      }
+
+      if (pwaClose) {
+        pwaClose.onclick = () => {
+          pwaBanner.style.display = 'none';
+          localStorage.setItem('ug_pwa_dismissed', '1');
+        };
+      }
+    }
+
     // Запуск приложения
     (async () => {
       checkDeepLink();
+      initPwaBanner();
       await authenticate();
       await loadPlaces();
       loadExchangeRate();
       loadPrayerTimes(currentCity);
     })();
   </script>
-  // Логика баннера установки PWA
-let deferredPrompt = null;
-const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-
-const pwaBanner = document.getElementById('pwa-install-banner');
-const pwaBtn = document.getElementById('pwa-install-btn');
-const pwaText = document.getElementById('pwa-install-text');
-const pwaClose = document.getElementById('pwa-close-btn');
-
-if (!isStandalone && !localStorage.getItem('ug_pwa_dismissed')) {
-  if (isIos) {
-    pwaText.innerHTML = 'Нажмите <b>«Поделиться»</b> <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> и выберите <b>«На экран “Домой”»</b>';
-    pwaBtn.style.display = 'none';
-    pwaBanner.style.display = 'block';
-  } else {
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      pwaBanner.style.display = 'block';
-    });
-  }
-}
-
-pwaBtn.onclick = async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      pwaBanner.style.display = 'none';
-    }
-    deferredPrompt = null;
-  }
-};
-
-pwaClose.onclick = () => {
-  pwaBanner.style.display = 'none';
-  localStorage.setItem('ug_pwa_dismissed', '1');
-};
-<!-- Баннер установки PWA на домашний экран -->
-<div id="pwa-install-banner" style="display:none; position:fixed; bottom:calc(20px + var(--safe-bottom)); left:16px; right:16px; z-index:2500; background:rgba(27,67,50,0.96); backdrop-filter:blur(10px); color:white; border-radius:18px; padding:14px 16px; box-shadow:0 8px 24px rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.2);">
-  <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-    <div style="font-size:12.5px; line-height:1.4;">
-      <b style="display:block; font-size:14px; margin-bottom:2px;">Установить Umra Guide</b>
-      <span id="pwa-install-text">Добавьте гид на домашний экран для работы без интернета</span>
-    </div>
-    <div style="display:flex; gap:6px; flex-shrink:0;">
-      <button id="pwa-install-btn" style="background:#b8935a; color:white; border:none; border-radius:10px; padding:8px 14px; font-weight:700; font-size:12px; cursor:pointer;">Установить</button>
-      <button id="pwa-close-btn" style="background:rgba(255,255,255,0.2); color:white; border:none; border-radius:10px; width:32px; height:32px; font-size:14px; cursor:pointer;">✕</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
