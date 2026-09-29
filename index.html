@@ -1780,7 +1780,10 @@ setTimeout(() => map.invalidateSize(), 200);
       };
 
       dom.sheetContent.querySelector('#sheet-share-btn').onclick = () => sharePlace(place);
-      dom.sheetContent.querySelector('#quick-fav-btn').onclick = (e) => toggleFavorite(place.id, e.currentTarget);
+      dom.sheetContent.querySelector('#quick-fav-btn').onclick = (e) => {
+  e.stopPropagation();
+  toggleFavorite(place.id, e.currentTarget);
+};
       dom.sheetContent.querySelector('#quick-taxi-btn').onclick = () => openTaxiModal(place);
       dom.sheetContent.querySelector('.leave-review-btn').onclick = () => openReviewModal(place.id);
 
