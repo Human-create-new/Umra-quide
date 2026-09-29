@@ -1431,6 +1431,10 @@
     });
 
     const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
+    map.attributionControl.setPrefix(false);
+window.addEventListener('resize', () => map.invalidateSize());
+setTimeout(() => map.invalidateSize(), 200);
+
 
     function updateMapStyleChip() {
       const cur = MAP_STYLES[currentMapStyle];
