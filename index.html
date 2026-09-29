@@ -10,9 +10,10 @@
   <link rel="manifest" href="manifest.json">
   <title>Umra Guide</title>
 
-  <!-- Иконка приложения (PWA & iOS) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%231b4332'/><path d='M256 120 L360 200 L360 360 L152 360 L152 200 Z' fill='none' stroke='%23b8935a' stroke-width='24' stroke-linejoin='round'/><circle cx='256' cy='250' r='40' fill='%23b8935a'/></svg>">
-  <link rel="apple-touch-icon" href="./apple-touch-icon.jpg">
+  <!-- Иконка приложения -->
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="./apple-touch-icon.png">
+
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -50,27 +51,30 @@
     }
     [hidden] { display: none !important; }
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; overflow: hidden; }
-    body { font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100vw; height: 100dvh;
+      overflow: hidden; position: fixed; inset: 0;
+      background: var(--bg);
+      font-family: 'Manrope', -apple-system, sans-serif; color: var(--text);
+    }
     button, a { -webkit-tap-highlight-color: transparent; }
     svg { display: block; }
-    #map { html, body {
-  margin: 0; padding: 0;
-  width: 100vw; height: 100dvh;
-  overflow: hidden; position: fixed; inset: 0;
-  background: var(--bg);
-}
-#map {
-  position: fixed; inset: 0;
-  width: 100vw; height: 100dvh;
-  z-index: 1; background: #e5e3df;
-}
 
+    /* Полноэкранная карта без белых полос */
+    #map {
+      position: fixed; inset: 0;
+      width: 100vw; height: 100dvh;
+      z-index: 1; background: #e5e3df;
+    }
 
     /* Панель управления (Шапка) */
     #panel {
-      position: absolute; top: calc(10px + var(--safe-top)); left: calc(12px + var(--safe-left));
-      right: calc(12px + var(--safe-right)); z-index: 1000;
+      position: fixed;
+      top: calc(10px + var(--safe-top));
+      left: calc(12px + var(--safe-left));
+      right: calc(12px + var(--safe-right));
+      z-index: 1000;
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -198,7 +202,7 @@
     }
     .city-toggle-btn:active { background: #eee8dc; }
 
-    /* Строка 4: Категории */
+    /* Строка 4: Категории (Разделены Отели и Полезное) */
     .cat-row { display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
     .cat-row::-webkit-scrollbar { display: none; }
     .cat-item {
@@ -238,7 +242,7 @@
     .route-stop-pin.end { background: #b91c1c; }
 
     #offline-pill {
-      display: none; position: absolute; top: calc(165px + var(--safe-top)); left: 50%;
+      display: none; position: fixed; top: calc(165px + var(--safe-top)); left: 50%;
       transform: translateX(-50%); z-index: 1001; background: rgba(25, 28, 25, 0.9);
       color: #90e0b0; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
       backdrop-filter: blur(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
@@ -246,7 +250,7 @@
 
     /* Плавающие кнопки */
     .floating-controls {
-      position: absolute; bottom: calc(20px + var(--safe-bottom)); left: 16px; right: 16px;
+      position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 16px; right: 16px;
       display: flex; justify-content: space-between; align-items: center; z-index: 1000;
       pointer-events: none;
     }
@@ -265,7 +269,7 @@
 
     /* Каталог мест */
     .list-view {
-      position: absolute; inset: 0; z-index: 999; background: var(--bg);
+      position: fixed; inset: 0; z-index: 999; background: var(--bg);
       padding-top: calc(175px + var(--safe-top)); padding-bottom: calc(80px + var(--safe-bottom));
       overflow-y: auto; -webkit-overflow-scrolling: touch;
     }
@@ -303,13 +307,13 @@
 
     /* Отладчик */
     .debug-toggle {
-      position: absolute; bottom: calc(14px + var(--safe-bottom)); right: calc(14px + var(--safe-right)); z-index: 3000;
+      position: fixed; bottom: calc(14px + var(--safe-bottom)); right: calc(14px + var(--safe-right)); z-index: 3000;
       width: 44px; height: 44px; border-radius: 50%; background: white;
       border: none; box-shadow: 0 3px 12px rgba(0,0,0,0.2); font-size: 18px; opacity: 0.85; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
     #debug {
-      display: none; position: absolute; bottom: calc(68px + var(--safe-bottom)); left: 12px; right: 12px;
+      display: none; position: fixed; bottom: calc(68px + var(--safe-bottom)); left: 12px; right: 12px;
       z-index: 3000; background: rgba(15,20,16,0.96); color: #7fe0a0; font-family: monospace; font-size: 11px;
       padding: 12px; max-height: 45vh; overflow-y: auto; white-space: pre-wrap; border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.4); border: 1px solid #334;
@@ -341,17 +345,17 @@
       font-family: 'Manrope', sans-serif !important; font-weight: 700 !important; font-size: 12px !important;
     }
 
-    /* Bottom Sheet */
+    /* Bottom Sheet без блокировок тачей */
     #sheet {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 1500;
       background: white; border-radius: 22px 22px 0 0;
       box-shadow: 0 -6px 24px rgba(0,0,0,0.18); display: flex; flex-direction: column;
-      height: 0px; overflow: hidden; touch-action: none;
+      height: 0px; overflow: hidden; touch-action: pan-y;
     }
     #sheet.animate { transition: height 0.25s cubic-bezier(0.1, 0.9, 0.2, 1); }
     #sheet-toolbar {
       display: flex; align-items: center; justify-content: center; position: relative;
-      min-height: 44px; padding: 8px 0 2px; touch-action: pan-y; cursor: grab;
+      min-height: 44px; padding: 8px 0 2px; touch-action: none; cursor: grab;
     }
     .handle-bar { width: 38px; height: 4px; border-radius: 2px; background: #ded9cd; }
     .sheet-close {
@@ -361,7 +365,7 @@
     }
     #sheet-content {
       flex: 1; padding: 4px 18px calc(24px + var(--safe-bottom));
-      overflow-y: auto; -webkit-overflow-scrolling: touch;
+      overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y;
     }
     .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .sheet-title { font-weight: 800; font-size: 18px; color: var(--text); line-height: 1.25; }
@@ -411,7 +415,7 @@
       flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
       background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
       padding: 11px 8px; font-size: 12.5px; font-weight: 700; color: var(--green-dark);
-      cursor: pointer; font-family: 'Manrope', sans-serif;
+      cursor: pointer; font-family: 'Manrope', sans-serif; user-select: none;
     }
     .action-chip svg { width: 16px; height: 16px; flex-shrink: 0; }
     .action-chip.fav-active { color: var(--danger); border-color: #fca5a5; background: #fff5f5; }
@@ -613,12 +617,15 @@
   </style>
 </head>
 <body>
+  <!-- Полноэкранная Карта -->
+  <div id="map"></div>
+
   <div id="panel">
     <!-- Строка 1: Логотип Umra Guide -->
     <div class="top-row">
       <div class="top-row-left">
         <div class="brand-logo-wrap" title="Umra Guide">
-          <img class="brand-logo-img" alt="Umra Guide" src="data:image/png;base64,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">
+          <img class="brand-logo-img" alt="Umra Guide" src="./apple-touch-icon.png">
         </div>
       </div>
 
@@ -690,9 +697,6 @@
   </div>
 
   <div id="offline-pill">⚡ Офлайн режим: данные из кэша</div>
-
-  <!-- Карта -->
-  <div id="map"></div>
 
   <!-- Список мест -->
   <div id="list-view" class="list-view" hidden>
@@ -1057,6 +1061,7 @@
 
     const ICON_PATHS = {
       building: '<rect x="6" y="3" width="12" height="18" rx="1"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/>',
+      useful: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
       heart: '<path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4.5 7 4.5c2 0 3.5 1.2 5 3 1.5-1.8 3-3 5-3 4 0 6.5 4 4.5 8-2.5 4.15-9.5 8.5-9.5 8.5Z"/>',
       mosque: '<path d="M3 21h18"/><path d="M4 21V9l1.5-3L7 9v12"/><path d="M3 12h5"/><path d="M7 21v-8h13v8"/><path d="M9 13c0-3.2 2.2-6 4.5-7 2.3 1 4.5 3.8 4.5 7"/><path d="M13.5 3.5v2.5"/><path d="M11.5 21v-3.5a2 2 0 0 1 4 0V21"/>',
       menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
@@ -1071,32 +1076,45 @@
       taxi: '<path d="M5 11l2-5h10l2 5"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7" cy="18" r="1.5"/><circle cx="17" cy="18" r="1.5"/><path d="M10 3h4v3h-4z"/>',
       arrowShare: '<path d="M7 17L17 7M17 7H7M17 7V17"/>'
     };
-    function iconSvg(name, size) {
-      const s = size || 18;
-      return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[name] || ''}</svg>`;
+    function iconSvg(name, size = 18) {
+      return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[name] || ''}</svg>`;
     }
 
     const CITIES = {
       mecca: { label: "Мекка", icon: "🕋", center: [21.4225, 39.8262] },
       medina: { label: "Медина", icon: "🕌", center: [24.4672, 39.6112] }
     };
+
+    // ЧЕТКОЕ РАЗДЕЛЕНИЕ КАТЕГОРИЙ (Отели и Полезное разделены)
     const CATEGORIES = {
-      all: "Все", routes: "Маршруты", food: "Еда", health: "Здоровье", shopping: "Магазины",
-      connectivity: "Связь", money: "Деньги", transport: "Транспорт",
-      religion: "Мечети", useful: "Отели"
+      all: "Все",
+      routes: "Маршруты",
+      religion: "Святыни",
+      hotels: "Отели",
+      useful: "Полезное",
+      food: "Еда",
+      health: "Здоровье",
+      shopping: "Магазины",
+      connectivity: "Связь",
+      money: "Деньги",
+      transport: "Транспорт"
     };
+
     const CATEGORY_ICON_KEYS = {
-      all: "grid", routes: "routes", food: "food", health: "health", shopping: "shopping",
-      connectivity: "connectivity", money: "money", transport: "transport",
-      religion: "mosque", useful: "building"
+      all: "grid", routes: "routes", religion: "mosque", hotels: "building",
+      useful: "useful", food: "food", health: "health", shopping: "shopping",
+      connectivity: "connectivity", money: "money", transport: "transport"
     };
+
     const CATEGORY_EMOJI = {
-      food: "🍽", health: "💊", shopping: "🛒", connectivity: "📱",
-      money: "💰", transport: "🚕", religion: "🕌", useful: "🏨", routes: "🗺"
+      religion: "🕌", hotels: "🏨", useful: "💧", food: "🍽", health: "💊",
+      shopping: "🛒", connectivity: "📱", money: "💰", transport: "🚕", routes: "🗺"
     };
+
     const CATEGORY_LABELS_RU = {
-      food: "Еда", health: "Здоровье", shopping: "Магазин", connectivity: "Связь",
-      money: "Деньги", transport: "Транспорт", religion: "Мечеть", useful: "Отель", routes: "Маршрут"
+      religion: "Святыня", hotels: "Отель", useful: "Полезное",
+      food: "Еда", health: "Здоровье", shopping: "Магазин",
+      connectivity: "Связь", money: "Деньги", transport: "Транспорт", routes: "Маршрут"
     };
 
     const MAP_STYLES = {
@@ -1176,37 +1194,54 @@
       }
     ];
 
-    // 30 ПОЛНОСТЬЮ ВЕРИФИЦИРОВАННЫХ МЕСТ (МЕККА И МЕДИНА)
+    // ВЕРИФИЦИРОВАННЫЕ МЕСТА (СВЯТЫНИ, ОТЕЛИ И СЕРВИСЫ СТРОГО РАЗДЕЛЕНЫ)
     const SEED_PLACES = [
+      // Мекка: Святыни
       { id: "m-kaaba", city: "mecca", category: "religion", name: "Masjid al-Haram (Кааба)", name_ar: "المسجد الحرام - الكعبة المشرفة", landmark_ar: "محاذاة الحجر الأسود - صحن المطاف", description: "Главная святыня ислама, Кибла мусульман. Точка старта Тавафа.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 150000 },
+      { id: "m-gate-abdulaziz", city: "mecca", category: "religion", name: "2. Вход в Аль-Харам (Ворота Короля Абдулазиза №1)", name_ar: "باب الملك عبد العزيز (رقم 1)", landmark_ar: "الساحة الجنوبية للحرم المكي", description: "Южный главный вход в мечеть Аль-Харам. Остановка №2 маршрута Умры.", lat: 21.419240, lng: 39.826760, hours_text: "Круглосуточно", google_rating: 4.9 },
+      { id: "m-mataf-area", city: "mecca", category: "religion", name: "3. Зона Матаф (Кааба, обход Таваф)", name_ar: "صحن المطاف - الكعبة المشرفة", landmark_ar: "محاذاة الحجر الأسود", description: "Площадь вокруг Каабы для совершения 7 кругов Тавафа. Остановка №3 маршрута Умры.", lat: 21.422487, lng: 39.826206, hours_text: "Круглосуточно", google_rating: 5.0 },
+      { id: "m-safa", city: "mecca", category: "religion", name: "4. Холм ас-Сафа (Начало Са'й)", name_ar: "جبل الصفا", landmark_ar: "بداية المسعى - الدور الأرضي", description: "Священный холм, точка начала 7 переходов Са'й. Остановка №4 маршрута Умры.", lat: 21.421500, lng: 39.827300, hours_text: "Круглосуточно", google_rating: 5.0 },
+      { id: "m-marwa", city: "mecca", category: "religion", name: "5. Холм аль-Марва (Конец Са'й)", name_ar: "جبل المروة", landmark_ar: "نهاية الشوط السابع للمسعى", description: "Точка завершения 7-го круга Са'й и обряда. Остановка №5 маршрута Умры.", lat: 21.424300, lng: 39.827700, hours_text: "Круглосуточно", google_rating: 5.0 },
       { id: "m-taneem", city: "mecca", category: "religion", name: "Masjid Aisha (Микат ат-Тан'им)", name_ar: "مسجد السيدة عائشة (ميقات التنعيم)", landmark_ar: "المدخل الشرقي لمسجد التنعيم - ساحة الوضوء", description: "Ближайший микат для совершения Умры (~7.5 км от Харама). Восточные ворота.", lat: 21.469340, lng: 39.801130, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 18900 },
       { id: "m-hira", city: "mecca", category: "religion", name: "Джабаль ан-Нур (Пещера Хира)", name_ar: "جبل النور - غار حراء", landmark_ar: "مركز حراء الثقافي - مدخل الصعود", description: "Место ниспослания первых аятов Корана. Парковка и тропа подъема.", lat: 21.458050, lng: 39.858150, hours_text: "Круглосуточно", google_rating: 4.7, google_rating_count: 14200 },
       { id: "m-thawr", city: "mecca", category: "religion", name: "Джабаль Саур (Пещера Саур)", name_ar: "جبل ثور - غار ثور", landmark_ar: "حي الهجرة - موقف صعود جبل ثور", description: "Гора, где Пророк ﷺ и Абу Бакр (р.а.) укрывались во время Хиджры.", lat: 21.376100, lng: 39.851200, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 5300 },
       { id: "m-arafat", city: "mecca", category: "religion", name: "Гора Арафат (Джабаль ар-Рахма)", name_ar: "جبل الرحمة - عرفات", landmark_ar: "ميدان جبل الرحمة - مشعر عرفات", description: "Холм Милости в долине Арафат. Главный столп Хаджа.", lat: 21.354700, lng: 39.984200, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 22100 },
       { id: "m-jamarat", city: "mecca", category: "religion", name: "Долина Мина (Мост Джамарат)", name_ar: "مشعر منى - جسر الجمرات", landmark_ar: "الساحة الغربية لجسر الجمرات", description: "Обрядовый комплекс долины Мина для бросания камешков.", lat: 21.413350, lng: 39.873250, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 11800 },
       { id: "m-muzdalifah", city: "mecca", category: "religion", name: "Мечеть Маш'ар аль-Харам (Муздалифа)", name_ar: "مسجد المشعر الحرام - مزدلفة", landmark_ar: "طريق المشاة بمزدلفة", description: "Место ночлега паломников в ночь Курбан-Байрама.", lat: 21.385000, lng: 39.892000, hours_text: "Круглосуточно", google_rating: 4.7, google_rating_count: 4200 },
+
+      // Мекка: Отели (Категория hotels)
+      { id: "m-hotel-pullman", city: "mecca", category: "hotels", name: "Pullman ZamZam Makkah", name_ar: "فندق بولمان زمزم مكة", landmark_ar: "أبراج البيت - مجمع برج الساعة", description: "Отель в комплексе Часовой башни прямо у входа в Аль-Харам.", lat: 21.419550, lng: 39.825800, hours_text: "Круглосуточно", google_rating: 4.5, google_rating_count: 14500 },
+      { id: "m-hotel-safwah", city: "mecca", category: "hotels", name: "Отель Al Ghufran Safwah", name_ar: "فندق الغفران الصفوة", landmark_ar: "أبراج الصفوة - أمام باب الملك عبد العزيز", description: "Отель первой линии в Safwah Towers, 1 минута до входа в Харам.", lat: 21.419245, lng: 39.826764, hours_text: "Круглосуточно", google_rating: 4.6, google_rating_count: 3200 },
+      { id: "m-hotel-novotel", city: "mecca", category: "hotels", name: "Отель Novotel Thakher Makkah", name_ar: "فندق نوفوتيل ذاخر مكة", landmark_ar: "مشروع ذاخر مكة - طريق الحجون", description: "Отель в районе Аль-Андалус с шаттлами до Харама.", lat: 21.445143, lng: 39.834624, hours_text: "Круглосуточно", google_rating: 4.3, google_rating_count: 1800 },
+
+      // Мекка: Полезное (Категория useful)
+      { id: "m-zamzam-factory", city: "mecca", category: "useful", name: "Завод воды Замзам (Проект Короля Абдуллаха)", name_ar: "مشروع الملك عبد الله لسقيا زمزم - كدي", landmark_ar: "مصنع مياه زمزم - كدي الدائري الثالث", description: "Государственный завод розлива Замзам. Покупка коробок для авиарейсов.", lat: 21.393430, lng: 39.818810, hours_text: "08:00–22:00", google_rating: 4.7, google_rating_count: 4300 },
+      { id: "m-lockers-marwa", city: "mecca", category: "useful", name: "Камеры хранения багажа у Харама", name_ar: "صناديق الأمانات وحفظ الأمتعة - ساحات الحرم", landmark_ar: "الساحات الشرقية للحرم المكي - خلف المروة", description: "Официальные камеры хранения багажа на площади за холмом Марва.", lat: 21.423850, lng: 39.828520, hours_text: "Круглосуточно", google_rating: 4.2, google_rating_count: 530 },
+      { id: "m-barbers-marwa", city: "mecca", category: "useful", name: "6. Парикмахерские у Марвы (Тахсир / Хальк)", name_ar: "صالونات الحلاقة والتقصير", landmark_ar: "الساحة الشرقية خلف المروة", description: "Мужские стрижки и сбривание волос для выхода из ихрама. Остановка №6 маршрута Умры.", lat: 21.424850, lng: 39.828350, hours_text: "Круглосуточно", google_rating: 4.4 },
+
+      // Мекка: Инфраструктура и Транспорт
       { id: "m-stc-clock", city: "mecca", category: "connectivity", name: "STC — Clock Tower (Abraj Al Bait)", name_ar: "شركة الاتصالات السعودية (stc) - أبراج البيت", landmark_ar: "مجمع أبراج البيت - الدور الرابع", description: "Фирменный салон STC на 4-м этаже ТЦ Часовой башни. SIM и eSIM.", lat: 21.419550, lng: 39.825600, hours_text: "09:00–23:00", google_rating: 4.4, google_rating_count: 820 },
       { id: "m-zain-safwah", city: "mecca", category: "connectivity", name: "Zain — Al Safwah Towers", name_ar: "زين - أبراج الصفوة", landmark_ar: "أبراج الصفوة - مقابل باب الملك عبد العزيز", description: "Официальный салон связи Zain напротив ворот короля Абдулазиза.", lat: 21.419120, lng: 39.826840, hours_text: "09:00–23:30", google_rating: 4.2, google_rating_count: 450 },
       { id: "m-train-station", city: "mecca", category: "transport", name: "Вокзал скоростных поездов Haramain", name_ar: "محطة قطار الحرمين السريع - مكة المكرمة", landmark_ar: "حي الرصيفة - المدخل الرئيسي للمحطة", description: "Скоростные экспрессы в Медину (2 ч 15 мин) и аэропорт Джидды.", lat: 21.417250, lng: 39.791520, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 6800 },
       { id: "m-saptco-jarwal", city: "mecca", category: "transport", name: "SAPTCO Bus Terminal — Jarwal", name_ar: "محطة حافلات سابتكو - جرول", landmark_ar: "شمال ساحات الحرم - منطقة جرول", description: "Центральный автовокзал SAPTCO у северной площади Харама.", lat: 21.432810, lng: 39.821540, hours_text: "Круглосуточно", google_rating: 4.1, google_rating_count: 1420 },
       { id: "m-kudai-hub", city: "mecca", category: "transport", name: "Паркинг и автостанция Кудай (Kudai Hub)", name_ar: "مواقف ومحطة كدي للحافلات الترددية", landmark_ar: "مواقف كدي - محطة النقل الترددي للحرم", description: "Главный хаб автобусов-шаттлов к Хараму через тоннель Кудай.", lat: 21.396520, lng: 39.829010, hours_text: "Круглосуточно", google_rating: 4.3, google_rating_count: 980 },
-      { id: "m-zamzam-factory", city: "mecca", category: "useful", name: "Завод воды Замзам (Проект Короля Абдуллаха)", name_ar: "مشروع الملك عبد الله لسقيا زمزم - كدي", landmark_ar: "مصنع مياه زمزم - كدي الدائري الثالث", description: "Государственный завод розлива Замзам. Покупка коробок для авиарейсов.", lat: 21.393430, lng: 39.818810, hours_text: "08:00–22:00", google_rating: 4.7, google_rating_count: 4300 },
-      { id: "m-lockers-marwa", city: "mecca", category: "useful", name: "Камеры хранения багажа у Харама", name_ar: "صناديق الأمانات وحفظ الأمتعة - ساحات الحرم", landmark_ar: "الساحات الشرقية للحرم المكي - خلف المروة", description: "Официальные камеры хранения багажа на площади за холмом Марва.", lat: 21.423850, lng: 39.828520, hours_text: "Круглосуточно", google_rating: 4.2, google_rating_count: 530 },
       { id: "m-nahdi-ajyad", city: "mecca", category: "health", name: "Аптека Nahdi — Ajyad Street", name_ar: "صيدلية النهدي - شارع أجياد", landmark_ar: "شارع أجياد العام - بجوار الفنادق", description: "Круглосуточная сетевая аптека в 250 метрах от площади Харама.", lat: 21.419500, lng: 39.827232, hours_text: "Круглосуточно", google_rating: 4.6, google_rating_count: 410 },
       { id: "m-bindawood-clock", city: "mecca", category: "shopping", name: "Супермаркет BinDawood — Clock Tower", name_ar: "سوبرماركت بن داود - أبراج البيت", landmark_ar: "برج الساعة - وقف الملك عبد العزيز", description: "Крупный супермаркет на цокольном этаже Часовой башни.", lat: 21.419550, lng: 39.824950, hours_text: "05:00–02:00", google_rating: 4.3, google_rating_count: 4611 },
       { id: "m-seirafi-exchange", city: "mecca", category: "money", name: "Обмен валюты Hamza Seirafi", name_ar: "شركة حمزة صيرفي للصرافة", landmark_ar: "منطقة أجياد المصافي - قرب الحرم", description: "Лицензированный пункт обмена валют рядом с Харамом.", lat: 21.420913, lng: 39.832369, hours_text: "08:00–00:00", google_rating: 4.5, google_rating_count: 130 },
-      { id: "m-hotel-safwah", city: "mecca", category: "useful", name: "Отель Al Ghufran Safwah", name_ar: "فندق الغفران الصفوة", landmark_ar: "أبراج الصفوة - أمام باب الملك عبد العزيز", description: "Отель первой линии в Safwah Towers, 1 минута до входа в Харам.", lat: 21.419245, lng: 39.826764, hours_text: "Круглосуточно" },
-      { id: "m-hotel-novotel", city: "mecca", category: "useful", name: "Отель Novotel Thakher Makkah", name_ar: "فندق نوفوتيل ذاخر مكة", landmark_ar: "مشروع ذاخر مكة - طريق الحجون", description: "Отель в районе Аль-Андалус с шаттлами до Харама.", lat: 21.445143, lng: 39.834624, hours_text: "Круглосуточно" },
       { id: "m-nur-restaurant", city: "mecca", category: "food", name: "Ресторан NUR — Ajyad", name_ar: "مطعم نور - مأكولات شرقية", landmark_ar: "شارع أجياد العام", description: "Восточная кухня, сытные горячие блюда, гриль.", lat: 21.406799, lng: 39.829939, hours_text: "06:00–00:00", google_rating: 4.6, google_rating_count: 220 },
+
+      // Медина: Святыни и Микат
       { id: "med-nabawi", city: "medina", category: "religion", name: "Мечеть Пророка (Аль-Масджид ан-Набави)", name_ar: "المسجد النبوي الشريف", landmark_ar: "باب السلام (رقم 1) - المنطقة المركزية", description: "Вторая святыня ислама. Здесь находятся благословенная Рауда и могила Пророка ﷺ.", lat: 24.467210, lng: 39.610800, hours_text: "Круглосуточно", google_rating: 5.0, google_rating_count: 120000 },
       { id: "med-quba", city: "medina", category: "religion", name: "Мечеть Куба", name_ar: "مسجد قباء", landmark_ar: "المدخل الشمالي لمسجد قباء - ممشى الهجرة", description: "Первая мечеть в исламе. Намаз в ней равен Умре по хадису Пророка ﷺ.", lat: 24.439320, lng: 39.617310, hours_text: "Круглосуточно", google_rating: 4.9, google_rating_count: 34000 },
       { id: "med-qiblatain", city: "medina", category: "religion", name: "Мечеть аль-Киблатайн (Двух Кибл)", name_ar: "مسجد القبلتين", landmark_ar: "طريق خالد بن الوليد - حي القبلتين", description: "Мечеть, где во время молитвы было ниспослано повеление изменить Киблу на Каабу.", lat: 24.484150, lng: 39.578600, hours_text: "Круглосуточно", google_rating: 4.8, google_rating_count: 15400 },
       { id: "med-khandaq", city: "medina", category: "religion", name: "Семь мечетей (Битва у Рва / Хандак)", name_ar: "المساجد السبعة - الخندق", landmark_ar: "سفح جبل سلع - مسجد الفتح", description: "Историческое место оборонительной битвы у рва у подножия горы Саль'а.", lat: 24.476000, lng: 39.593000, hours_text: "Круглосуточно", google_rating: 4.7, google_rating_count: 6200 },
       { id: "med-uhud", city: "medina", category: "religion", name: "Гора Ухуд (Холм лучников и шахиды)", name_ar: "جبل أحد - مقبرة شهداء أحد", landmark_ar: "ميدان سيد الشهداء حمزة - جبل الرماة", description: "Место битвы при Ухуде, могилы 70 шахидов во главе с Хамзой (р.а.) и холм лучников.", lat: 24.503300, lng: 39.612200, hours_text: "Круглосуточно", google_rating: 4.9, google_rating_count: 28900 },
       { id: "med-zulhulaifa", city: "medina", category: "religion", name: "Микат Зуль-Хулейфа (Абьяр Али)", name_ar: "ميقات ذو الحليفة (مسجد الشجرة / آبار علي)", landmark_ar: "طريق الهجرة السريع - ميقات آبار علي", description: "Главный микат для паломников, направляющихся на Умру из Медины.", lat: 24.413140, lng: 39.542820, hours_text: "Круглосуточно", google_rating: 4.9, google_rating_count: 12500 },
+
+      // Медина: Отели и Транспорт
+      { id: "med-hotel-maien", city: "medina", category: "hotels", name: "Отель Maien Taiba", name_ar: "فندق معين طيبة", landmark_ar: "المنطقة المركزية الشمالية - قرب الحرم", description: "Отель в шаговой доступности от мечети Пророка и ворот женского входа в Рауду.", lat: 24.464177, lng: 39.613197, hours_text: "Круглосуточно" },
       { id: "med-train-station", city: "medina", category: "transport", name: "Вокзал скоростных поездов Haramain Медина", name_ar: "محطة قطار الحرمين السريع - المدينة المنورة", landmark_ar: "حي المعرفة - المدخل الشرقي", description: "Терминал скоростных поездов в Мекку и международный аэропорт Джидды.", lat: 24.463510, lng: 39.670230, hours_text: "06:00–00:00", google_rating: 4.7, google_rating_count: 5400 },
       { id: "med-mobily-central", city: "medina", category: "connectivity", name: "Mobily — Северный центральный район", name_ar: "موبايلي - فرع المنطقة المركزية الشمالية", landmark_ar: "المنطقة المركزية - أمام ساحات المسجد النبوي", description: "Официальный салон связи Mobily в 100 метрах от северных ворот мечети.", lat: 24.471820, lng: 39.610480, hours_text: "08:00–23:00", google_rating: 4.3, google_rating_count: 310 },
-      { id: "med-hotel-maien", city: "medina", category: "useful", name: "Отель Maien Taiba", name_ar: "فندق معين طيبة", landmark_ar: "المنطقة المركزية الشمالية - قرب الحرم", description: "Отель в шаговой доступности от мечети Пророка и ворот женского входа в Рауду.", lat: 24.464177, lng: 39.613197, hours_text: "Круглосуточно" },
       { id: "med-restaurant-zaitoon", city: "medina", category: "food", name: "Ресторан Zaitoon", name_ar: "مطعم زيتون", landmark_ar: "المنطقة المركزية - شارع السلام", description: "Популярный ресторан восточной и арабской кухни рядом с мечетью Пророка.", lat: 24.471468, lng: 39.610038, hours_text: "12:30–00:30", google_rating: 4.8, google_rating_count: 38609 }
     ];
 
@@ -1225,7 +1260,7 @@
           stops: [
             { num: 1, name: "Микат ат-Тан'им (Мечеть Аиши)", name_ar: "مسجد السيدة عائشة (التنعيم)", landmark_ar: "المدخل الشرقي لمسجد التنعيم - ساحة الوضوء", lat: 21.469340, lng: 39.801130, desc: "Вход через восточные ворота: гусль, облачение в ихрам, 2 ракаата намаза, намерение и тальбия." },
             { num: 2, name: "Вход в Аль-Харам (Ворота Короля Абдулазиза №1)", name_ar: "باب الملك عبد العزيز (رقم 1)", landmark_ar: "الساحة الجنوبية للحرم المكي", lat: 21.419240, lng: 39.826760, desc: "Вход в мечеть с правой ноги с мольбой о милости Аллаха." },
-            { num: 3, name: "Зона Матаф (Кааба)", name_ar: "صحن المطاف - الكعبة المشرفة", landmark_ar: "محاذاة الحجر الأسود - خط البداية", lat: 21.422487, lng: 39.826206, desc: "Совершение 7 кругов Тавафа против часовой стрелки, начиная строго от линии Черного камня." },
+            { num: 3, name: "Зона Матаф (Кааба)", name_ar: "صحن المطاف - الكعبة المشرفة", landmark_ar: "محاذاة الحجر الأسود - خط البдаية", lat: 21.422487, lng: 39.826206, desc: "Совершение 7 кругов Тавафа против часовой стрелки, начиная строго от линии Черного камня." },
             { num: 4, name: "Холм ас-Сафа", name_ar: "جبل الصفا", landmark_ar: "بداية المسعى - الدور الأرضي", lat: 21.421500, lng: 39.827300, desc: "Начало обряда Са'й. Подъем на холм, обращение лицом к Кибле и возвеличивание Аллаха." },
             { num: 5, name: "Холм аль-Марва", name_ar: "جبل المروة", landmark_ar: "نهاية الشوط السابع للمسعى", lat: 21.424300, lng: 39.827700, desc: "Окончание 7-го перехода Са'й. Чтение заключительного дуа перед выходом на улицу." },
             { num: 6, name: "Парикмахерские у Марвы", name_ar: "صالونات الحلاقة والتقصير", landmark_ar: "الساحة الخارجية الشرقية خلف المروة", lat: 21.424850, lng: 39.828350, desc: "Стрижка или сбривание волос (тахсир/хальк). Полное завершение обрядов Умры." }
@@ -1325,29 +1360,21 @@
     let selectedHotel = null;
     try { selectedHotel = JSON.parse(localStorage.getItem("ug_hotel") || "null"); } catch (e) { selectedHotel = null; }
 
-    // ИСПРАВЛЕННЫЙ АЛГОРИТМ ИКОНОК (Строгий приоритет отелей, Pullman Zamzam -> 🏨)
     function getPlaceEmoji(place) {
       if (place.name === KAABA_NAME) return "🕋";
-      if (place.id === "med-nabawi" || (place.name && place.name.includes("аль-Масджид ан-Набави"))) return "🕌";
-
-      // 1. Отели и полезный сервис
+      if (place.id === "med-nabawi" || (place.name && place.name.includes("Аль-Масджид ан-Набави"))) return "🕌";
+      if (place.category === 'hotels') return "🏨";
       if (place.category === 'useful') {
         const n = (place.name || '').toLowerCase();
-        if (n.includes('hotel') || n.includes('pullman') || n.includes('fairmont') || n.includes('swiss') || n.includes('отель') || n.includes('فندق')) return "🏨";
         if (n.includes('locker') || n.includes('камер') || n.includes('багаж') || n.includes('أمانات')) return "🧳";
-        if (n.includes('pharmacy') || n.includes('аптек') || n.includes('nahdi') || n.includes('صيدلية')) return "💊";
-        if (n.includes('zamzam') || n.includes('замзам') || n.includes('water')) return "💧";
-        return "🏨";
+        return "💧";
       }
-
-      // 2. Транспорт
       if (place.category === 'transport') {
         const n = (place.name || '').toLowerCase();
         if (n.includes('railway') || n.includes('поезд') || n.includes('вокзал') || n.includes('haramain')) return "🚄";
         if (n.includes('bus') || n.includes('автобус') || n.includes('saptco') || n.includes('шаттл') || n.includes('shuttle')) return "🚌";
         return "🚕";
       }
-
       return CATEGORY_EMOJI[place.category] || "📍";
     }
 
@@ -1355,7 +1382,7 @@
       const emoji = getPlaceEmoji(place);
       const size = selected ? 42 : 32;
       const isKaaba = place.name === KAABA_NAME;
-      const isHotel = place.category === 'useful' && emoji === "🏨";
+      const isHotel = place.category === 'hotels';
       let cls = isKaaba ? 'kaaba' : (isHotel ? 'hotel' : '');
       return L.divIcon({
         className: '',
@@ -1410,7 +1437,7 @@
       btn.dataset.catKey = key;
       btn.setAttribute('role', 'tab');
       btn.setAttribute('aria-selected', key === currentCategory ? 'true' : 'false');
-      btn.innerHTML = `${iconSvg(CATEGORY_ICON_KEYS[key])}<span>${label}</span>`;
+      btn.innerHTML = `${iconSvg(CATEGORY_ICON_KEYS[key] || 'grid')}<span>${label}</span>`;
       btn.onclick = () => {
         haptic.light();
         currentCategory = key;
@@ -1430,11 +1457,15 @@
       dom.categoryRow.appendChild(btn);
     });
 
-    const map = L.map('map', { zoomControl: false }).setView(CITIES[currentCity].center, 15);
+    // Инициализация карты без украинского флага в префиксе
+    const map = L.map('map', { zoomControl: false, attributionControl: true }).setView(CITIES[currentCity].center, 15);
     map.attributionControl.setPrefix(false);
-window.addEventListener('resize', () => map.invalidateSize());
-setTimeout(() => map.invalidateSize(), 200);
 
+    // Устранение белого поля снизу при ресайзе и смене ориентации
+    window.addEventListener('resize', () => map.invalidateSize());
+    window.addEventListener('orientationchange', () => setTimeout(() => map.invalidateSize(), 200));
+    setTimeout(() => map.invalidateSize(), 150);
+    setTimeout(() => map.invalidateSize(), 600);
 
     function updateMapStyleChip() {
       const cur = MAP_STYLES[currentMapStyle];
@@ -1634,7 +1665,7 @@ setTimeout(() => map.invalidateSize(), 200);
     }
 
     function openSheetForStop(stop, route) {
-      const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${stop.lat},${stop.lng}`;
+      const gmapsPinUrl = `https://www.google.com/maps?q=${stop.lat},${stop.lng}&ll=${stop.lat},${stop.lng}&z=17`;
       const appleUrl = `https://maps.apple.com/?daddr=${stop.lat},${stop.lng}&q=${encodeURIComponent(stop.name)}`;
       const yandexUrl = `https://yandex.ru/maps/?rtext=~${stop.lat},${stop.lng}&rtt=auto`;
 
@@ -1656,7 +1687,7 @@ setTimeout(() => map.invalidateSize(), 200);
           <span class="route-chevron">▾</span>
         </button>
         <div class="route-sub-row" id="stop-sub-nav-row">
-          <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
+          <a href="${gmapsPinUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
           <a href="${appleUrl}" target="_blank" rel="noopener noreferrer">Apple Maps</a>
           <a href="${yandexUrl}" target="_blank" rel="noopener noreferrer">Яндекс</a>
         </div>
@@ -1695,13 +1726,11 @@ setTimeout(() => map.invalidateSize(), 200);
       setSheetState('peek');
     }
 
-    // ===== КАРТОЧКА МЕСТА =====
+    // ===== КАРТОЧКА МЕСТА (С ТОЧНЫМИ GOOGLE MAPS И ИСПРАВЛЕННЫМ ИЗБРАННЫМ) =====
     function openSheetForPlace(place) {
       activeViewingPlace = place;
 
-      const gmapsUrl = place.google_place_id
-        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${encodeURIComponent(place.google_place_id)}`
-        : `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+      const gmapsPinUrl = `https://www.google.com/maps?q=${place.lat},${place.lng}&ll=${place.lat},${place.lng}&z=17`;
       const appleUrl = `https://maps.apple.com/?daddr=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
       const yandexUrl = `https://yandex.ru/maps/?rtext=~${place.lat},${place.lng}&rtt=auto`;
       const isFav = favoritePlaceIds.has(place.id);
@@ -1747,7 +1776,7 @@ setTimeout(() => map.invalidateSize(), 200);
           <span class="route-chevron">▾</span>
         </button>
         <div class="route-sub-row" id="place-route-sub-row">
-          <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
+          <a href="${gmapsPinUrl}" target="_blank" rel="noopener noreferrer">Google Maps</a>
           <a href="${appleUrl}" target="_blank" rel="noopener noreferrer">Apple Maps</a>
           <a href="${yandexUrl}" target="_blank" rel="noopener noreferrer">Яндекс</a>
         </div>
@@ -1780,10 +1809,13 @@ setTimeout(() => map.invalidateSize(), 200);
       };
 
       dom.sheetContent.querySelector('#sheet-share-btn').onclick = () => sharePlace(place);
+      
+      // Изолированный клик по избранному (не залипает)
       dom.sheetContent.querySelector('#quick-fav-btn').onclick = (e) => {
-  e.stopPropagation();
-  toggleFavorite(place.id, e.currentTarget);
-};
+        e.stopPropagation();
+        toggleFavorite(place.id, e.currentTarget);
+      };
+
       dom.sheetContent.querySelector('#quick-taxi-btn').onclick = () => openTaxiModal(place);
       dom.sheetContent.querySelector('.leave-review-btn').onclick = () => openReviewModal(place.id);
 
@@ -1798,20 +1830,21 @@ setTimeout(() => map.invalidateSize(), 200);
       setSheetState('peek');
     }
 
+    // Надежная генерация ссылки без бага "пользователя не существует"
     function sharePlace(place) {
       haptic.success();
-      const botName = "UmraGuideBot";
-      const shareUrl = `https://t.me/${botName}/app?startapp=place_${place.id}`;
-      const cardText = `📍 ${place.name} ${place.name_ar ? `(${place.name_ar})` : ''}\n🚶 ${CATEGORY_LABELS_RU[place.category] || ''} · ${CITIES[place.city]?.label || ''}\nСсылка на карту: ${shareUrl}`;
+      const currentUrl = `${window.location.origin}${window.location.pathname}?place=${place.id}`;
+      const cardText = `📍 ${place.name} ${place.name_ar ? `(${place.name_ar})` : ''}\n🚶 ${CATEGORY_LABELS_RU[place.category] || ''} · ${CITIES[place.city]?.label || ''}\nСсылка на карту: ${currentUrl}`;
 
       if (navigator.clipboard) {
         navigator.clipboard.writeText(cardText);
       }
 
+      const tgShare = `https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(cardText)}`;
       if (window.Telegram?.WebApp?.openTelegramLink) {
-        window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(cardText)}`);
+        window.Telegram.WebApp.openTelegramLink(tgShare);
       } else {
-        alert("Готовая карточка места и ссылка скопированы в буфер обмена!");
+        window.open(tgShare, '_blank');
       }
     }
 
@@ -1920,7 +1953,7 @@ setTimeout(() => map.invalidateSize(), 200);
       }
     }
 
-    // ===== ЖИВОЙ ПОИСК =====
+    // ===== ЖИВОЙ ПОИСК (ИЩЕТ ПО МЕСТАМ И НОМЕРАМ ОСТАНОВОК 1, 2, 3...) =====
     function handlePlaceSearch(q) {
       const query = (q || '').trim().toLowerCase();
       if (!query) {
@@ -1930,34 +1963,72 @@ setTimeout(() => map.invalidateSize(), 200);
       }
       dom.searchClearBtn.hidden = false;
 
-      const matches = allPlaces.filter(p => {
+      // 1. Поиск по каталогу мест
+      let matches = allPlaces.filter(p => {
         const n = (p.name || '').toLowerCase();
         const nar = (p.name_ar || '').toLowerCase();
         const c = (CATEGORY_LABELS_RU[p.category] || '').toLowerCase();
         const d = (p.description || '').toLowerCase();
         return n.includes(query) || nar.includes(query) || c.includes(query) || d.includes(query);
-      }).slice(0, 7);
+      });
 
-      if (matches.length === 0) {
+      // 2. Поиск по остановкам маршрутов (по цифре "2", "3", названию "Сафа" и т.д.)
+      const currentRoutes = ROUTES_DATA[currentCity] || [];
+      const stopMatches = [];
+      currentRoutes.forEach(route => {
+        route.stops.forEach(stop => {
+          const numStr = String(stop.num);
+          const stopName = (stop.name || '').toLowerCase();
+          const stopDesc = (stop.desc || '').toLowerCase();
+
+          const isNumMatch = query === numStr || query === `${numStr}.` || query === `остановка ${numStr}`;
+          const isTextMatch = stopName.includes(query) || stopDesc.includes(query);
+
+          if (isNumMatch || isTextMatch) {
+            stopMatches.push({
+              id: `stop-${route.id}-${stop.num}`,
+              name: `${stop.num}. ${stop.name}`,
+              name_ar: stop.name_ar,
+              category: "routes",
+              city: currentCity,
+              lat: stop.lat,
+              lng: stop.lng,
+              description: stop.desc,
+              isRouteStop: true,
+              rawStop: stop,
+              rawRoute: route
+            });
+          }
+        });
+      });
+
+      const totalResults = [...stopMatches, ...matches].slice(0, 8);
+
+      if (totalResults.length === 0) {
         dom.searchDropdown.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted);text-align:center;">Ничего не найдено</div>';
       } else {
-        dom.searchDropdown.innerHTML = matches.map(p => `
+        dom.searchDropdown.innerHTML = totalResults.map(p => `
           <button class="search-item" data-id="${escapeHtml(p.id)}">
-            <span style="font-size:17px;">${getPlaceEmoji(p)}</span>
+            <span style="font-size:17px;">${p.isRouteStop ? '🛑' : getPlaceEmoji(p)}</span>
             <div style="min-width:0;">
               <div class="search-item-title">${escapeHtml(p.name)}</div>
-              <div class="search-item-meta">${escapeHtml(CATEGORY_LABELS_RU[p.category] || '')} · ${escapeHtml(CITIES[p.city]?.label || p.city)}</div>
+              <div class="search-item-meta">${p.isRouteStop ? 'Остановка маршрута' : (CATEGORY_LABELS_RU[p.category] || '')} · ${escapeHtml(CITIES[p.city]?.label || p.city)}</div>
             </div>
           </button>
         `).join('');
 
         dom.searchDropdown.querySelectorAll('.search-item').forEach(btn => {
           btn.onclick = () => {
-            const found = matches.find(m => m.id === btn.dataset.id);
+            const found = totalResults.find(m => m.id === btn.dataset.id);
             if (found) {
               dom.searchDropdown.hidden = true;
               dom.placeSearch.value = found.name;
-              goToPlace(found);
+              if (found.isRouteStop) {
+                map.flyTo([found.lat, found.lng], 16, { duration: 0.6 });
+                openSheetForStop(found.rawStop, found.rawRoute);
+              } else {
+                goToPlace(found);
+              }
             }
           };
         });
@@ -2245,7 +2316,7 @@ setTimeout(() => map.invalidateSize(), 200);
         if (dom.rateUsdRub) dom.rateUsdRub.textContent = usdRub;
         localStorage.setItem("ug_rate_rub", usdRub);
       } catch (e) {
-        if (!cachedRub && dom.rateUsdRub) dom.rateUsdRub.textContent = "92.50";
+        if (!cachedRub && dom.rateUsdRub) dom.rateUsdRub.textContent = "84.41";
         log("Курс валюты из кэша");
       }
     }
@@ -2311,7 +2382,7 @@ setTimeout(() => map.invalidateSize(), 200);
               <div class="fav-icon">${getPlaceEmoji(p)}</div>
               <div>
                 <div class="fav-name">${escapeHtml(p.name)}</div>
-                <div class="fav-meta">${escapeHtml(CATEGORY_LABELS_RU[place.category] || '')} · ${escapeHtml(CITIES[p.city]?.label || p.city)}</div>
+                <div class="fav-meta">${escapeHtml(CATEGORY_LABELS_RU[p.category] || '')} · ${escapeHtml(CITIES[p.city]?.label || p.city)}</div>
               </div>
             </button>
           `).join('')
@@ -2330,7 +2401,7 @@ setTimeout(() => map.invalidateSize(), 200);
     dom.favClose.onclick = () => { dom.favModal.hidden = true; };
     dom.favModal.addEventListener('click', (e) => { if (e.target === dom.favModal) dom.favModal.hidden = true; });
 
-    // Отели
+    // Отели (Фильтрует строго категорию hotels)
     function updateHotelChip() {
       const label = selectedHotel ? selectedHotel.name : "Выбрать отель";
       dom.hotelChip.innerHTML = `${iconSvg('building')}<span>${escapeHtml(label)} ›</span>`;
@@ -2338,7 +2409,7 @@ setTimeout(() => map.invalidateSize(), 200);
     updateHotelChip();
 
     function renderHotelList(filterText) {
-      const hotels = allPlaces.filter(p => p.category === 'useful' && (p.name.includes('Hotel') || p.name.includes('فندق') || p.id.includes('hotel')));
+      const hotels = allPlaces.filter(p => p.category === 'hotels');
       const q = (filterText || '').trim().toLowerCase();
       const filtered = q ? hotels.filter(h => h.name.toLowerCase().includes(q)) : hotels;
 
@@ -2538,7 +2609,7 @@ setTimeout(() => map.invalidateSize(), 200);
       setTimeout(() => { dom.taxiCopyBtn.textContent = 'Скопировать название'; }, 1500);
     };
 
-    // Отзывы (С ПЕРЕДАЧЕЙ НАЗВАНИЯ В БАЗУ ДЛЯ ТЕЛЕГРАМ БОТА)
+    // Отзывы
     function openReviewModal(placeId) {
       haptic.light();
       reviewPlaceId = placeId;
