@@ -54,7 +54,18 @@
     body { font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); }
     button, a { -webkit-tap-highlight-color: transparent; }
     svg { display: block; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
+    #map { html, body {
+  margin: 0; padding: 0;
+  width: 100vw; height: 100dvh;
+  overflow: hidden; position: fixed; inset: 0;
+  background: var(--bg);
+}
+#map {
+  position: fixed; inset: 0;
+  width: 100vw; height: 100dvh;
+  z-index: 1; background: #e5e3df;
+}
+
 
     /* Панель управления (Шапка) */
     #panel {
